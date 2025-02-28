@@ -1,5 +1,6 @@
 #!/bin/bash
 CLUSTER_NAME="homelab"
+K3S_CONFIG_DIR="$HOME/.kube/k3s"
 
 SERVER_COUNT="1"
 SERVER_CPU="2"
