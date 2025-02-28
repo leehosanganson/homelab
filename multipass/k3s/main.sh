@@ -1,11 +1,14 @@
 #!/bin/bash
 
-source config.sh
-source check_tools.sh
-source create_cloud_init.sh
-source create_nodes.sh
+source ./cluster_config.sh
+source ./check_commands.sh
+source ./create_cloud_init.sh
+source ./create_node.sh
 
-check_required_tools
+if ! check_required_tools; then
+    echo "Some required tools are not installed. Please install them and try again."
+    exit 1
+fi
 
 echo "Starting Cluster $CLUSTER_NAME"
 
