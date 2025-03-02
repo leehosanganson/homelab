@@ -1,6 +1,8 @@
 #!/bin/bash
 
 get_token() {
+  K3S_TOKEN_DIR=$K3S_CONFIG_DIR/token.txt
+
   if [ -f $K3S_TOKEN_DIR ]; then
     K3S_TOKEN=$(cat $K3S_TOKEN_DIR)
     if [ -z "$K3S_TOKEN" ]; then

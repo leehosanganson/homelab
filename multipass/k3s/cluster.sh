@@ -6,13 +6,13 @@ check_cluster() {
   local cluster_name=$1
 
   # Check if kubeconfig file exists
-  if [ ! -f "$K3S_CONFIG_DIR/$cluster_name-kubeconfig.yaml" ]; then
+  if [ ! -f "$K3S_CONFIG_DIR/config.yaml" ]; then
     echo "Kubeconfig file not found for cluster $cluster_name"
     return 1
   fi
 
   # Use kubectl to check if the cluster is running
-  if ! timeout 5 kubectl --kubeconfig="$K3S_CONFIG_DIR/$cluster_name-kubeconfig.yaml" cluster-info &> /dev/null; then
+  if ! timeout 5 kubectl --kubeconfig="$K3S_CONFIG_DIR/config.yaml" cluster-info &> /dev/null; then
     echo "Cluster $cluster_name is not running"
     return 1
   fi
@@ -29,7 +29,7 @@ get_kubeconfig() {
     return 1
   fi
 
-  KUBECONFIG=$K3S_CONFIG_DIR/$cluster_name-kubeconfig.yaml
+  KUBECONFIG=$K3S_CONFIG_DIR/config.yaml
 
   if [ ! -f "$KUBECONFIG" ]; then
     echo "Error: Kubeconfig file not found for cluster $cluster_name"

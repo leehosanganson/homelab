@@ -9,6 +9,9 @@ source ./token.sh
 
 check_required_tools
 
+K3S_CONFIG_DIR="$HOME/.kube/$CLUSTER_NAME"
+mkdir -p $K3S_CONFIG_DIR
+
 # Check if the cluster already exists
 if ! check_cluster $CLUSTER_NAME; then
     echo "Creating Cluster $CLUSTER_NAME"
@@ -27,11 +30,11 @@ if ! check_cluster $CLUSTER_NAME; then
     fi
 
     # Transfer kubeconfig file to local
-    multipass transfer $node_full_name:/etc/rancher/k3s/k3s.yaml $K3S_CONFIG_DIR/$CLUSTER_NAME-kubeconfig.yaml
+    multipass transfer $node_full_name:/etc/rancher/k3s/k3s.yaml $K3S_CONFIG_DIR/config.yaml
     SERVER_IP=$(multipass info $node_full_name --format json | jq -r ".info.\"$node_full_name\".ipv4[0]")
-    sed -i.bak "/^[[:space:]]*server:/ s_:.*_: https://$(echo $SERVER_IP | sed -e 's/[[:space:]]//g'):6443_" $K3S_CONFIG_DIR/$CLUSTER_NAME-kubeconfig.yaml
+    sed -i.bak "/^[[:space:]]*server:/ s_:.*_: https://$(echo $SERVER_IP | sed -e 's/[[:space:]]//g'):6443_" $K3S_CONFIG_DIR/config.yaml
     echo "Using $node_full_name at $SERVER_IP as primary K3S Server / load balancer"
-    KUBECONFIG=$K3S_CONFIG_DIR/$CLUSTER_NAME-kubeconfig.yaml
+    KUBECONFIG=$K3S_CONFIG_DIR/config.yaml
 
     check_node $node_full_name
 
@@ -55,6 +58,16 @@ if [ $SERVER_COUNT -gt 0 ]; then
     done
 fi
 
+# Create Load Balancer Nodes
+if [ $LOAD_BALANCER_COUNT -gt 0 ]; then
+    create_load_balancer_cloud_init
+    for i in $(seq 1 $LOAD_BALANCER_COUNT); do
+        node_name=$(LC_ALL=C tr -dc 'a-z0-9' < /dev/urandom | fold -w 4 | head -n 1)
+        node_full_name="$CLUSTER_NAME-lb-$node_name"
+        create_load_balancer_node "$node_full_name"
+    done
+fi
+
 # Create Agent Nodes
 if [ $AGENT_COUNT -gt 0 ]; then
     create_agent_cloud_init
@@ -67,7 +80,7 @@ if [ $AGENT_COUNT -gt 0 ]; then
 fi
 
 echo "k3s setup finished"
-kubectl --kubeconfig ${K3S_CONFIG_DIR}/${CLUSTER_NAME}-kubeconfig.yaml get nodes
+kubectl --kubeconfig ${K3S_CONFIG_DIR}/config.yaml get nodes
 
 echo "Use the following commands to switch to the k3s context:"
-echo "kubectl --kubeconfig ${K3S_CONFIG_DIR}/${CLUSTER_NAME}-kubeconfig.yaml get nodes"
+echo "kubectl --kubeconfig ${K3S_CONFIG_DIR}/config.yaml get nodes"
