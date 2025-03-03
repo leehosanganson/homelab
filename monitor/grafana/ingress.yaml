@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    - hosts:
+        - grafana.homelab.local
+      secretName: grafana-tls
+  rules:
+    - host: grafana.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-grafana
+                port:
+                  number: 80

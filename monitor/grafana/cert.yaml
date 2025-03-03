@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: monitoring
+spec:
+  dnsNames:
+    - grafana.homelab.local
+  secretName: grafana-tls
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer

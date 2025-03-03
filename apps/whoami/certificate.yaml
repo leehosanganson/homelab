@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: whoami-cert
+  namespace: tests
+spec:
+  dnsNames:
+    - whoami.homelab.local
+  secretName: whoami-tls
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
