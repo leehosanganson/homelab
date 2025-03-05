@@ -8,7 +8,7 @@ metadata:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-    - host: whoami.homelab.local
+    - host: whoami.leehosanganson.dev
       http:
         paths:
           - path: /
@@ -20,5 +20,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - whoami.homelab.local
+        - whoami.leehosanganson.dev
       secretName: whoami-tls
