@@ -5,8 +5,8 @@ metadata:
   namespace: tests
 spec:
   dnsNames:
-    - whoami.homelab.local
+    - whoami.leehosanganson.dev
   secretName: whoami-tls
   issuerRef:
-    name: selfsigned-issuer
+    name: letsencrypt-cloudflare
     kind: ClusterIssuer

@@ -5,8 +5,8 @@ metadata:
   namespace: monitoring
 spec:
   dnsNames:
-    - grafana.homelab.local
+    - grafana.homelab.leehosanganson.dev
   secretName: grafana-tls
   issuerRef:
-    name: selfsigned-issuer
+    name: letsencrypt-cloudflare
     kind: ClusterIssuer

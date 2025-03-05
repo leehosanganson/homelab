@@ -4,7 +4,7 @@ metadata:
   name: whoami
   namespace: tests
   annotations:
-    cert-manager.io/cluster-issuer: selfsigned-issuer
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
