@@ -1,0 +1,24 @@
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    securityContext:
+      runAsUser: 65534
+      runAsGroup: 65534
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "local-path"
+          accessModes: ["ReadWriteOnce"]
+          volumeName: prometheus-pv
+          resources:
+            requests:
+              storage: 20Gi
+
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClassName: "local-path"
+    accessModes: ["ReadWriteOnce"]
+    volumeName: grafana-pv
+    size: 1Gi

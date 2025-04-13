@@ -5,8 +5,8 @@ metadata:
   namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
-    kubernetes.io/ingress.class: traefik
 spec:
+  ingressClassName: traefik
   rules:
     - host: grafana.homelab.leehosanganson.dev
       http:
@@ -15,7 +15,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: prometheus-grafana
+                name: kube-prometheus-stack-grafana
                 port:
                   number: 80
   tls:

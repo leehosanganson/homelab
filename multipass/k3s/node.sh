@@ -3,7 +3,7 @@
 create_server_node() {
     local node_name=$1
     echo "Creating Server Node $node_name"
-    multipass launch --name $node_name ---bridged -cpus $SERVER_CPU --memory $SERVER_MEM --disk $SERVER_DISK --cloud-init $K3S_CONFIG_DIR/server-cloud-init.yaml
+    multipass launch --name $node_name --bridged --cpus $SERVER_CPU --memory $SERVER_MEM --disk $SERVER_DISK --cloud-init $K3S_CONFIG_DIR/server-cloud-init.yaml
 }
 
 create_agent_node() {
