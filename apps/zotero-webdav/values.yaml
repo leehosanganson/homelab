@@ -1,0 +1,23 @@
+# values.yaml
+urls:
+  /:
+    htpasswdSecretRef:
+      name: webdav-htpasswd
+      key: root
+
+existingHtpasswdSecrets:
+  - name: webdav-htpasswd
+
+ingress:
+  enabled: true
+  className: traefik
+  host: zotero.leehosanganson.dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path # Default k3s storage class
+
+namespace: zotero
