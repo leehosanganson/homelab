@@ -9,10 +9,9 @@ prometheus:
         spec:
           storageClassName: "local-path"
           accessModes: ["ReadWriteOnce"]
-          volumeName: prometheus-pv
           resources:
             requests:
-              storage: 20Gi
+              storage: 10Gi
 
 grafana:
   enabled: true
@@ -20,5 +19,4 @@ grafana:
     enabled: true
     storageClassName: "local-path"
     accessModes: ["ReadWriteOnce"]
-    volumeName: grafana-pv
     size: 1Gi
