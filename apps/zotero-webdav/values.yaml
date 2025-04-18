@@ -17,7 +17,6 @@ ingress:
 
 persistence:
   enabled: true
-  size: 10Gi
-  storageClass: local-path # Default k3s storage class
+  existingClaim: zotero-webdav-pvc
 
 namespace: zotero
