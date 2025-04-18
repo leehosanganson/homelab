@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: actual-budget-pvc
+  namespace: actual-budget
+spec:
+  resources:
+    requests:
+      storage: 512Mi
+  accessModes:
+    - ReadWriteOnce
+  volumeName: actual-budget-pv
