@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gluten-config
+data:
+  VPN_TYPE: "openvpn"
+  VPN_SERVICE_PROVIDER: "nordvpn"
+  SERVER_COUNTRIES: "Netherlands"
