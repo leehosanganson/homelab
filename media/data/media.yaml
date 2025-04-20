@@ -3,11 +3,8 @@ kind: PersistentVolume
 metadata:
   name: media-pv
 spec:
-  storageClassName: nfs-csi-retain
+  storageClassName: nfs-media-csi-retain
   capacity:
-    storage: 500Gi
+    storage: 2Ti
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: "/mnt/media"
-  persistentVolumeReclaimPolicy: Retain

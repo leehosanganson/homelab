@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: synology-default
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.san.synology.com
+parameters:
+  fsType: "btrfs"
+  dsm: "192.168.1.197"
+  location: "/volume1/kubernetes"
+  formatOptions: "--nodiscard"
+reclaimPolicy: Retain
+allowVolumeExpansion: true

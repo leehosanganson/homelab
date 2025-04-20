@@ -4,10 +4,10 @@ metadata:
   name: media-pvc
   namespace: media
 spec:
-  storageClassName: nfs-csi-retain
+  storageClassName: nfs-media-csi-retain
+  volumeName: media-pv
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 500Gi
-  volumeName: media-pv
+      storage: 2Ti

@@ -4,10 +4,10 @@ metadata:
   name: downloads-pvc
   namespace: media
 spec:
-  storageClassName: nfs-csi
+  storageClassName: nfs-media-csi
+  volumeName: downloads-pv
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
-  volumeName: downloads-pv
+      storage: 200Gi

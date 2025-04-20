@@ -3,11 +3,8 @@ kind: PersistentVolume
 metadata:
   name: downloads-pv
 spec:
-  storageClassName: nfs-csi
+  storageClassName: nfs-media-csi
   capacity:
-    storage: 50Gi
+    storage: 200Gi
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: "/mnt/media/downloads"
-  persistentVolumeReclaimPolicy: Delete
