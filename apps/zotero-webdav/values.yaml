@@ -17,6 +17,6 @@ ingress:
 
 persistence:
   enabled: true
-  existingClaim: zotero-webdav-pvc
+  existingClaim: zotero-pvc
 
 namespace: zotero

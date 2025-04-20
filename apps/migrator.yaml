@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-migrator
+  namespace: actual-budget
+spec:
+  nodeName: homelab-server-9g2t
+  containers:
+    - name: migrator
+      image: alpine
+      command: ["sh", "-c", "cp -av /source/. /destination/ && sleep infinity"]
+      volumeMounts:
+        - name: source
+          mountPath: /source
+        - name: destination
+          mountPath: /destination
+  volumes:
+    - name: source
+      persistentVolumeClaim:
+        claimName: actual-budget-pvc-local
+    - name: destination
+      persistentVolumeClaim:
+        claimName: actual-budget-pvc
