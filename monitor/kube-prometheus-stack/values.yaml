@@ -7,7 +7,6 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: "local-path"
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -17,6 +16,5 @@ grafana:
   enabled: true
   persistence:
     enabled: true
-    storageClassName: "local-path"
     accessModes: ["ReadWriteOnce"]
     size: 1Gi
