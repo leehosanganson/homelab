@@ -3,7 +3,7 @@ kind: PersistentVolume
 metadata:
   name: media-pv
 spec:
-  storageClassName: local-path
+  storageClassName: nfs-csi-retain
   capacity:
     storage: 500Gi
   accessModes:
