@@ -30,8 +30,8 @@ spec:
             - name: config
               mountPath: /config
             - name: videos
-              mountPath: /tv
-              subPath: videos/tv
+              mountPath: /shows
+              subPath: videos/shows
             - name: videos
               mountPath: /movies
               subPath: videos/movies
