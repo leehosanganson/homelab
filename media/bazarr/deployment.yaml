@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bazarr
+  template:
+    metadata:
+      labels:
+        app: bazarr
+    spec:
+      containers:
+        - name: bazarr
+          image: linuxserver/bazarr:latest
+          ports:
+            - containerPort: 6767
+              name: http
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Etc/UTC"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: videos
+              mountPath: /tv
+              subPath: videos/tv
+            - name: videos
+              mountPath: /movies
+              subPath: videos/movies
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bazarr-pvc
+        - name: videos
+          persistentVolumeClaim:
+            claimName: media-pvc
