@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: radarr
+  name: sonaarr
   namespace: media
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: radarr
+      app: sonarr
   template:
     metadata:
       labels:
-        app: radarr
+        app: sonarr
     spec:
       containers:
-        - name: radarr
-          image: linuxserver/radarr:latest
+        - name: sonarr
+          image: linuxserver/sonarr:latest
           ports:
-            - containerPort: 7878
+            - containerPort: 8989
               name: http
           env:
             - name: PUID
@@ -29,8 +29,8 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: movies
-              mountPath: /movies
+            - name: videos
+              mountPath: /tv
               subPath: videos
             - name: downloads
               mountPath: /downloads
@@ -38,8 +38,8 @@ spec:
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: radarr-pvc
-        - name: movies
+            claimName: sonarr-pvc
+        - name: videos
           persistentVolumeClaim:
             claimName: media-pvc
         - name: downloads

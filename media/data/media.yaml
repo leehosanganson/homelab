@@ -1,10 +1,12 @@
 apiVersion: v1
-kind: PersistentVolume
+kind: PersistentVolumeClaim
 metadata:
-  name: media-pv
+  name: media-pvc
+  namespace: media
 spec:
   storageClassName: nfs-media-csi-retain
-  capacity:
-    storage: 2Ti
   accessModes:
     - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Ti

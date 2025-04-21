@@ -8,6 +8,7 @@ parameters:
   share: /volume1/media
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
+allowVolumeExpansion: true
 mountOptions:
   - hard
   - nfsvers=4.1
@@ -23,6 +24,7 @@ parameters:
   share: /volume1/media
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
+allowVolumeExpansion: true
 mountOptions:
   - hard
   - nfsvers=4.1

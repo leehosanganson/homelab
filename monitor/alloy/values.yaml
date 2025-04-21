@@ -12,6 +12,9 @@ alloy:
           role = "pod"
           field = "spec.nodeName=" + coalesce(env("HOSTNAME"), constants.hostname)
         }
+        namespaces {
+          own_namespace = false
+        }
       }
 
       discovery.relabel "pod_logs" {

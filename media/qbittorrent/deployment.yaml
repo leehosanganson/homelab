@@ -36,25 +36,26 @@ spec:
               mountPath: /config
             - name: downloads
               mountPath: /downloads
+              subPath: downloads
         - name: gluten
-          image: qmcgaw/gluten:latest
+          image: qmcgaw/gluetun:latest
           securityContext:
             capabilities:
               add:
                 - NET_ADMIN
           envFrom:
             - configMapRef:
-                name: gluten-config
+                name: gluetun-config
           env:
             - name: OPENVPN_USER
               valueFrom:
                 secretKeyRef:
-                  name: gluten-secret
+                  name: gluetun-secret
                   key: OPENVPN_USER
             - name: OPENVPN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: gluten-secret
+                  name: gluetun-secret
                   key: OPENVPN_PASSWORD
       volumes:
         - name: downloads

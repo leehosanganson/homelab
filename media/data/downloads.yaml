@@ -1,10 +1,12 @@
 apiVersion: v1
-kind: PersistentVolume
+kind: PersistentVolumeClaim
 metadata:
-  name: downloads-pv
+  name: downloads-pvc
+  namespace: media
 spec:
   storageClassName: nfs-media-csi
-  capacity:
-    storage: 200Gi
   accessModes:
     - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi
