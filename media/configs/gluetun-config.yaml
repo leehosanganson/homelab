@@ -4,6 +4,6 @@ metadata:
   name: gluetun-config
   namespace: media
 data:
-  VPN_TYPE: "openvpn"
+  VPN_TYPE: "wireguard"
   VPN_SERVICE_PROVIDER: "nordvpn"
   SERVER_COUNTRIES: "Netherlands"
