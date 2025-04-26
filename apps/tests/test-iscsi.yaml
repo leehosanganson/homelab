@@ -14,6 +14,7 @@ kind: Pod
 metadata:
   name: test-iscsi
 spec:
+  nodeName: homelab-server-9g2t
   containers:
     - name: nginx
       image: nginx

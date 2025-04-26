@@ -45,7 +45,6 @@ spec:
               mountPath: /config
             - name: downloads
               mountPath: /downloads
-              subPath: downloads
         - name: gluetun
           image: qmcgaw/gluetun:latest
           securityContext:
@@ -66,7 +65,7 @@ spec:
       volumes:
         - name: downloads
           persistentVolumeClaim:
-            claimName: downloads-pvc
+            claimName: qbit-download
         - name: config
           persistentVolumeClaim:
             claimName: qbit-pvc

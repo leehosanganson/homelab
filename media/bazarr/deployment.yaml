@@ -29,16 +29,16 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: videos
+            - name: media
               mountPath: /shows
               subPath: videos/shows
-            - name: videos
+            - name: media
               mountPath: /movies
               subPath: videos/movies
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: bazarr-pvc
-        - name: videos
+        - name: media
           persistentVolumeClaim:
             claimName: media-pvc

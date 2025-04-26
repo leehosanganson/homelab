@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sonaarr
+  name: sonarr
   namespace: media
 spec:
   replicas: 1
@@ -34,7 +34,6 @@ spec:
               subPath: videos
             - name: downloads
               mountPath: /downloads
-              subPath: downloads
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -44,4 +43,4 @@ spec:
             claimName: media-pvc
         - name: downloads
           persistentVolumeClaim:
-            claimName: downloads-pvc
+            claimName: qbit-download

@@ -1,4 +1,4 @@
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+helm install prometheus prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
   --create-namespace \
-  -f values.yaml
+  -f ./monitor/kube-prometheus-stack/values.yaml

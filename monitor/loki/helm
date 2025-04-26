@@ -1,1 +1,1 @@
-helm install loki grafana/loki -f values.yaml
+helm install loki grafana/loki -n monitoring -f ./monitor/loki/values.yaml

@@ -1,0 +1,1 @@
+helm install -n monitoring alloy grafana/alloy -f ./monitor/alloy/values.yaml

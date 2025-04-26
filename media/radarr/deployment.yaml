@@ -34,7 +34,6 @@ spec:
               subPath: videos
             - name: downloads
               mountPath: /downloads
-              subPath: downloads
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -44,4 +43,4 @@ spec:
             claimName: media-pvc
         - name: downloads
           persistentVolumeClaim:
-            claimName: downloads-pvc
+            claimName: qbit-download
