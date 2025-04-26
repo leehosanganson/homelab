@@ -56,6 +56,8 @@ spec:
             - configMapRef:
                 name: gluetun-config
           env:
+            - name: DNS_KEEP_NAMESERVER
+              value: "off"
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
