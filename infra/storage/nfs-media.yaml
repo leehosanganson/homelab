@@ -4,7 +4,7 @@ metadata:
   name: nfs-media-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 192.168.1.197
+  server: nas1.home.lab
   share: /volume1/media
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
@@ -20,7 +20,7 @@ metadata:
   name: nfs-media-csi-retain
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 192.168.1.197
+  server: nas1.home.lab
   share: /volume1/media
 reclaimPolicy: Retain
 volumeBindingMode: Immediate

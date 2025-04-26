@@ -4,7 +4,7 @@ metadata:
   name: zotero-pvc
   namespace: zotero
 spec:
-  storageClassName: nfs-csi-retain
+  storageClassName: "nfs-csi-retain"
   accessModes:
     - ReadWriteOnce
   resources:

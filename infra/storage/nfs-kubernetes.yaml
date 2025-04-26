@@ -6,7 +6,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 192.168.1.197
+  server: nas1.home.lab
   share: /volume1/kubernetes
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
@@ -23,7 +23,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 192.168.1.197
+  server: nas1.home.lab
   share: /volume1/kubernetes
 reclaimPolicy: Retain
 volumeBindingMode: Immediate

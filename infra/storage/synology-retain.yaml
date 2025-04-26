@@ -7,7 +7,7 @@ metadata:
 provisioner: csi.san.synology.com
 parameters:
   fsType: "btrfs"
-  dsm: "192.168.1.197"
+  dsm: "nas1.home.lab"
   location: "/volume1"
   formatOptions: "--nodiscard"
 reclaimPolicy: Retain
