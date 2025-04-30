@@ -131,7 +131,7 @@ volume:
   # line and define the storage class name
   # storageClassName:
   # Reuse your own pre-existing PVC.
-  existingClaim: "uptime-kuma-pvc"
+  # existingClaim: "uptime-kuma-pvc"
 
 # -- A list of additional volumes to be added to the pod
 additionalVolumes:
