@@ -13,6 +13,12 @@ spec:
       labels:
         app: bazarr
     spec:
+      nodeSelector:
+        stack.arr: "arr-1"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: bazarr
           image: linuxserver/bazarr:latest
@@ -30,10 +36,10 @@ spec:
             - name: config
               mountPath: /config
             - name: media
-              mountPath: /shows
+              mountPath: /tv/shows
               subPath: videos/shows
             - name: media
-              mountPath: /movies
+              mountPath: /movies/movies
               subPath: videos/movies
       volumes:
         - name: config
