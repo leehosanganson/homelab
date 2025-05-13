@@ -7,7 +7,7 @@ spec:
   capacity:
     storage: 2Ti
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: nas1.home.lab
@@ -24,7 +24,7 @@ metadata:
 spec:
   storageClassName: ""
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 2Ti

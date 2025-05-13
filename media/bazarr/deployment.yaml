@@ -36,10 +36,10 @@ spec:
             - name: config
               mountPath: /config
             - name: media
-              mountPath: /tv/shows
+              mountPath: /tv
               subPath: videos/shows
             - name: media
-              mountPath: /movies/movies
+              mountPath: /movies
               subPath: videos/movies
       volumes:
         - name: config
