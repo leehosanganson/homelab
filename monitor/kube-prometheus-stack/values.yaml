@@ -1,6 +1,6 @@
 prometheus:
   prometheusSpec:
-    retention: 15d
+    retention: 30d
     securityContext:
       runAsUser: 65534
       runAsGroup: 65534
@@ -10,7 +10,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 10Gi
+              storage: 50Gi
 
 grafana:
   enabled: true
