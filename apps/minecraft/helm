@@ -1,0 +1,2 @@
+helm repo add itzg https://itzg.github.io/minecraft-server-charts/
+helm install minecraft1 itzg/minecraft --namespace minecraft --create-namespace --values values.yaml

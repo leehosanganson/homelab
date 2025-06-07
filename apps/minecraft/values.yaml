@@ -1,0 +1,18 @@
+resources:
+  requests:
+    cpu: 1
+    memory: 1024Mi
+
+minecraftServer:
+  eula: "TRUE"
+  difficulty: normal
+  motd: "HERM1TBEAR's Minecraft Server"
+  serviceType: NodePort
+  nodePort: 30001
+
+persistence:
+  storageClass: synology-retain
+  dataDir:
+    enabled: true
+    accessMode: ReadWriteOnce
+    Size: 50Gi
