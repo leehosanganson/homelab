@@ -14,5 +14,4 @@ persistence:
   storageClass: synology-retain
   dataDir:
     enabled: true
-    accessMode: ReadWriteOnce
-    Size: 50Gi
+    existingClaim: minecraft1-datadir
