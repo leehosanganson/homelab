@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft1-datadir
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: synology-retain
+  volumeName: pvc-64a0aa5e-03b8-45ec-8f26-2382eb4ec45b
