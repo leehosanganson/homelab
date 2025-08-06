@@ -36,11 +36,7 @@ spec:
             - name: config
               mountPath: /config
             - name: media
-              mountPath: /tv
-              subPath: videos/shows
-            - name: media
-              mountPath: /movies
-              subPath: videos/movies
+              mountPath: /videos
       volumes:
         - name: config
           persistentVolumeClaim:
