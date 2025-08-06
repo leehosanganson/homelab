@@ -15,6 +15,7 @@ loki:
   limits_config:
     allow_structured_metadata: true
     volume_enabled: true
+    retention_period: 744h
   ruler:
     enable_api: true
   auth_enabled: false
@@ -45,8 +46,14 @@ queryScheduler:
   replicas: 0
 distributor:
   replicas: 0
+
 compactor:
-  replicas: 0
+  enabled: true
+  compaction_interval: 30m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  delete_request_store: s3
+
 indexGateway:
   replicas: 0
 bloomCompactor:
