@@ -12,6 +12,9 @@ prometheus:
           resources:
             requests:
               storage: 150Gi
+    podMonitorSelector:
+      matchLabels:
+        prometheus: kube-prometheus-stack-prometheus
 
 grafana:
   enabled: true
