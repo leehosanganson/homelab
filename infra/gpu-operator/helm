@@ -1,0 +1,4 @@
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
+kubectl create namespace gpu-operator
+helm install gpu-operator -n gpu-operator nvidia/gpu-operator
