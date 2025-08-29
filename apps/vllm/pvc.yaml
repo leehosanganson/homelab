@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llm-model-cache-pvc
+  namespace: llm
+spec:
+  storageClassName: "nfs-csi-retain"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 250Gi

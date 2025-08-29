@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-config
+  namespace: llm
+data:
+  config.yaml: |
+    model_list:
+      - model_name: gemma-3-1b-it-unsloth-bnb-4bit
+        litellm_params:
+          model: hosted_vllm/unsloth/gemma-3-1b-it-unsloth-bnb-4bit
+          api_base: http://llm-backend.llm.svc.cluster.local:8000/v1
+      - model_name: Qwen/Qwen3-0.6B
+        litellm_params:
+          model: hosted_vllm/Qwen/Qwen3-0.6B
+          api_base: http://llm-backend.llm.svc.cluster.local:8000/v1
+      - model_name: unsloth/Qwen3-8B-unsloth-bnb-4bit 
+        litellm_params:
+          model: hosted_vllm/unsloth/Qwen3-8B-unsloth-bnb-4bit
+          api_base: http://llm-backend.llm.svc.cluster.local:8000/v1
