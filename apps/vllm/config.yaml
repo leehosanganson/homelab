@@ -6,5 +6,5 @@ metadata:
 data:
   config.yaml: |
     model: unsloth/Qwen3-8B-unsloth-bnb-4bit
-    max_seq_len: 8192
+    # model: openai/gpt-oss-20b
     uvicorn-log-level: "info"
