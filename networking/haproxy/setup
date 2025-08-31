@@ -1,0 +1,19 @@
+# Install
+sudo apt update && sudo apt upgrade -y
+sudo apt install haproxy -y
+haproxy -v
+
+# Clone cfg 
+curl -o haproxy.cfg https://raw.githubusercontent.com/leehosanganson/homelab/main/networking/haproxy/haproxy.cfg
+mv haproxy.cfg /etc/haproxy/haproxy.cfg
+
+# ufw
+sudo ufw allow from 192.168.1.0/24 to any port 443 proto tcp
+sudo ufw deny 443/tcp
+sudo ufw deny 80/tcp
+sudo ufw enable
+
+# Start
+sudo systemctl restart haproxy
+sudo systemctl enable haproxy
+sudo systemctl status haproxy
