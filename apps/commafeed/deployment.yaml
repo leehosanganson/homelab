@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commafeed
+  namespace: commafeed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: commafeed
+  template:
+    metadata:
+      labels:
+        app: commafeed
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: commafeed
+          image: athou/commafeed:latest-postgresql
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: QUARKUS_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: commafeed-env
+                  key: username
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: commafeed-env
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: commafeed-configmap
+          resources:
+            limits:
+              memory: "512Mi"
+      restartPolicy: Always
