@@ -8,6 +8,6 @@ metadata:
 spec:
   instances: 3
   storage:
-    size: 1Gi
+    size: 3Gi
   monitoring:
     enablePodMonitor: true
