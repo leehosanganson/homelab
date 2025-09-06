@@ -10,3 +10,7 @@ data:
         litellm_params:
           model: hosted_vllm/unsloth/Qwen3-8B-unsloth-bnb-4bit
           api_base: http://llm-backend.llm.svc.cluster.local:8000/v1
+    litellm_settings:
+      cache: True
+      cache_params:
+        type: local
