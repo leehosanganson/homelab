@@ -10,44 +10,44 @@ I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control 
 
 My most recent addition to the cluster is a GPU node with a low-mid tier consumer graphics card (RTX5060 Ti). It allows me to schedule GPU workload such as local LLM inferencing server, or lightweight model training. With the current configuration, I can easily add more GPU nodes and scale out & up my private LLM inferencing service for AI workflows and Agentic Coding concurrently with my own resources.
 
-## Key Components
+## Services
 
 ### Applications
 
-| Name | Description |
-|---|---|
-| Actual Budget | A personal finance management application |
-| Commafeed | RSS reader |
-| IT-Tools | Collection of handy online tools for developers, with great UX. |
-| Uptime Kuma | Service monitoring and health check |
-| Zotero WebDAV | Database for my Zotero Research Paper Reader |
-| Minecraft Server | Game server for Minecraft |
-| Media Services (*arr) | A suite of applications for my media collection management. |
+| Logo | Name | Description |
+|:-:|---|---|
+| <img src="https://actualbudget.org/img/actual.png" alt="Actual Budget Logo" height="32"/> | [Actual Budget](https://github.com/actualbudget/actual) | Personal finance management |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/commafeed.svg" height="32"/> | [Commafeed](https://github.com/Athou/commafeed) | RSS reader |
+| <img src="https://github.com/CorentinTh/it-tools/raw/main/.github/logo-white.png" alt="IT-Tools" height="32" /> | [IT-Tools](https://github.com/CorentinTh/it-tools) | Collection of handy online tools for developers |
+| <img src="https://raw.githubusercontent.com/louislam/uptime-kuma/023079733a2697f6544616e56225eff6de77060b/public/icon.svg" alt="Uptime Kuma" height="32"/>| [Uptime Kuma](https://github.com/louislam/uptime-kuma) | Service monitoring and health check |
+| <img src="https://minecraft.wiki/images/Minecraft_franchise_logo.svg?59f89" height="32"/>| [Minecraft Server](https://github.com/itzg/minecraft-server-charts) | Game server for Minecraft |
+| <img src="" height="32" /> | [WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
+| <img src="" height="32" /> | [Media Services (*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
 
 ### AI
 
-| Name | Description |
-|---|---|
-| vLLM | A high-throughput and memory-efficient inference and serving engine for LLMs  |
-| LiteLLM | LLM Gateway for my local LLM server & other cloud providers. |
-| Open WebUI | Frontend Chat interface connected to LiteLLM |
+| Logo | Name | Description |
+|:-:|---|---|
+| <img src="https://docs.vllm.ai/en/latest/assets/logos/vllm-logo-text-dark.png" height="32" /> | [vLLM](https://github.com/vllm-project/vllm) | High-throughput and memory-efficient inference and serving engine for LLMs  |
+| <img src="" height="32" /> | [LiteLLM](https://github.com/BerriAI/litellm) | LLM Gateway for local LLM servers & other cloud providers. |
+| <img src="https://openwebui.com/logo.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM |
 
 ### Infrastructure
 
-| Name | Description |
-|---|---|
-| Traefik | Ingress Controller |
-| Cloudflare Tunnel (`cloudflared`) | Zero Trust Tunnel to expose services publicly |
-| GPU Operator | NVIDIA runtime class Manager for AI/ML workloads |
-| Cert Manager | Automated X.509 certificate management |
-| External Secrets Operator | Manages external secrets in Azure Key Vault |
-| Cloud Native PostgreSQL | Deploys Postgres Cluster for other applications |
-| Synology CSI Driver | Persistent Volume Provisioning from my Synology NAS |
+| Logo | Name | Description |
+|:-:|---|---|
+| <img src="https://github.com/traefik/traefik/raw/master/docs/content/assets/img/traefik.logo-dark.png" height="32" /> | [Traefik](https://github.com/traefik/traefik) | Ingress Controller |
+| <img src="https://developers.cloudflare.com/_astro/logo.DAG2yejx.svg" height="32" /> | [Cloudflare Tunnel](https://github.com/cloudflare/cloudflared) | Zero Trust Tunnel to expose services publicly |
+| <img src="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" height="32" /> | [GPU Operator](https://github.com/NVIDIA/gpu-operator) | NVIDIA runtime class manager for AI/ML workloads |
+| <img src="https://github.com/cert-manager/cert-manager/raw/master/logo/logo-small.png" height="32" /> | [Cert Manager](https://github.com/cert-manager/cert-manager) | Automated X.509 certificate management |
+| <img src="https://external-secrets.io/latest/pictures/eso-round-logo.svg" height="32" /> | [External Secrets Operator](https://external-secrets.io/latest/) | External secrets in Azure Key Vault |
+| <img src="https://cloudnative-pg.io/logo/large_logo.svg" height="32" /> | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg) | PostgreSQL DB Cluster for other applications |
+| <img src="https://www.synology.com/img/company/branding/synology_logo.jpg" height="32" /> | [Synology CSI Driver](https://github.com/SynologyOpenSource/synology-csi) | Persistent Volume Provisioning from my Synology NAS |
 
 ### Monitoring & Observability
 
-| Name | Description |
-|---|---|
-| kube-prometheus-stack | Out-of-the-box monitoring solution: Prometheus, Grafana, and Alertmanager. |
-| Loki | Prometheus, but for logs |
-| Alloy | OpenTelemetry Collector |
+| Logo | Name | Description |
+|:-:|---|---|
+| <img src="https://avatars.githubusercontent.com/u/66682517?s=48&v=4" height="32" /> <img src="https://avatars.githubusercontent.com/u/7195757?s=48&v=4" height="32"/> <img src="https://prometheus.io/_next/static/media/prometheus-logo.7aa022e5.svg" height="32" />| [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) | Out-of-the-box monitoring solution: Prometheus, Grafana, and Alertmanager. |
+| <img src="https://github.com/grafana/loki/raw/main/docs/sources/logo_and_name.png" height="32" /> | [Loki](https://github.com/grafana/loki) | Prometheus, but for logs |
+| <img src="https://github.com/grafana/alloy/raw/main/docs/sources/assets/logo_alloy_light.svg#gh-dark-mode-only" height="32" /> | [Alloy](https://github.com/grafana/alloy) | OpenTelemetry Collector |
