@@ -8,3 +8,4 @@ data:
     model: unsloth/Qwen3-8B-unsloth-bnb-4bit
     # model: openai/gpt-oss-20b
     uvicorn-log-level: "info"
+    max_num_seqs: 4
