@@ -21,15 +21,15 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://github.com/CorentinTh/it-tools/raw/main/.github/logo-white.png" alt="IT-Tools" height="32" /> | [IT-Tools](https://github.com/CorentinTh/it-tools) | Collection of handy online tools for developers |
 | <img src="https://raw.githubusercontent.com/louislam/uptime-kuma/023079733a2697f6544616e56225eff6de77060b/public/icon.svg" alt="Uptime Kuma" height="32"/>| [Uptime Kuma](https://github.com/louislam/uptime-kuma) | Service monitoring and health check |
 | <img src="https://minecraft.wiki/images/Minecraft_franchise_logo.svg?59f89" height="32"/>| [Minecraft Server](https://github.com/itzg/minecraft-server-charts) | Game server for Minecraft |
-| <img src="" height="32" /> | [WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
-| <img src="" height="32" /> | [Media Services (*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
+|  | [WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
+|  | [Media Services (*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
 
 ### AI
 
 | Logo | Name | Description |
 |:-:|---|---|
 | <img src="https://docs.vllm.ai/en/latest/assets/logos/vllm-logo-text-dark.png" height="32" /> | [vLLM](https://github.com/vllm-project/vllm) | High-throughput and memory-efficient inference and serving engine for LLMs  |
-| <img src="" height="32" /> | [LiteLLM](https://github.com/BerriAI/litellm) | LLM Gateway for local LLM servers & other cloud providers. |
+|  | [LiteLLM](https://github.com/BerriAI/litellm) | LLM Gateway for local LLM servers & other cloud providers. |
 | <img src="https://openwebui.com/logo.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM |
 
 ### Infrastructure
