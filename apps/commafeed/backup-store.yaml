@@ -1,0 +1,20 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: commafeed-backup-storage
+  namespace: commafeed
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/commafeed
+    azureCredentials:
+      storageAccount:
+        name: commafeed-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: commafeed-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d

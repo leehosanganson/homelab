@@ -18,3 +18,15 @@ spec:
       owner: commafeed
       secret:
         name: commafeed-env
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: commafeed-backup-storage
+  externalClusters:
+    - name: clusterBackup
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: commafeed-backup-storage
+          serverName: commafeed-db-backup
