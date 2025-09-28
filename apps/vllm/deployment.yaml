@@ -23,6 +23,11 @@ spec:
         - name: model-cache
           persistentVolumeClaim:
             claimName: llm-model-cache-pvc
+      tolerations:
+        - key: "gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
       containers:
         - name: vllm
           image: vllm/vllm-openai:latest
