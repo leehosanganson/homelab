@@ -36,7 +36,9 @@ spec:
             - name: config
               mountPath: /config
             - name: media
-              mountPath: /videos
+              mountPath: /mnt/media/videos
+              subPath: videos
+
       volumes:
         - name: config
           persistentVolumeClaim:
