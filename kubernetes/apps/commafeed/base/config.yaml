@@ -2,6 +2,5 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: commafeed-configmap
-  namespace: commafeed
 data:
   QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://commafeed-db-rw:5432/commafeed"

@@ -2,7 +2,6 @@ apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
   name: commafeed-backup-storage
-  namespace: commafeed
 spec:
   configuration:
     destinationPath: https://lhshomelabbackup.blob.core.windows.net/commafeed

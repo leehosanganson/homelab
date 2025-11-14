@@ -2,7 +2,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: commafeed-db
-  namespace: commafeed
   labels:
     db: commafeed-db
 spec:
