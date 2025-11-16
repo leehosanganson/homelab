@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless
+  template:
+    metadata:
+      labels:
+        app: paperless
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        supplementalGroups: [65568]
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-data-pvc
+        - name: media
+          persistentVolumeClaim:
+            claimName: paperless-media-pvc
+        - name: export
+          persistentVolumeClaim:
+            claimName: paperless-export-pvc
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-consume-pvc
+        - name: run
+          emptyDir: {}
+      containers:
+        - name: webserver
+          image: ghcr.io/paperless-ngx/paperless-ngx:latest
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/paperless-ngx/data
+            - name: media
+              mountPath: /usr/src/paperless-ngx/media
+            - name: export
+              mountPath: /usr/src/paperless-ngx/export
+            - name: consume
+              mountPath: /usr/src/paperless-ngx/consume
+            - name: run
+              mountPath: /run
+          env:
+            - name: PAPERLESS_DBUSER
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-env
+                  key: username
+            - name: PAPERLESS_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-env
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: paperless-configmap

@@ -1,0 +1,14 @@
+resources:
+  - backup-schedule.yaml
+  - backup-store.yaml
+  - config.yaml
+  - db.yaml
+  - deployment.yaml
+  - ingress.yaml
+  - secrets.yaml
+  - service.yaml
+  - pvc.yaml
+  - redis
+labels:
+  - pairs:
+      app: paperless

@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: paperless-backup-storage
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/paperless
+    azureCredentials:
+      storageAccount:
+        name: paperless-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: paperless-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d
