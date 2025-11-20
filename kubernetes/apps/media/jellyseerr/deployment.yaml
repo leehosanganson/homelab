@@ -13,7 +13,7 @@ spec:
       labels:
         app: jellyseerr
     spec:
-      dnsPolicy: ClusterFirst
+      dnsPolicy: None
       dnsConfig:
         nameservers:
           - 1.1.1.1

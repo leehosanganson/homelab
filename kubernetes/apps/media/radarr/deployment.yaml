@@ -19,10 +19,9 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-      dnsPolicy: ClusterFirst
+      dnsPolicy: None
       dnsConfig:
         nameservers:
-          - 127.0.0.1
           - 1.1.1.1
         options:
           - name: ndots
