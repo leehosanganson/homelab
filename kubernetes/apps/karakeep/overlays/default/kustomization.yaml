@@ -1,0 +1,24 @@
+namespace: karakeep
+resources:
+  - namespace.yaml
+  - config.yaml
+  - secrets.yaml
+  - ../../base
+
+replacements:
+  - source:
+      fieldPath: data.KARAKEEP_VERSION
+      kind: ConfigMap
+      name: karakeep-configuration
+      version: v1
+    targets:
+      - fieldPaths:
+          - spec.template.spec.containers.0.image
+        options:
+          delimiter: ":"
+          index: 1
+        select:
+          group: apps
+          kind: Deployment
+          name: web
+          version: v1

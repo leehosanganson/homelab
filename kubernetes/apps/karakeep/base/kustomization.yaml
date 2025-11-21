@@ -1,0 +1,10 @@
+resources:
+  - web-deployment.yaml
+  - web-service.yaml
+  - chrome-deployment.yaml
+  - chrome-service.yaml
+  - meilisearch-deployment.yaml
+  - meilisearch-service.yaml
+  - meilisearch-pvc.yaml
+  - pvc.yaml
+  - ingress.yaml
