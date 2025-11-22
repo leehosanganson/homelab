@@ -1,0 +1,5 @@
+resources:
+  - db.yaml
+  - backup-store.yaml
+  - backup-schedule.yaml
+  - secrets.yaml

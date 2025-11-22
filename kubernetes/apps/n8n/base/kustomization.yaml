@@ -1,0 +1,11 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - config.yaml
+  - pvc.yaml
+  - db
+
+labels:
+  - pairs:
+      app: n8n
