@@ -43,10 +43,8 @@ spec:
                   name: n8n-env
                   key: password
           resources:
-            requests:
-              memory: "250Mi"
             limits:
-              memory: "500Mi"
+              memory: 4G
           volumeMounts:
             - mountPath: /home/node/.n8n
               name: n8n-pvc
