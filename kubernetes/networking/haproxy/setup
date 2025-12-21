@@ -8,6 +8,8 @@ curl -o haproxy.cfg https://raw.githubusercontent.com/leehosanganson/homelab/mai
 mv haproxy.cfg /etc/haproxy/haproxy.cfg
 
 # ufw
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 sudo ufw enable
 
