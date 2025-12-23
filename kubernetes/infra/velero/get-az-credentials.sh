@@ -2,10 +2,9 @@
 set -euo pipefail
 
 # --- config ---
-BLOB_CONTAINER="velero"
 AZURE_RESOURCE_GROUP="homelab-kubernetes"
-AZURE_STORAGE_ACCOUNT_ID="lhshomelabbackup"
 VELERO_SP_NAME="velero"
+AZURE_KEYVAULT_NAME="lhs-kubernetes-keyvault"
 # -------------------------------
 
 echo "[*] Getting default subscription and tenant..."
@@ -28,35 +27,14 @@ if [[ -z "$AZURE_SUBSCRIPTION_ID" || -z "$AZURE_TENANT_ID" || -z "$AZURE_CLIENT_
   exit 1
 fi
 
-export AZURE_SUBSCRIPTION_ID
-export AZURE_TENANT_ID
-export AZURE_CLIENT_ID
-export AZURE_CLIENT_SECRET
-export AZURE_RESOURCE_GROUP
-
-echo "[*] Installing Velero using environment credentials..."
-velero install \
-  --provider azure \
-  --plugins velero/velero-plugin-for-microsoft-azure:v1.5.0 \
-  --bucket $BLOB_CONTAINER \
-  --secret-file <(cat <<EOF
+# Create / update secret and upload to az keyvault
+az keyvault secret set --vault-name "$AZURE_KEYVAULT_NAME" \
+  --name "velero-cloud-credentials" \
+  --file <(cat <<EOF
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
 AZURE_TENANT_ID=${AZURE_TENANT_ID}
 AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
 AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
 AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP}
 EOF
-) \
-  --backup-location-config resourceGroup=$AZURE_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT_ID,subscriptionId=$AZURE_SUBSCRIPTION_ID \
-  --use-node-agent \
-  --default-volumes-to-fs-backup=true \
-  --features=EnableCSI
-
-echo << EOF
-[*] Velero install triggered. Check 
-```
-velero backup-location get
-kubectl get pods -n velero
-```
-for more info.
-EOF
+)

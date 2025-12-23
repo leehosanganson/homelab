@@ -1,0 +1,3 @@
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
+helm repo update
+helm upgrade --install velero vmware-tanzu/velero --create-namespace --namespace velero -f values.yaml

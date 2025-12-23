@@ -1,0 +1,26 @@
+configuration:
+  backupStorageLocation:
+    - provider: azure
+      bucket: velero
+      config:
+        resourceGroup: homelab-kubernetes
+        storageAccount: lhshomelabbackup
+        subscriptionId: 585dcfc1-23d7-4e71-82eb-71027af01852
+      default: true
+  volumeSnapshotLocation: []
+  defaultVolumesToFsBackup: true
+
+credentials:
+  useSecret: true
+  existingSecret: cloud-credentials
+
+initContainers:
+  - name: velero-plugin-for-microsoft-azure
+    image: velero/velero-plugin-for-microsoft-azure:v1.5.0
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+deployNodeAgent: true
+
+features: EnableCSI
