@@ -22,6 +22,12 @@ AZURE_CLIENT_SECRET=$(az ad sp create-for-rbac \
 
 AZURE_CLIENT_ID=$(az ad sp list --display-name "$VELERO_SP_NAME" --query '[0].appId' -o tsv)
 
+# Check if everything is set
+if [[ -z "$AZURE_SUBSCRIPTION_ID" || -z "$AZURE_TENANT_ID" || -z "$AZURE_CLIENT_ID" || -z "$AZURE_CLIENT_SECRET" ]]; then
+  echo "[-] Failed to get credentials for Velero SP. Check 'az ad sp list --display-name \"$VELERO_SP_NAME\"' for more info."
+  exit 1
+fi
+
 export AZURE_SUBSCRIPTION_ID
 export AZURE_TENANT_ID
 export AZURE_CLIENT_ID
@@ -33,14 +39,24 @@ velero install \
   --provider azure \
   --plugins velero/velero-plugin-for-microsoft-azure:v1.5.0 \
   --bucket $BLOB_CONTAINER \
-  --secret-file /dev/stdin \
-  --backup-location-config resourceGroup=$AZURE_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT_ID,subscriptionId=$AZURE_SUBSCRIPTION_ID <<EOF
+  --secret-file <(cat <<EOF
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
 AZURE_TENANT_ID=${AZURE_TENANT_ID}
 AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
 AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
 AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP}
 EOF
+) \
+  --backup-location-config resourceGroup=$AZURE_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT_ID,subscriptionId=$AZURE_SUBSCRIPTION_ID \
+  --use-node-agent \
+  --default-volumes-to-fs-backup=true \
+  --features=EnableCSI
 
-echo "[*] Velero install triggered. Check 'velero backup-location get' and 'kubectl get pods -n velero' for status."
-
+echo << EOF
+[*] Velero install triggered. Check 
+```
+velero backup-location get
+kubectl get pods -n velero
+```
+for more info.
+EOF
