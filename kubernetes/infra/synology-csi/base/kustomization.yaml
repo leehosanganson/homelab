@@ -4,11 +4,11 @@ resources:
   - controller.yml
   - csi-driver.yml
   - node.yml
-  - storageclass/nfs.yaml
-  - storageclass/storage-class.yml
-  - storageclass/synology-default.yaml
-  - storageclass/synology-retain.yaml
+  - storage-class.yml
   - snapshotter/snapshotter.yaml
   - snapshotter/volume-snapshot-class.yml
+  - storageclass/nfs.yaml
+  - storageclass/synology-default.yaml
+  - storageclass/synology-retain.yaml
 
 namespace: synology-csi
