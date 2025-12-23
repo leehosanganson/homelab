@@ -1,0 +1,14 @@
+resources:
+  - github.com/kubernetes-csi/external-snapshotter/client/config/crd
+  - namespace.yml
+  - controller.yml
+  - csi-driver.yml
+  - node.yml
+  - storageclass/nfs.yaml
+  - storageclass/storage-class.yml
+  - storageclass/synology-default.yaml
+  - storageclass/synology-retain.yaml
+  - snapshotter/snapshotter.yaml
+  - snapshotter/volume-snapshot-class.yml
+
+namespace: synology-csi
