@@ -7,6 +7,6 @@ metadata:
     snapshot.storage.k8s.io/is-default-class: "true"
 driver: csi.san.synology.com
 deletionPolicy: Delete
-# parameters:
-#   description: 'Kubernetes CSI' ＃ only for iscsi protocol
-#   is_locked: 'false'
+parameters:
+  description: "Kubernetes CSI"
+  is_locked: "false"

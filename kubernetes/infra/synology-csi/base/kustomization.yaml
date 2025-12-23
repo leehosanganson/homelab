@@ -1,5 +1,6 @@
 resources:
-  - github.com/kubernetes-csi/external-snapshotter/client/config/crd
+  - github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v7.0.2
+  - github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller?ref=v7.0.2
   - namespace.yml
   - controller.yml
   - csi-driver.yml
@@ -10,5 +11,3 @@ resources:
   - storageclass/nfs.yaml
   - storageclass/synology-default.yaml
   - storageclass/synology-retain.yaml
-
-namespace: synology-csi
