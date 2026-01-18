@@ -12,4 +12,4 @@ patches:
       metadata:
         name: whoami
       spec:
-        replicas: 1
+        replicas: 10
