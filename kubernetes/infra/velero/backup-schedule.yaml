@@ -10,6 +10,7 @@ spec:
   template:
     defaultVolumesToFsBackup: false
     includedNamespaces:
+      - actual-budget
       - home-assistant
       - n8n
       - karakeep
