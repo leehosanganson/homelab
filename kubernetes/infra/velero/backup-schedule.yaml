@@ -1,0 +1,24 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: default
+  namespace: velero
+  labels:
+    velero.io/schedule-name: default
+spec:
+  schedule: 0 7 * * *
+  template:
+    includedNamespaces:
+      - home-assistant
+      - n8n
+      - karakeep
+      - media
+      - paperless
+    includedResources:
+      - deployments
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - namespaces
+    storageLocation: default
+    ttl: 240h0m0s
