@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: paperless-data-pvc,paperless-media-pvc

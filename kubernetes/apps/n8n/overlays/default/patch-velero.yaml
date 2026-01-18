@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: n8n-pvc

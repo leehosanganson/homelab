@@ -22,3 +22,6 @@ replacements:
           kind: Deployment
           name: web
           version: v1
+
+patches:
+  - path: patch-velero.yaml

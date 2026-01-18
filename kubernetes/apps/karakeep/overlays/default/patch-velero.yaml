@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: karakeep-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meilisearch
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: meilisearch-pvc

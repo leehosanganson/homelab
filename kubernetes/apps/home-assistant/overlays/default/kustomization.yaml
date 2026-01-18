@@ -3,3 +3,6 @@ resources:
   - namespace.yaml
 
 namespace: home-assistant
+
+patches:
+  - path: patch-velero.yaml
