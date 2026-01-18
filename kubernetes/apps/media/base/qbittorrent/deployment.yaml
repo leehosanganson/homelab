@@ -59,7 +59,7 @@ spec:
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gluetun-secret
+                  name: gluetun-secrets
                   key: WIREGUARD_PRIVATE_KEY
       volumes:
         - name: downloads
