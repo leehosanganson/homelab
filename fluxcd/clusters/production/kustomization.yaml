@@ -1,0 +1,4 @@
+resources:
+  - flux-system
+  - apps-production.yaml
+  - apps-staging.yaml

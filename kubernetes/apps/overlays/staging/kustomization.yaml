@@ -1,0 +1,6 @@
+resources:
+  - ../../whoami/overlays/default
+
+commonLabels:
+  environment: staging
+  backups: disabled
