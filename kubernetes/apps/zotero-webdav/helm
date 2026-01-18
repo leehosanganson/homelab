@@ -1,2 +1,0 @@
-helm repo add danuk https://danuk.github.io/k8s-webdav/
-helm upgrade -i zotero-webdav danuk/webdav -f ./apps/zotero-webdav/values.yaml --namespace zotero

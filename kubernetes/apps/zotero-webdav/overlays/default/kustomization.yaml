@@ -1,0 +1,13 @@
+namespace: zotero
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: zotero-webdav-values
+    options:
+      disableNameSuffixHash: true

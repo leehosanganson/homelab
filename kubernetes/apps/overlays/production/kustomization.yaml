@@ -1,6 +1,7 @@
 resources:
   - ../../paperless-ngx/overlays/default
   - ../../home-assistant/overlays/default
+  - ../../zotero-webdav/overlays/default
 
 labels:
   - includeSelectors: false
