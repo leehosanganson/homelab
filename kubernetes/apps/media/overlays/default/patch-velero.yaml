@@ -6,7 +6,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: bazarr-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -16,7 +16,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: jellyfin-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +26,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: jellyseerr-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,7 +36,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: prowlarr-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,7 +46,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: qbit-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -56,7 +56,7 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: radarr-pvc
+        backup.velero.io/backup-volumes: config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -66,4 +66,4 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: sonarr-pvc
+        backup.velero.io/backup-volumes: config

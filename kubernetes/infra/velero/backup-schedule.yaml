@@ -8,6 +8,7 @@ metadata:
 spec:
   schedule: 0 7 * * *
   template:
+    defaultVolumesToFsBackup: false
     includedNamespaces:
       - home-assistant
       - n8n

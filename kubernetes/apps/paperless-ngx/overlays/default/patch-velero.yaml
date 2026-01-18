@@ -6,4 +6,4 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: paperless-data-pvc,paperless-media-pvc
+        backup.velero.io/backup-volumes: data,media

@@ -6,4 +6,4 @@ spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: home-assistant-pvc
+        backup.velero.io/backup-volumes: config
