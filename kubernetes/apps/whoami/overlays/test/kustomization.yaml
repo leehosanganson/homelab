@@ -1,0 +1,17 @@
+namespace: tests
+resources:
+  - ../../base
+
+patches:
+  - path: deployment.yaml
+    target:
+      kind: Deployment
+      name: whoami
+      version: v1
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: whoami
+      spec:
+        replicas: 1

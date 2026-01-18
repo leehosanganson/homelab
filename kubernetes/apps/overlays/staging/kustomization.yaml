@@ -1,5 +1,5 @@
 resources:
-  - ../../whoami/overlays/default
+  - ../../whoami/overlays/test
 
 commonLabels:
   environment: staging

@@ -4,7 +4,7 @@ metadata:
   name: apps-staging
   namespace: flux-system
 spec:
-  interval: 2m
+  interval: 1m
   path: ./kubernetes/apps/overlays/staging
   prune: true
   sourceRef:
