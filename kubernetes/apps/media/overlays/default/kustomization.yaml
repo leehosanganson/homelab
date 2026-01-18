@@ -1,0 +1,8 @@
+namespace: media
+
+resources:
+  - namespace.yaml
+  - ../../base
+
+patches:
+  - path: patch-velero.yaml

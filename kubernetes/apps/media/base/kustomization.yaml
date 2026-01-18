@@ -1,0 +1,9 @@
+resources:
+  - bazarr
+  - data
+  - jellyfin
+  - jellyseerr
+  - prowlarr
+  - qbittorrent
+  - radarr
+  - sonarr

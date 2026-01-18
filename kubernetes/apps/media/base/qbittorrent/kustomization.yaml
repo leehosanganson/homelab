@@ -1,0 +1,11 @@
+resources:
+  - deployment.yaml
+  - ingress.yaml
+  - pvc.yaml
+  - service.yaml
+  - gluetun-config.yaml
+  - gluetun-secrets.yaml
+
+labels:
+  - pairs:
+      app: qbittorrent
