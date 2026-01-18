@@ -3,12 +3,10 @@ resources:
   - ../../base
 
 patches:
-  - path: deployment.yaml
-    target:
+  - target:
       kind: Deployment
       name: whoami
-      version: v1
-    patch: |-
+    patch: |
       apiVersion: apps/v1
       kind: Deployment
       metadata:

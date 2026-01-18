@@ -1,6 +1,8 @@
 resources:
   - ../../whoami/overlays/test
 
-commonLabels:
-  environment: staging
-  backups: disabled
+labels:
+  - includeSelectors: false
+    pairs:
+      backups: disabled
+      environment: staging

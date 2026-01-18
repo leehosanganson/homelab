@@ -2,6 +2,8 @@ resources:
   - ../../paperless-ngx/overlays/default
   - ../../home-assistant/overlays/default
 
-commonLabels:
-  environment: production
-  backups: enabled
+labels:
+  - includeSelectors: false
+    pairs:
+      backups: enabled
+      environment: production
