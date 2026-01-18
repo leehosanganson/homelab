@@ -11,5 +11,5 @@ flux bootstrap github \
     --owner=leehosanganson \
     --repository=homelab \
     --branch=main \
-    --path=./clusters/production \
+    --path=./fluxcd/clusters/production \
     --personal
