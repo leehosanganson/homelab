@@ -1,0 +1,11 @@
+namespace: minecraft
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: minecraft1-values
+    options:
+      disableNameSuffixHash: true

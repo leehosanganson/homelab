@@ -1,3 +1,4 @@
 namespace: flux-system
 resources:
   - webdav.yaml
+  - minecraft.yaml
