@@ -4,7 +4,7 @@ metadata:
   name: apps-production
   namespace: flux-system
 spec:
-  interval: 30m0s
+  interval: 10m0s
   path: ./kubernetes/apps/overlays/production
   prune: true
   sourceRef:
@@ -17,7 +17,7 @@ metadata:
   name: apps-staging
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 5m
   path: ./kubernetes/apps/overlays/staging
   prune: true
   sourceRef:

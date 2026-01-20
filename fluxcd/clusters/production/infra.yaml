@@ -4,7 +4,7 @@ metadata:
   name: infra-production
   namespace: flux-system
 spec:
-  interval: 30m0s
+  interval: 10m0s
   path: ./kubernetes/infra/overlays/production
   prune: true
   sourceRef:
