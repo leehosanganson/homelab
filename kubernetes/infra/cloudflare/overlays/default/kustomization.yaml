@@ -1,0 +1,5 @@
+namespace: cloudflare
+resources:
+  - namespace.yaml
+  - ../../base
+  - secrets.yaml

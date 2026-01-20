@@ -1,0 +1,8 @@
+resources:
+  - ../../cloudflare/overlays/default
+
+labels:
+  - includeSelectors: false
+    pairs:
+      backups: enabled
+      environment: production

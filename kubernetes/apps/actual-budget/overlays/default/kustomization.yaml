@@ -1,7 +1,6 @@
 namespace: actual-budget
 resources:
   - ../../base
-  - namespace.yaml
 
 patches:
   - path: patch-velero.yaml

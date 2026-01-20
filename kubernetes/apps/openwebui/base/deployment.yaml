@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: open-webui
+  name: open-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-webui
+  template:
+    metadata:
+      labels:
+        app: open-webui
+    spec:
+      volumes:
+        - name: webui-data
+          persistentVolumeClaim:
+            claimName: open-webui-pvc
+      containers:
+        - image: ghcr.io/open-webui/open-webui:main
+          name: open-webui
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: webui-data
+              mountPath: /app/backend/data

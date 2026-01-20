@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-config
+data:
+  config.yaml: |
+    model: unsloth/Qwen3-8B-unsloth-bnb-4bit
+    # model: openai/gpt-oss-20b
+    uvicorn-log-level: "info"
+    max_num_seqs: 4
+    max_model_len: 20480
+    kv-cache-memory: 7293324288

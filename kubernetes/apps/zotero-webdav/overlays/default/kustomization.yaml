@@ -1,7 +1,6 @@
 namespace: zotero
 
 resources:
-  - namespace.yaml
   - ../../base
   - secrets.yaml
 

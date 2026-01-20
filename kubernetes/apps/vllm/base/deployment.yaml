@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-backend
+  labels:
+    app: llm-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-backend
+  template:
+    metadata:
+      labels:
+        app: llm-backend
+    spec:
+      runtimeClassName: nvidia
+      volumes:
+        - name: vllm-config-volume
+          configMap:
+            name: vllm-config
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: llm-model-cache-pvc
+      tolerations:
+        - key: "gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - vllm serve --config /etc/vllm/config.yaml
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token-secret
+                  key: token
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              cpu: "8"
+              memory: 8G
+              nvidia.com/gpu: "1"
+            requests:
+              cpu: "2"
+              memory: 4G
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: vllm-config-volume
+              mountPath: /etc/vllm/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: model-cache
+              mountPath: /root/.cache/huggingface

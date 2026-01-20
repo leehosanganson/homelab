@@ -1,0 +1,11 @@
+resources:
+  - actual-budget.yaml
+  - commafeed.yaml
+  - home-assistant.yaml
+  - karakeep.yaml
+  - llm.yaml
+  - media.yaml
+  - n8n.yaml
+  - paperless.yaml
+  - utility.yaml
+  - zotero.yaml

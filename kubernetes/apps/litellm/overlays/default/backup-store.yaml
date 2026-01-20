@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: litellm-backup-storage
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/litellm
+    azureCredentials:
+      storageAccount:
+        name: litellm-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: litellm-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d

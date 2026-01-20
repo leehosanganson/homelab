@@ -1,6 +1,17 @@
 resources:
-  - ../../paperless-ngx/overlays/default
+  - namespaces
+  - ../../actual-budget/overlays/default
+  - ../../commafeed/overlays/default
   - ../../home-assistant/overlays/default
+  - ../../it-tools/overlays/default
+  - ../../karakeep/overlays/default
+  - ../../litellm/overlays/default
+  - ../../media/overlays/default
+  - ../../n8n/overlays/default
+  - ../../openwebui/overlays/default
+  - ../../paperless-ngx/overlays/default
+  - ../../vllm/overlays/default
+  - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
 
 labels:

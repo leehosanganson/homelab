@@ -1,7 +1,6 @@
 namespace: media
 
 resources:
-  - namespace.yaml
   - ../../base
 
 patches:

@@ -1,0 +1,7 @@
+namespace: llm
+resources:
+  - ../../base
+  - secrets.yaml
+  - config.yaml
+  - backup-store.yaml
+  - backup-schedule.yaml

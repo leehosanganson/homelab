@@ -1,6 +1,5 @@
 namespace: karakeep
 resources:
-  - namespace.yaml
   - config.yaml
   - secrets.yaml
   - ../../base

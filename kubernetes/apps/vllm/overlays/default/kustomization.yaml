@@ -1,0 +1,5 @@
+namespace: llm
+resources:
+  - ../../base
+  - secrets.yaml
+  - config.yaml
