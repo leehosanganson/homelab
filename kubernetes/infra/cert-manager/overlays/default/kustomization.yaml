@@ -1,0 +1,12 @@
+namespace: cert-manager
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: cert-manager-values
+    options:
+      disableNameSuffixHash: true

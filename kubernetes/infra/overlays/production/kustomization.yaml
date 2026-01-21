@@ -1,6 +1,7 @@
 resources:
-  - ../../cloudflare/overlays/default
   - ../../helm
+  - ../../cloudflare/overlays/default
+  - ../../cert-manager/overlays/default
 
 labels:
   - includeSelectors: false

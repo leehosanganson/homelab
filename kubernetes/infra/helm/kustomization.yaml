@@ -1,4 +1,5 @@
 namespace: flux-system
 resources:
   - webdav.yaml
-  - minecraft.yaml
+  - itzg.yaml
+  - jetstack.yaml
