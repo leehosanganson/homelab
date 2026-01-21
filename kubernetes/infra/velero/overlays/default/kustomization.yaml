@@ -1,0 +1,14 @@
+namespace: velero
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - secrets.yaml
+  - backup-schedule.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: velero-values
+    options:
+      disableNameSuffixHash: true

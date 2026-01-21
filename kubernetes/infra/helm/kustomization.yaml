@@ -1,5 +1,7 @@
 namespace: flux-system
+
 resources:
   - webdav.yaml
   - itzg.yaml
   - jetstack.yaml
+  - vmware-tanzu.yaml

@@ -2,6 +2,8 @@ resources:
   - ../../helm
   - ../../cloudflare/overlays/default
   - ../../cert-manager/overlays/default
+  - ../../synology-csi/overlays/default
+  - ../../velero/overlays/default
 
 labels:
   - includeSelectors: false
