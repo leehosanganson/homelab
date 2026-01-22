@@ -1,0 +1,12 @@
+namespace: gpu-operator
+
+resources:
+  - namespace.yaml
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: cert-manager-values
+    options:
+      disableNameSuffixHash: true

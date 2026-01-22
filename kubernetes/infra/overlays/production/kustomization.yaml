@@ -5,6 +5,7 @@ resources:
   - ../../synology-csi/overlays/default
   - ../../velero/overlays/default
   - ../../external-secrets/overlays/default
+  - ../../gpu-operator/overlays/default
 
 labels:
   - includeSelectors: false

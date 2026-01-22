@@ -6,3 +6,4 @@ resources:
   - jetstack.yaml
   - vmware-tanzu.yaml
   - external-secrets.yaml
+  - nvidia.yaml
