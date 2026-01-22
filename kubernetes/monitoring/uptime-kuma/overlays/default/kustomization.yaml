@@ -1,0 +1,11 @@
+namespace: monitoring
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: uptime-kuma-values
+    options:
+      disableNameSuffixHash: true

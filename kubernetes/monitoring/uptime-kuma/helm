@@ -1,5 +1,0 @@
-helm repo add uptime-kuma https://helm.irsigler.cloud
-helm upgrade uptime-kuma uptime-kuma/uptime-kuma \
-  --install \
-  --namespace monitoring \
-  -f ./apps/uptime-kuma/values.yaml

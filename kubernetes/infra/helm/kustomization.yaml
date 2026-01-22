@@ -7,3 +7,4 @@ resources:
   - vmware-tanzu.yaml
   - external-secrets.yaml
   - nvidia.yaml
+  - uptime-kuma.yaml
