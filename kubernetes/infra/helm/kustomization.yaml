@@ -5,3 +5,4 @@ resources:
   - itzg.yaml
   - jetstack.yaml
   - vmware-tanzu.yaml
+  - external-secrets.yaml

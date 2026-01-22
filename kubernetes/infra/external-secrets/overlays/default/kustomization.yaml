@@ -1,0 +1,8 @@
+namespace: external-secrets
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - azure-kv-secrets.yaml
+  - secret-store.yaml
+  - test-secret.yaml
