@@ -7,6 +7,6 @@ resources:
 configMapGenerator:
   - files:
       - values.yaml
-    name: cert-manager-values
+    name: gpu-operator-values
     options:
       disableNameSuffixHash: true
