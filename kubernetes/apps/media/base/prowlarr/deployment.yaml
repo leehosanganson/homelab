@@ -19,12 +19,6 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       dnsPolicy: ClusterFirst
-      dnsConfig:
-        nameservers:
-          - 1.1.1.1
-        options:
-          - name: ndots
-            value: "1"
       containers:
         - name: prowlarr
           image: linuxserver/prowlarr:latest
