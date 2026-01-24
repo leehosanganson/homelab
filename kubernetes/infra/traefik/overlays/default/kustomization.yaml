@@ -1,0 +1,11 @@
+namespace: kube-system
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: traefik-values
+    options:
+      disableNameSuffixHash: true

@@ -1,0 +1,39 @@
+additionalArguments:
+  - "--log.level=INFO"
+  - "--api.dashboard=true"
+deployment:
+  podAnnotations:
+    prometheus.io/port: "8082"
+    prometheus.io/scrape: "true"
+ports:
+  web:
+    exposedPort: 80
+  websecure:
+    exposedPort: 443
+service:
+  ipFamilyPolicy: PreferDualStack
+  spec:
+    loadBalancerIP: "192.168.1.250"
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: leehosanganson@gmail.com
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+priorityClassName: system-cluster-critical
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
