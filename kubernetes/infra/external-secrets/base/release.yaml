@@ -12,6 +12,6 @@ spec:
         kind: HelmRepository
         name: external-secrets
         namespace: flux-system
-  valuesFrom:
-    - kind: ConfigMap
-      name: external-secrets-values
+  # valuesFrom:
+  #   - kind: ConfigMap
+  #     name: external-secrets-values
