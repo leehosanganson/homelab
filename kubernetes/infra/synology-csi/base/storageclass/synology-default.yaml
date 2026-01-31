@@ -11,4 +11,5 @@ parameters:
   location: "/volume1"
   formatOptions: "--nodiscard"
 reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true

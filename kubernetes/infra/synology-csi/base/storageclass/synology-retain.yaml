@@ -9,4 +9,5 @@ parameters:
   location: "/volume1"
   formatOptions: "--nodiscard"
 reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
