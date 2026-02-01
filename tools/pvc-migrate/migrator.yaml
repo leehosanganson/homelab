@@ -1,10 +1,22 @@
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tmp
+  namespace: ...
+spec:
+  storageClassName: "nfs-csi-retain"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
 kind: Pod
 metadata:
   name: data-migrator
-  namespace: actual-budget
+  namespace: ...
 spec:
-  nodeName: homelab-server-9g2t
   containers:
     - name: migrator
       image: alpine
@@ -17,7 +29,7 @@ spec:
   volumes:
     - name: source
       persistentVolumeClaim:
-        claimName: actual-budget-pvc-local
+        claimName: ...
     - name: destination
       persistentVolumeClaim:
-        claimName: actual-budget-pvc
+        claimName: tmp
