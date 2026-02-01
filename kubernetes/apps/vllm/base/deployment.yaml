@@ -29,7 +29,7 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: vllm
-          image: vllm/vllm-openai:latest
+          image: vllm/vllm-openai:v0.14.1-cu130
           command: ["/bin/sh", "-c"]
           args:
             - vllm serve --config /etc/vllm/config.yaml
