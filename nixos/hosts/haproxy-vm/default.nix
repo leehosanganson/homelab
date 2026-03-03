@@ -7,9 +7,18 @@
 
   # PVE
   networking.hostName = "haproxy-1";
-  services.cloud-init.enable = true;
-  services.cloud-init.settings.ssh_deletekeys = false;
+  services.cloud-init = {
+    enable = true;
+    network.enable = true;
+    settings.ssh_deletekeys = false;
+  };
+
+  services.qemuGuest.enable = true;
+
+  boot.loader.grub.device = "/dev/sda";
+
   virtualisation.diskSize = 8192;
+
 
   # secrets
   sops = {
