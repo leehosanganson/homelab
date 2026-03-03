@@ -16,30 +16,14 @@
     };
   };
 
-  outputs = { nixpkgs, nixos-generators, sops-nix, sops-secrets, ... }: {
-    # Build Proxmox VM image
-    packages.x86_64-linux.haproxy-vma = nixos-generators.nixosGenerate {
+  outputs = { nixpkgs, sops-nix, sops-secrets, ... }@inputs: {
+    nixosConfigurations.haproxy-1 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      format = "proxmox";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
-        sops-secrets.nixosModules.sops
-        ./hosts/haproxy-vm/default.nix
-        {
-          _module.args.secrets = sops-secrets;
-        }
-      ];
-    };
-
-    # Enable `nixos-rebuild`
-    nixosConfigurations.haproxy = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        ./hosts/haproxy-vm/default.nix
+        ./hosts/haproxy-vm
         sops-nix.nixosModules.sops
       ];
-      specialArgs = {
-        inherit sops-secrets;
-      };
     };
   };
 }

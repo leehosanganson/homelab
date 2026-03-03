@@ -3,28 +3,28 @@
     ../../modules/haproxy.nix
   ];
 
-  networking.hostName = "haproxy-1";
   system.stateVersion = "25.11";
+
+  # PVE
+  networking.hostName = "haproxy-1";
+  services.cloud-init.enable = true;
+  services.cloud-init.settings.ssh_deletekeys = false;
+  virtualisation.diskSize = 8192;
 
   # secrets
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
-      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/id_ed25519"
     ];
 
     secrets = {
       "dns-provider-env" = {
         owner = "acme";
-        group = "haproxy";
+        group = "acme";
       };
     };
   };
-
-  # Allow secret-decryption key to be baked in but only if the file exists during build time
-  sysmted.tmpfiles.rules = [
-    "d /etc/ssh 0755 root root -"
-  ];
 
   # user
   users.users.ansonelee = {
@@ -40,13 +40,6 @@
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
-  };
-
-  # Proxmox VMA
-  proxmox.qemuConf = {
-    cores = 2;
-    memory = 2048;
-    net0 = "virtio,bridge=vmbr0"; # Change bridge if needed
-    diskSize = 8192; # 8GB is plenty for HAProxy
+    settings.PermitRootLogin = "no";
   };
 }
