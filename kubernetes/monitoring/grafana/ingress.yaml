@@ -20,5 +20,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - grafana.homelab.leehosanganson.dev
+        - "*.homelab.leehosanganson.dev"
       secretName: homelab-tls-secret

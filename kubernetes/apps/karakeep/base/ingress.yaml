@@ -19,5 +19,5 @@ spec:
                   number: 3000
   tls:
     - hosts:
-        - karakeep.leehosanganson.dev
+        - "*.homelab.leehosanganson.dev"
       secretName: homelab-tls-secret
