@@ -20,5 +20,5 @@ spec:
 
   tls:
     - hosts:
-        - paperless.homelab.leehosanganson.dev
-      secretName: paperless-tls
+        - "*.homelab.leehosanganson.dev"
+      secretName: homelab-tls-secret

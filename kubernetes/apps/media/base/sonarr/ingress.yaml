@@ -20,5 +20,5 @@ spec:
 
   tls:
     - hosts:
-        - sonarr.homelab.leehosanganson.dev
-      secretName: sonarr-tls
+        - "*.homelab.leehosanganson.dev"
+      secretName: homelab-tls-secret

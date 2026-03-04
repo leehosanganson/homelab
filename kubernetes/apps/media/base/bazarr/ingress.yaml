@@ -20,5 +20,5 @@ spec:
 
   tls:
     - hosts:
-        - bazarr.homelab.leehosanganson.dev
-      secretName: bazarr-tls
+        - "*.homelab.leehosanganson.dev"
+      secretName: homelab-tls-secret

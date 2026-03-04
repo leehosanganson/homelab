@@ -19,5 +19,5 @@ spec:
                   number: 5678
   tls:
     - hosts:
-        - n8n.homelab.leehosanganson.dev
-      secretName: n8n-tls
+        - "*.homelab.leehosanganson.dev"
+      secretName: homelab-tls-secret
