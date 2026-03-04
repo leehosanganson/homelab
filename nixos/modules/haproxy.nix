@@ -2,6 +2,7 @@
   # ACME Wildcard for *.home.leehosanganson.dev
   security.acme = {
     acceptTerms = true;
+    maxConcurrentRenewals = 1;
     defaults = {
       email = "leehosanganson@gmail.com";
       server = "https://acme-v02.api.letsencrypt.org/directory";
