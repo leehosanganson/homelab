@@ -10,6 +10,7 @@
     certs."home.leehosanganson.dev" = {
       domain = "*.home.leehosanganson.dev";
       dnsProvider = "cloudflare";
+      dnsResolver = "1.1.1.1:53";
       environmentFile = config.sops.secrets."dns-provider-env".path;
       group = "haproxy";
     };
