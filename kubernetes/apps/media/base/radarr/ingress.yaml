@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - radarr.homelab.leehosanganson.dev
-      secretName: radarr-tls
+      secretName: homelab-tls-secret

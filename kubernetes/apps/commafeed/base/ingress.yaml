@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - commafeed.leehosanganson.dev
-      secretName: commafeed-tls
+      secretName: homelab-tls-secret

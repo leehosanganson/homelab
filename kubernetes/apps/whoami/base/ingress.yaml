@@ -20,4 +20,4 @@ spec:
   tls:
     - hosts:
         - whoami.leehosanganson.dev
-      secretName: whoami-tls
+      secretName: homelab-tls-secret

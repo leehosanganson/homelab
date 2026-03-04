@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - qbittorrent.homelab.leehosanganson.dev
-      secretName: qbittorrent-tls
+      secretName: homelab-tls-secret

@@ -20,4 +20,4 @@ spec:
   tls:
     - hosts:
         - karakeep.leehosanganson.dev
-      secretName: karakeep-tls
+      secretName: homelab-tls-secret

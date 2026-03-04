@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - prowlarr.homelab.leehosanganson.dev
-      secretName: prowlarr-tls
+      secretName: homelab-tls-secret

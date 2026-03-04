@@ -20,4 +20,4 @@ spec:
   tls:
     - hosts:
         - n8n.homelab.leehosanganson.dev
-      secretName: n8n-tls
+      secretName: homelab-tls-secret
