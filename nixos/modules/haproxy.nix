@@ -1,19 +1,19 @@
 { config, ... }: {
-  # ACME Wildcard for *.internal.leehosanganson.dev
+  # ACME Wildcard for *.infra.leehosanganson.dev
   security.acme = {
     acceptTerms = true;
     maxConcurrentRenewals = 1;
     defaults = {
       email = "leehosanganson@gmail.com";
       server = "https://acme-v02.api.letsencrypt.org/directory";
-      validMinDays = 999;
     };
-    certs."internal.leehosanganson.dev" = {
-      domain = "*.internal.leehosanganson.dev";
+    certs."infra.leehosanganson.dev" = {
+      domain = "*.infra.leehosanganson.dev";
       dnsProvider = "cloudflare";
       dnsResolver = "1.1.1.1:53";
       environmentFile = config.sops.secrets."dns-provider-env".path;
       group = "haproxy";
+      postRun = "systemctl reload haproxy";
     };
   };
 
@@ -55,16 +55,16 @@
           default_backend local_ssl_termination 
 
       frontend tls_front
-          bind 127.0.0.1:8443 ssl crt /var/lib/acme/internal.leehosanganson.dev/full.pem accept-proxy
+          bind 127.0.0.1:8443 ssl crt /var/lib/acme/infra.leehosanganson.dev/full.pem accept-proxy
           mode http
         
-          acl is_nas hdr(host) -i nas1.internal.leehosanganson.dev
+          acl is_nas hdr(host) -i nas-1.infra.leehosanganson.dev
           use_backend synology if is_nas
 
-          acl is_pihole_1 hdr(host) -i pihole-1.internal.leehosanganson.dev
+          acl is_pihole_1 hdr(host) -i pihole-1.infra.leehosanganson.dev
           use_backend pihole_1 if is_pihole_1
 
-          acl is_pihole_2 hdr(host) -i pihole-2.internal.leehosanganson.dev
+          acl is_pihole_2 hdr(host) -i pihole-2.infra.leehosanganson.dev
           use_backend pihole_2 if is_pihole_2
 
       # --- BACKENDS ---
@@ -73,8 +73,15 @@
           server loopback 127.0.0.1:8443 send-proxy-v2
 
       backend synology
-          mode http
-          server nas1 192.168.1.30:5000 check
+      mode http
+      server nas-1 192.168.1.197:5000 check
+        
+      http-request set-header Host nas-1.infra.leehosanganson.dev
+      http-request set-header X-Forwarded-Proto https
+      http-request set-header X-Forwarded-For %[src]
+      http-request set-header X-Real-IP %[src]
+        
+      http-response set-header Content-Security-Policy "frame-ancestors 'self'"
 
       backend pihole_1
           mode http
