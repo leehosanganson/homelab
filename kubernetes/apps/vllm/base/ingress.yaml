@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - vllm.homelab.leehosanganson.dev
-      secretName: homelab-tls-secret
+      secretName: vllm-tls

@@ -20,4 +20,4 @@ spec:
   tls:
     - hosts:
         - actual-budget.homelab.leehosanganson.dev
-      secretName: homelab-tls-secret
+      secretName: actual-budget-tls

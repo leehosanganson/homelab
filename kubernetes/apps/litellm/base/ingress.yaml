@@ -21,4 +21,4 @@ spec:
   tls:
     - hosts:
         - litellm.homelab.leehosanganson.dev
-      secretName: homelab-tls-secret
+      secretName: litellm-tls

@@ -20,4 +20,4 @@ spec:
   tls:
     - hosts:
         - it-tools.leehosanganson.dev
-      secretName: homelab-tls-secret
+      secretName: it-tools-tls
