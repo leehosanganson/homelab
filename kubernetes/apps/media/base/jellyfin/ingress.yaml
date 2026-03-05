@@ -20,5 +20,5 @@ spec:
 
   tls:
     - hosts:
-        - "*.homelab.leehosanganson.dev"
-      secretName: homelab-tls-secret
+        - jellyfin.homelab.leehosanganson.dev
+      secretName: jellyfin-tls

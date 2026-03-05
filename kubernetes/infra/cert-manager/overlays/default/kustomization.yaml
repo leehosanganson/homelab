@@ -3,7 +3,7 @@ namespace: cert-manager
 resources:
   - ../../base
   - namespace.yaml
-  - certificate.yaml
+  - secrets.yaml
 
 configMapGenerator:
   - files:

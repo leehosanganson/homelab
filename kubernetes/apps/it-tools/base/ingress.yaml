@@ -19,5 +19,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - "*.homelab.leehosanganson.dev"
-      secretName: homelab-tls-secret
+        - it-tools.leehosanganson.dev
+      secretName: it-tools-tls

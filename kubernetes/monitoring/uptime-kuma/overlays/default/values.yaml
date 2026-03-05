@@ -27,17 +27,21 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
-podLabels: {}
+podLabels:
+  {}
   # app: uptime-kuma
-podEnv: []
+podEnv:
+  []
   # optional additional environment variables
   # - name: "A_VARIABLE"
   #   value: "a-value"
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -54,7 +58,8 @@ service:
 ingress:
   enabled: true
   className: traefik
-  extraLabels: {}
+  extraLabels:
+    {}
     # vhost: uptime-kuma.company.corp
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
@@ -66,10 +71,11 @@ ingress:
 
   tls:
     - hosts:
-        - "*.homelab.leehosanganson.dev"
-      secretName: homelab-tls-secret
+        - uptime-kuma.homelab.leehosanganson.dev
+      secretName: uptime-kuma-tls
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -128,7 +134,8 @@ volume:
   # existingClaim: "uptime-kuma-pvc"
 
 # -- A list of additional volumes to be added to the pod
-additionalVolumes: []
+additionalVolumes:
+  []
   # - name: "additional-certificates"
   #   configMap:
   #     name: "additional-certificates"
@@ -136,7 +143,8 @@ additionalVolumes: []
   #     defaultMode: 420
 
 # -- A list of additional volumeMounts to be added to the pod
-additionalVolumeMounts: []
+additionalVolumeMounts:
+  []
   # - name: "additional-certificates"
   #   mountPath: "/etc/ssl/certs/additional/additional-ca.pem"
   #   readOnly: true
