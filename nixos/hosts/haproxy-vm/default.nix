@@ -6,10 +6,20 @@
   system.stateVersion = "25.11";
 
   # PVE
-  networking.hostName = "haproxy-1";
+  networking = {
+    hostName = "haproxy-1";
+    useDHCP = false;
+    interfaces.eth0.ipv4.addresses = [
+      {
+        address = "192.168.1.251";
+        prefixLength = 24;
+      }
+    ];
+    defaultGateway = "192.168.1.1";
+  };
+
   services.cloud-init = {
     enable = true;
-    network.enable = true;
     settings.ssh_deletekeys = false;
   };
 
@@ -17,14 +27,24 @@
 
   boot.loader.grub.device = "/dev/sda";
 
-  virtualisation.diskSize = 8192;
+  proxmox.qemuConf = {
+    cores = 2;
+    memory = 4096;
+    diskSize = 8192;
+  };
 
+  environment.etc."ssh/haproxy1_key" = {
+    source = "${sops-secrets}/haproxy1_key";
+    mode = "0600";
+    user = "root";
+    group = "root";
+  };
 
   # secrets
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
-      "/etc/ssh/id_ed25519"
+      "/etc/ssh/haproxy1_key"
     ];
 
     secrets = {
@@ -36,7 +56,7 @@
   };
 
   # user
-  users.users.ansonelee = {
+  users.users.ansonlee = {
     isNormalUser = true;
     extraGroups = [ "wheel" "haproxy" ];
     openssh.authorizedKeys.keys = [
@@ -45,10 +65,19 @@
     ];
   };
 
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = false;
+  };
+
   # ssh
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
-    settings.PermitRootLogin = "no";
+    settings.PermitRootLogin = "prohibit-password";
   };
+
+  # Firewall
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
 }

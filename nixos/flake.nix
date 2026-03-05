@@ -23,6 +23,7 @@
       modules = [
         ./hosts/haproxy-vm
         sops-nix.nixosModules.sops
+        "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
       ];
     };
   };
