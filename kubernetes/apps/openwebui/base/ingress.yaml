@@ -20,5 +20,5 @@ spec:
 
   tls:
     - hosts:
-        - "*.homelab.leehosanganson.dev"
+        - openwebui.homelab.leehosanganson.dev
       secretName: homelab-tls-secret
