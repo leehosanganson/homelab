@@ -4,10 +4,8 @@ metadata:
   name: homelab-tls
 spec:
   secretName: homelab-tls-secret
-  commonName: "*.homelab.leehosanganson.dev"
   dnsNames:
     - "*.homelab.leehosanganson.dev"
-    - homelab.leehosanganson.dev
   issuerRef:
     name: letsencrypt-cloudflare
     kind: ClusterIssuer
