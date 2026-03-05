@@ -1,5 +1,5 @@
 { config, ... }: {
-  # ACME Wildcard for *.home.leehosanganson.dev
+  # ACME Wildcard for *.internal.leehosanganson.dev
   security.acme = {
     acceptTerms = true;
     maxConcurrentRenewals = 1;
@@ -8,8 +8,8 @@
       server = "https://acme-v02.api.letsencrypt.org/directory";
       validMinDays = 999;
     };
-    certs."home.leehosanganson.dev" = {
-      domain = "*.home.leehosanganson.dev";
+    certs."internal.leehosanganson.dev" = {
+      domain = "*.internal.leehosanganson.dev";
       dnsProvider = "cloudflare";
       dnsResolver = "1.1.1.1:53";
       environmentFile = config.sops.secrets."dns-provider-env".path;
@@ -55,16 +55,16 @@
           default_backend local_ssl_termination 
 
       frontend tls_front
-          bind 127.0.0.1:8443 ssl crt /var/lib/acme/home.leehosanganson.dev/full.pem accept-proxy
+          bind 127.0.0.1:8443 ssl crt /var/lib/acme/internal.leehosanganson.dev/full.pem accept-proxy
           mode http
         
-          acl is_nas hdr(host) -i nas1.home.leehosanganson.dev
+          acl is_nas hdr(host) -i nas1.internal.leehosanganson.dev
           use_backend synology if is_nas
 
-          acl is_pihole_1 hdr(host) -i pihole-1.home.leehosanganson.dev
+          acl is_pihole_1 hdr(host) -i pihole-1.internal.leehosanganson.dev
           use_backend pihole_1 if is_pihole_1
 
-          acl is_pihole_2 hdr(host) -i pihole-2.home.leehosanganson.dev
+          acl is_pihole_2 hdr(host) -i pihole-2.internal.leehosanganson.dev
           use_backend pihole_2 if is_pihole_2
 
       # --- BACKENDS ---
