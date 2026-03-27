@@ -32,8 +32,8 @@ spec:
               mountPath: /music
               subPath: music
           env:
-            - name: ND_SCANSCHEDULE
-              value: 1m
+            - name: ND_SCANNER_SCHEDULE
+              value: "5 0 * * *"
             - name: ND_LOGLEVEL
               value: info
             - name: ND_SESSIONTIMEOUT
