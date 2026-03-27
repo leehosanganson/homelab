@@ -1,0 +1,4 @@
+namespace: navidrome
+
+resources:
+  - ../../base
