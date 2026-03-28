@@ -61,6 +61,31 @@ spec:
                 secretKeyRef:
                   name: gluetun-secrets
                   key: WIREGUARD_PRIVATE_KEY
+        - name: slskd
+          image: slskd/slskd:latest
+          ports:
+            - containerPort: 5030
+              name: http
+            - containerPort: 5031
+              name: https
+            - containerPort: 50300
+              name: p2p
+          env:
+            - name: SLSKD_REMOTE_CONFIGURATION
+              value: "true"
+            - name: SLSKD_SLSK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: media-credentials
+                  key: download-client-username
+            - name: SLSKD_SLSK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: media-credentials
+                  key: media-password
+          volumeMounts:
+            - name: downloads
+              mountPath: /app/downloads
       volumes:
         - name: downloads
           persistentVolumeClaim:
