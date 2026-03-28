@@ -33,7 +33,7 @@ spec:
               subPath: music
           env:
             - name: ND_SCANNER_SCHEDULE
-              value: "5 0 * * *"
+              value: "5 * * * *"
             - name: ND_LOGLEVEL
               value: info
             - name: ND_SESSIONTIMEOUT
