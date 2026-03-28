@@ -83,9 +83,15 @@ spec:
                 secretKeyRef:
                   name: media-credentials
                   key: media-password
+            - name: SLSKD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: media-credentials
+                  key: download-client-api-key
           volumeMounts:
             - name: downloads
               mountPath: /app/downloads
+              subPath: music
       volumes:
         - name: downloads
           persistentVolumeClaim:

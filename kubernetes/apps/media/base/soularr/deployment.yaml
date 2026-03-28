@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lidarr
+  name: soularr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: lidarr
+      app: soularr
   template:
     metadata:
       labels:
-        app: lidarr
+        app: soularr
     spec:
       nodeSelector:
         stack.arr: "arr-1"
@@ -20,34 +20,23 @@ spec:
         fsGroup: 1000
       dnsPolicy: ClusterFirst
       containers:
-        - name: lidarr
-          image: linuxserver/lidarr:latest
-          ports:
-            - containerPort: 8686
-              name: http
+        - name: soularr
+          image: mrusse08/soularr:latest
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
               value: "Etc/UTC"
+            - name: SCRIPT_INTERVAL
+              value: "300"
           volumeMounts:
             - name: config
-              mountPath: /config
-            - name: music
-              mountPath: /mnt/media/music
-              subPath: music
+              mountPath: /data
             - name: downloads
               mountPath: /downloads
               subPath: music
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: lidarr-pvc
-        - name: music
-          persistentVolumeClaim:
-            claimName: media-pvc
+            claimName: soularr-pvc
         - name: downloads
           persistentVolumeClaim:
             claimName: qbit-download
