@@ -8,3 +8,4 @@ resources:
   - radarr
   - sonarr
   - lidarr
+  - lrcget
