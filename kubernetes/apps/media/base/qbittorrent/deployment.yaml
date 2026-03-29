@@ -19,16 +19,14 @@ spec:
         options:
           - name: ndots
             value: "1"
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        runAsNonRoot: true
       containers:
         - name: qbittorrent
           image: linuxserver/qbittorrent:latest
           securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
+            runAsNonRoot: true
           ports:
             - containerPort: 8080
               name: qbit-web-ui
@@ -71,7 +69,10 @@ spec:
         - name: slskd
           image: slskd/slskd:latest
           securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
+            runAsNonRoot: true
           ports:
             - containerPort: 5030
               name: http
