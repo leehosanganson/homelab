@@ -9,5 +9,5 @@ resources:
   - sonarr
   - lidarr
   - lrcget
-  - soularr
+  # - soularr
   # - soulsync
