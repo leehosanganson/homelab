@@ -43,8 +43,11 @@ spec:
               mountPath: /app/config
             - name: database
               mountPath: /app/data
-            - name: media
+            - name: downloads
               mountPath: /app/downloads
+              subPath: music
+            - name: media
+              mountPath: /app/Transfer
               subPath: music
       volumes:
         - name: config
@@ -56,3 +59,6 @@ spec:
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: qbit-download

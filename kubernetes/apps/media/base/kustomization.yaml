@@ -10,4 +10,4 @@ resources:
   - lidarr
   - lrcget
   - soularr
-  - soulsync
+  # - soulsync
