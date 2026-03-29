@@ -39,7 +39,7 @@ spec:
             - name: ND_SESSIONTIMEOUT
               value: 24h
             - name: ND_BASEURL
-              value: /navidrome
+              value: /
             - name: ND_LASTFM_APIKEY
               valueFrom:
                 secretKeyRef:
@@ -52,7 +52,7 @@ spec:
                   key: ND_LASTFM_SECRET
           livenessProbe:
             httpGet:
-              path: /navidrome/app
+              path: /app
               port: 4533
             initialDelaySeconds: 30
             periodSeconds: 3
