@@ -21,7 +21,7 @@
       system = "x86_64-linux";
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
-        ./hosts/haproxy-vm
+        ./hosts/haproxy-1
         sops-nix.nixosModules.sops
         "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
       ];
