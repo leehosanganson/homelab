@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lrcget
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lrcget
+  template:
+    metadata:
+      labels:
+        app: lrcget
+    spec:
+      nodeSelector:
+        stack.arr: "arr-1"
+      containers:
+        - name: lrcget
+          image: gtt1229/docker-lrcget:1.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5800
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: media
+              mountPath: /music
+              subPath: music
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: lrcget-pvc
+        - name: media
+          persistentVolumeClaim:
+            claimName: media-pvc

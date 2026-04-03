@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: navidrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: navidrome
+  template:
+    metadata:
+      labels:
+        app: navidrome
+    spec:
+      containers:
+        - name: navidrome
+          image: deluan/navidrome:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: ".5"
+              memory: "2Gi"
+            requests:
+              cpu: "0.1"
+              memory: "10M"
+          ports:
+            - containerPort: 4533
+          volumeMounts:
+            - name: navidrome-data-volume
+              mountPath: /data
+            - name: navidrome-music-volume
+              mountPath: /music
+              subPath: music
+          env:
+            - name: ND_SCANNER_SCHEDULE
+              value: "5 * * * *"
+            - name: ND_LOGLEVEL
+              value: info
+            - name: ND_SESSIONTIMEOUT
+              value: 24h
+            - name: ND_BASEURL
+              value: /
+            - name: ND_LASTFM_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: navidrome-secrets
+                  key: ND_LASTFM_APIKEY
+            - name: ND_LASTFM_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: navidrome-secrets
+                  key: ND_LASTFM_SECRET
+          livenessProbe:
+            httpGet:
+              path: /app
+              port: 4533
+            initialDelaySeconds: 30
+            periodSeconds: 3
+            timeoutSeconds: 90
+      volumes:
+        - name: navidrome-data-volume
+          persistentVolumeClaim:
+            claimName: navidrome-pvc
+        - name: navidrome-music-volume
+          persistentVolumeClaim:
+            claimName: music-pvc

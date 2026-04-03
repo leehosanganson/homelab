@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soulsync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: soulsync
+  template:
+    metadata:
+      labels:
+        app: soulsync
+    spec:
+      nodeSelector:
+        stack.arr: "arr-1"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: soulsync
+          image: boulderbadgedad/soulsync:latest
+          ports:
+            - containerPort: 8008
+              name: web
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: UMASK
+              value: "022"
+            - name: TZ
+              value: "Etc/UTC"
+            - name: FLASK_ENV
+              value: production
+            - name: PYTHONPATH
+              value: /app
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: database
+              mountPath: /app/data
+            - name: downloads
+              mountPath: /app/downloads
+              subPath: music
+            - name: media
+              mountPath: /app/Transfer
+              subPath: music
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: soulsync-pvc
+        - name: database
+          persistentVolumeClaim:
+            claimName: soulsync-database
+        - name: media
+          persistentVolumeClaim:
+            claimName: media-pvc
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: qbit-download

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lidarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lidarr
+  template:
+    metadata:
+      labels:
+        app: lidarr
+    spec:
+      nodeSelector:
+        stack.arr: "arr-1"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: lidarr
+          image: linuxserver/lidarr:nightly
+          ports:
+            - containerPort: 8686
+              name: http
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Etc/UTC"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: music
+              mountPath: /mnt/media/music
+              subPath: music
+            - name: downloads
+              mountPath: /downloads
+              subPath: music
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: lidarr-pvc
+        - name: music
+          persistentVolumeClaim:
+            claimName: media-pvc
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: qbit-download

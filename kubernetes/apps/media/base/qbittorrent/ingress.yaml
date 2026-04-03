@@ -14,11 +14,24 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: qbittorrent
+                name: download-clients
                 port:
                   number: 8080
+    - host: slskd.homelab.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: download-clients
+                port:
+                  number: 5030
 
   tls:
     - hosts:
         - qbittorrent.homelab.leehosanganson.dev
       secretName: qbittorrent-tls
+    - hosts:
+        - slskd.homelab.leehosanganson.dev
+      secretName: slskd-tls

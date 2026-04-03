@@ -10,3 +10,4 @@ resources:
   - paperless.yaml
   - utility.yaml
   - zotero.yaml
+  - navidrome.yaml

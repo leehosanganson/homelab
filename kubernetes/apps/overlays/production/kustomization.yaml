@@ -14,6 +14,7 @@ resources:
   - ../../vllm/overlays/default
   - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
+  - ../../navidrome/overlays/default
 
 labels:
   - includeSelectors: false

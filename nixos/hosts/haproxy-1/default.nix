@@ -33,8 +33,8 @@
     diskSize = 8192;
   };
 
-  environment.etc."ssh/haproxy1_key" = {
-    source = "${sops-secrets}/haproxy1_key";
+  environment.etc."ssh/haproxy" = {
+    source = "${sops-secrets}/keys/haproxy";
     mode = "0600";
     user = "root";
     group = "root";
@@ -44,7 +44,7 @@
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
-      "/etc/ssh/haproxy1_key"
+      "/etc/ssh/haproxy"
     ];
 
     secrets = {

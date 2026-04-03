@@ -1,0 +1,5 @@
+namespace: navidrome
+
+resources:
+  - ../../base
+  - secrets.yaml

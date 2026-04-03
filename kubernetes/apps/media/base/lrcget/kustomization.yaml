@@ -1,0 +1,9 @@
+resources:
+  - deployment.yaml
+  - pvc.yaml
+  - service.yaml
+  - ingress.yaml
+
+labels:
+  - pairs:
+      app: lrcget
