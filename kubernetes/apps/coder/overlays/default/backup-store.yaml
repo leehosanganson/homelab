@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: coder-backup-storage
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/coder
+    azureCredentials:
+      storageAccount:
+        name: coder-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: coder-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d

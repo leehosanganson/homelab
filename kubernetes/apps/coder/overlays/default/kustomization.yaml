@@ -1,0 +1,14 @@
+namespace: coder
+
+resources:
+  - ../../base
+  - secrets.yaml
+  - backup-store.yaml
+  - backup-schedule.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: coder-values
+    options:
+      disableNameSuffixHash: true

@@ -1,0 +1,30 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: coder-db
+  labels:
+    db: coder-db
+spec:
+  instances: 3
+  storage:
+    size: 3Gi
+  monitoring:
+    enablePodMonitor: true
+  bootstrap:
+    initdb:
+      database: coder
+      owner: coder
+      secret:
+        name: coder-db-env
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: coder-backup-storage
+  externalClusters:
+    - name: clusterBackup
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: coder-backup-storage
+          serverName: coder-db-backup

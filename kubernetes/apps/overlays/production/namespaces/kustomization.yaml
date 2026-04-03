@@ -1,6 +1,7 @@
 resources:
   - actual-budget.yaml
   - commafeed.yaml
+  - coder.yaml
   - home-assistant.yaml
   - karakeep.yaml
   - llm.yaml
