@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: navidrome
-          image: deluan/navidrome:latest
+          image: harbor.leehosanganson.dev/dockerhub/deluan/navidrome:latest
           imagePullPolicy: Always
           resources:
             limits:

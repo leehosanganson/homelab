@@ -19,7 +19,7 @@ metadata:
 spec:
   containers:
     - name: migrator
-      image: alpine
+      image: harbor.leehosanganson.dev/dockerhub/library/alpine
       command: ["sh", "-c", "cp -av /source/. /destination/ && sleep infinity"]
       volumeMounts:
         - name: source

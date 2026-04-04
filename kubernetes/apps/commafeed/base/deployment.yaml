@@ -18,7 +18,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: commafeed
-          image: athou/commafeed:latest-postgresql
+          image: harbor.leehosanganson.dev/dockerhub/athou/commafeed:latest-postgresql
           ports:
             - containerPort: 8082
               protocol: TCP

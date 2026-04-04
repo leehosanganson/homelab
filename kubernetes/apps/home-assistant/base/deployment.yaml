@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: home-assistant-app
-          image: ghcr.io/home-assistant/home-assistant:latest
+          image: harbor.leehosanganson.dev/ghcr/home-assistant/home-assistant:latest
           envFrom:
             - configMapRef:
                 name: home-assistant-config

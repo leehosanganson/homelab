@@ -92,7 +92,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-snapshotter:v4.2.1
+          image: harbor.leehosanganson.dev/registry-k8s-io/sig-storage/csi-snapshotter:v4.2.1
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -109,7 +109,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: synology/synology-csi:v1.2.1
+          image: harbor.leehosanganson.dev/dockerhub/synology/synology-csi:v1.2.1
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

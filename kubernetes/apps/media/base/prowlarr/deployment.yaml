@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: prowlarr
-          image: linuxserver/prowlarr:latest
+          image: harbor.leehosanganson.dev/dockerhub/linuxserver/prowlarr:latest
           ports:
             - containerPort: 9696
               name: http

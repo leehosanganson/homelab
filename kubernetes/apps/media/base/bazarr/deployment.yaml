@@ -20,7 +20,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bazarr
-          image: linuxserver/bazarr:latest
+          image: harbor.leehosanganson.dev/dockerhub/linuxserver/bazarr:latest
           ports:
             - containerPort: 6767
               name: http

@@ -17,7 +17,7 @@ spec:
   nodeName: homelab-server-9g2t
   containers:
     - name: nginx
-      image: nginx
+      image: harbor.leehosanganson.dev/dockerhub/library/nginx
       volumeMounts:
         - name: test-mount
           mountPath: /test

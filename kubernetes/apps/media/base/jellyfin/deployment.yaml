@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: jellyfin
-          image: jellyfin/jellyfin:latest
+          image: harbor.leehosanganson.dev/dockerhub/jellyfin/jellyfin:latest
           ports:
             - containerPort: 8096
               name: http

@@ -23,7 +23,7 @@ spec:
             claimName: broker-pvc
       containers:
         - name: broker
-          image: redis:latest
+          image: harbor.leehosanganson.dev/dockerhub/library/redis:latest
           ports:
             - containerPort: 6379
               protocol: TCP

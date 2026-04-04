@@ -16,7 +16,7 @@ credentials:
 
 initContainers:
   - name: velero-plugin-for-microsoft-azure
-    image: velero/velero-plugin-for-microsoft-azure:v1.5.0
+    image: harbor.leehosanganson.dev/dockerhub/velero/velero-plugin-for-microsoft-azure:v1.5.0
     volumeMounts:
       - mountPath: /target
         name: plugins

@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: jellyseerr
-          image: ghcr.io/fallenbagel/jellyseerr:latest
+          image: harbor.leehosanganson.dev/ghcr/fallenbagel/jellyseerr:latest
           ports:
             - containerPort: 5055
               name: http

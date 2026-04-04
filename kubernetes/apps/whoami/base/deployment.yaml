@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: whoami
-          image: traefik/whoami
+          image: harbor.leehosanganson.dev/dockerhub/traefik/whoami
           ports:
             - containerPort: 80

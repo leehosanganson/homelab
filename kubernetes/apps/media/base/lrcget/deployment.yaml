@@ -16,7 +16,7 @@ spec:
         stack.arr: "arr-1"
       containers:
         - name: lrcget
-          image: gtt1229/docker-lrcget:1.0.2
+          image: harbor.leehosanganson.dev/dockerhub/gtt1229/docker-lrcget:1.0.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5800
