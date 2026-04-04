@@ -1,0 +1,64 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          tag: v2.6.3
+        env:
+          DB_DATABASE_NAME: immich
+          DB_HOSTNAME: immich-db-rw
+          DB_PORT: "5432"
+          DB_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: immich-db-credentials
+                key: username
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: immich-db-credentials
+                key: password
+
+immich:
+  persistence:
+    library:
+      existingClaim: immich-library-pvc
+
+valkey:
+  enabled: true
+  persistence:
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 1Gi
+      storageClass: nfs-csi-retain
+      accessMode: ReadWriteOnce
+
+server:
+  enabled: true
+  ingress:
+    main:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+      ingressClassName: traefik
+      hosts:
+        - host: immich.homelab.leehosanganson.dev
+          paths:
+            - path: /
+              service:
+                identifier: main
+      tls:
+        - hosts:
+            - immich.homelab.leehosanganson.dev
+          secretName: immich-tls
+
+machine-learning:
+  enabled: true
+  persistence:
+    cache:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 10Gi
+      storageClass: nfs-csi-retain
+      accessMode: ReadWriteOnce

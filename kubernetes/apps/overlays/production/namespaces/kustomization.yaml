@@ -11,3 +11,4 @@ resources:
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
+  - immich.yaml
