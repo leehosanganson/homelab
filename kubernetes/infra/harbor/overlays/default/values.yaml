@@ -14,8 +14,9 @@ expose:
 
 externalURL: https://harbor.leehosanganson.dev
 
-existingSecretAdminPassword: harbor-admin-secret
-existingSecretAdminPasswordKey: password
+harborAdminPassword: ""
+existingSecretAdminPassword: harbor-secrets
+existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 
 persistence:
   enabled: true
