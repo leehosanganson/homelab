@@ -1,0 +1,44 @@
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+  ingress:
+    hosts:
+      core: harbor.leehosanganson.dev
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+
+externalURL: https://harbor.leehosanganson.dev
+
+existingSecretAdminPassword: harbor-admin-secret
+existingSecretAdminPasswordKey: password
+
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: nfs-csi-retain
+      accessMode: ReadWriteOnce
+      size: 50Gi
+    jobservice:
+      jobLog:
+        storageClass: nfs-csi-retain
+        accessMode: ReadWriteOnce
+        size: 1Gi
+    database:
+      storageClass: synology-retain
+      accessMode: ReadWriteOnce
+      size: 5Gi
+    redis:
+      storageClass: synology-retain
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    trivy:
+      storageClass: nfs-csi-retain
+      accessMode: ReadWriteOnce
+      size: 5Gi

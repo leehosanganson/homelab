@@ -6,6 +6,7 @@ resources:
   - ../../velero/overlays/default
   - ../../external-secrets/overlays/default
   - ../../gpu-operator/overlays/default
+  - ../../harbor/overlays/default
 
 labels:
   - includeSelectors: false
