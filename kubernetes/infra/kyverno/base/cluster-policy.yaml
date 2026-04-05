@@ -8,8 +8,8 @@ metadata:
     policies.kyverno.io/description: >-
       Rewrites non-system container image references to pull through the
       internal Harbor proxy cache at harbor.leehosanganson.dev.
-      Kubernetes (registry.k8s.io) and Kyverno (kyverno namespace) images
-      are explicitly excluded and pulled directly from upstream.
+      Kubernetes (registry.k8s.io), kube-system, and Kyverno (kyverno namespace)
+      images are explicitly excluded and pulled directly from upstream.
       Mappings:
         ghcr.io       → harbor.leehosanganson.dev/ghcr
         gcr.io        → harbor.leehosanganson.dev/gcr
@@ -28,6 +28,7 @@ spec:
         any:
           - resources:
               namespaces:
+                - kube-system
                 - kyverno
       mutate:
         foreach:
@@ -75,6 +76,7 @@ spec:
         any:
           - resources:
               namespaces:
+                - kube-system
                 - kyverno
       mutate:
         foreach:
@@ -122,6 +124,7 @@ spec:
         any:
           - resources:
               namespaces:
+                - kube-system
                 - kyverno
       mutate:
         foreach:
@@ -169,6 +172,7 @@ spec:
         any:
           - resources:
               namespaces:
+                - kube-system
                 - kyverno
       mutate:
         foreach:
