@@ -6,15 +6,15 @@ metadata:
     policies.kyverno.io/title: Replace Image Registry with Harbor Proxy
     policies.kyverno.io/category: Harbor
     policies.kyverno.io/description: >-
-      Rewrites all container image references to pull through the internal
-      Harbor proxy cache at harbor.leehosanganson.dev, eliminating direct
-      upstream registry dependencies.
+      Rewrites non-system container image references to pull through the
+      internal Harbor proxy cache at harbor.leehosanganson.dev.
+      Kubernetes (registry.k8s.io) and Kyverno (kyverno namespace) images
+      are explicitly excluded and pulled directly from upstream.
       Mappings:
-        ghcr.io            → harbor.leehosanganson.dev/ghcr
-        gcr.io             → harbor.leehosanganson.dev/gcr
-        registry.k8s.io    → harbor.leehosanganson.dev/registry-k8s-io
-        docker.io          → harbor.leehosanganson.dev/dockerhub
-        <unqualified>      → harbor.leehosanganson.dev/dockerhub
+        ghcr.io       → harbor.leehosanganson.dev/ghcr
+        gcr.io        → harbor.leehosanganson.dev/gcr
+        docker.io     → harbor.leehosanganson.dev/dockerhub
+        <unqualified> → harbor.leehosanganson.dev/dockerhub
 spec:
   background: false
   rules:
@@ -24,6 +24,11 @@ spec:
           - resources:
               kinds:
                 - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kyverno
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
@@ -66,48 +71,11 @@ spec:
           - resources:
               kinds:
                 - Pod
-      mutate:
-        foreach:
-          - list: "request.object.spec.initContainers[]"
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                initContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
-          - list: "request.object.spec.containers[]"
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                containers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
-          - list: "request.object.spec.ephemeralContainers[]"
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                ephemeralContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
-
-    - name: replace-registry-k8s-io
-      match:
+      exclude:
         any:
           - resources:
-              kinds:
-                - Pod
+              namespaces:
+                - kyverno
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
@@ -115,34 +83,34 @@ spec:
               any:
                 - key: "{{ element.image }}"
                   operator: Regex
-                  value: "^registry\\.k8s\\.io/.*"
+                  value: "^gcr\\.io/.*"
             patchStrategicMerge:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
           - list: "request.object.spec.containers[]"
             preconditions:
               any:
                 - key: "{{ element.image }}"
                   operator: Regex
-                  value: "^registry\\.k8s\\.io/.*"
+                  value: "^gcr\\.io/.*"
             patchStrategicMerge:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
             preconditions:
               any:
                 - key: "{{ element.image }}"
                   operator: Regex
-                  value: "^registry\\.k8s\\.io/.*"
+                  value: "^gcr\\.io/.*"
             patchStrategicMerge:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
 
     - name: replace-docker-io
       match:
@@ -150,6 +118,11 @@ spec:
           - resources:
               kinds:
                 - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kyverno
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
@@ -192,6 +165,11 @@ spec:
           - resources:
               kinds:
                 - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kyverno
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
