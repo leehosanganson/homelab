@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: soularr
-          image: harbor.leehosanganson.dev/dockerhub/mrusse08/soularr:latest
+          image: mrusse08/soularr:latest
           env:
             - name: TZ
               value: "Etc/UTC"

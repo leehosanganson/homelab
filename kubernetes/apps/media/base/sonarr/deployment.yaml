@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: sonarr
-          image: harbor.leehosanganson.dev/dockerhub/linuxserver/sonarr:latest
+          image: linuxserver/sonarr:latest
           ports:
             - containerPort: 8989
               name: http

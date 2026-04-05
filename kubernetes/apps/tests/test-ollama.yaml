@@ -15,7 +15,7 @@ spec:
       runtimeClassName: nvidia
       containers:
         - name: ollama
-          image: harbor.leehosanganson.dev/dockerhub/ollama/ollama:latest
+          image: ollama/ollama:latest
           resources:
             limits:
               nvidia.com/gpu: 1

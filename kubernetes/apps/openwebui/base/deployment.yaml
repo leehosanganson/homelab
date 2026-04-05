@@ -19,7 +19,7 @@ spec:
           persistentVolumeClaim:
             claimName: open-webui-pvc
       containers:
-        - image: harbor.leehosanganson.dev/ghcr/open-webui/open-webui:main
+        - image: ghcr.io/open-webui/open-webui:main
           name: open-webui
           ports:
             - containerPort: 8080

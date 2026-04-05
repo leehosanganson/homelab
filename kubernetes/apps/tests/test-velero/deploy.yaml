@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: harbor.leehosanganson.dev/dockerhub/library/nginx
+          image: nginx
           volumeMounts:
             - name: config
               mountPath: /config

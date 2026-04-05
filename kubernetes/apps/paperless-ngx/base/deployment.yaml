@@ -35,7 +35,7 @@ spec:
           emptyDir: {}
       containers:
         - name: webserver
-          image: harbor.leehosanganson.dev/ghcr/paperless-ngx/paperless-ngx:latest
+          image: ghcr.io/paperless-ngx/paperless-ngx:latest
           ports:
             - containerPort: 8000
               protocol: TCP

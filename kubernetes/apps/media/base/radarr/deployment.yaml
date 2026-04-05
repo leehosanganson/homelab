@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: radarr
-          image: harbor.leehosanganson.dev/dockerhub/linuxserver/radarr:latest
+          image: linuxserver/radarr:latest
           ports:
             - containerPort: 7878
               name: http

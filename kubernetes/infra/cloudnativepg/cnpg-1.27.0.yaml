@@ -17962,7 +17962,7 @@ spec:
               fieldPath: metadata.namespace
         - name: MONITORING_QUERIES_CONFIGMAP
           value: cnpg-default-monitoring
-        image: harbor.leehosanganson.dev/ghcr/cloudnative-pg/cloudnative-pg:1.27.0
+        image: ghcr.io/cloudnative-pg/cloudnative-pg:1.27.0
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

@@ -1,0 +1,229 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: replace-image-registry
+  annotations:
+    policies.kyverno.io/title: Replace Image Registry with Harbor Proxy
+    policies.kyverno.io/category: Harbor
+    policies.kyverno.io/description: >-
+      Rewrites all container image references to pull through the internal
+      Harbor proxy cache at harbor.leehosanganson.dev, eliminating direct
+      upstream registry dependencies.
+      Mappings:
+        ghcr.io            → harbor.leehosanganson.dev/ghcr
+        gcr.io             → harbor.leehosanganson.dev/gcr
+        registry.k8s.io    → harbor.leehosanganson.dev/registry-k8s-io
+        docker.io          → harbor.leehosanganson.dev/dockerhub
+        <unqualified>      → harbor.leehosanganson.dev/dockerhub
+spec:
+  background: false
+  rules:
+    - name: replace-ghcr-io
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^ghcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^ghcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^ghcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+
+    - name: replace-gcr-io
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^gcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^gcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^gcr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+
+    - name: replace-registry-k8s-io
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^registry\\.k8s\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^registry\\.k8s\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^registry\\.k8s\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('registry.k8s.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/registry-k8s-io/') }}"
+
+    - name: replace-docker-io
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^docker\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^docker\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^docker\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+
+    - name: replace-unqualified-dockerhub
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              all:
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                  operator: Equals
+                  value: "false"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              all:
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                  operator: Equals
+                  value: "false"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              all:
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                  operator: Equals
+                  value: "false"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"

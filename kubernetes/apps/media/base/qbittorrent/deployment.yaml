@@ -21,7 +21,7 @@ spec:
             value: "1"
       containers:
         - name: qbittorrent
-          image: harbor.leehosanganson.dev/dockerhub/linuxserver/qbittorrent:latest
+          image: linuxserver/qbittorrent:latest
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -48,7 +48,7 @@ spec:
             - name: downloads
               mountPath: /downloads
         - name: gluetun
-          image: harbor.leehosanganson.dev/dockerhub/qmcgaw/gluetun:latest
+          image: qmcgaw/gluetun:latest
           securityContext:
             capabilities:
               add:
@@ -65,7 +65,7 @@ spec:
                   name: gluetun-secrets
                   key: WIREGUARD_PRIVATE_KEY
         - name: slskd
-          image: harbor.leehosanganson.dev/dockerhub/slskd/slskd:latest
+          image: slskd/slskd:latest
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000

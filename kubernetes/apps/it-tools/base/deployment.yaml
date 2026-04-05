@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: it-tools
-          image: harbor.leehosanganson.dev/dockerhub/corentinth/it-tools:latest
+          image: corentinth/it-tools:latest
           ports:
             - containerPort: 80
           resources:

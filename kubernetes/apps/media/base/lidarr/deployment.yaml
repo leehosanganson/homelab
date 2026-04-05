@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: lidarr
-          image: harbor.leehosanganson.dev/dockerhub/linuxserver/lidarr:nightly
+          image: linuxserver/lidarr:nightly
           ports:
             - containerPort: 8686
               name: http

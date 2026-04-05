@@ -10,3 +10,4 @@ resources:
   - uptime-kuma.yaml
   - coder-v2.yaml
   - harbor.yaml
+  - kyverno.yaml
