@@ -1,5 +1,5 @@
 resources:
   - db.yaml
-  - ingress
+  - ingress.yaml
   - frontend
   - backend
