@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novnc-chrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novnc-chrome
+  template:
+    metadata:
+      labels:
+        app: novnc-chrome
+    spec:
+      containers:
+        - name: novnc-chrome
+          image: lscr.io/linuxserver/chromium:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
