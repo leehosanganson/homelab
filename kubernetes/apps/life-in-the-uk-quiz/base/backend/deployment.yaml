@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-backend:latest
+          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-backend:6530b4c
           ports:
             - containerPort: 8080
           envFrom:
@@ -26,6 +26,6 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: life-in-the-uk-quiz-secrets
+                  name: life-in-the-uk-quiz-db-url
                   key: database-url
       restartPolicy: Always

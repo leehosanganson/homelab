@@ -7,17 +7,17 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: www.leehosanganson.dev
+    - host: life-in-the-uk-quiz.leehosanganson.dev
       http:
         paths:
-          - path: /life-in-the-uk-quiz
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: frontend
                 port:
                   number: 80
-          - path: /life-in-the-uk-quiz/api
+          - path: /api
             pathType: Prefix
             backend:
               service:
@@ -26,5 +26,5 @@ spec:
                   number: 8080
   tls:
     - hosts:
-        - www.leehosanganson.dev
+        - life-in-the-uk-quiz.leehosanganson.dev
       secretName: life-in-the-uk-quiz-tls

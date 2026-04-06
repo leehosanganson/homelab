@@ -13,8 +13,8 @@ spec:
     enablePodMonitor: true
   bootstrap:
     initdb:
-      database: life-in-the-uk-quiz
-      owner: life-in-the-uk-quiz
+      database: quiz
+      owner: quiz
       secret:
         name: life-in-the-uk-quiz-secrets
   plugins:

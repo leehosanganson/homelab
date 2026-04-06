@@ -4,5 +4,5 @@ metadata:
   name: backend-config
 data:
   PORT: "8080"
-  DATA_DIR: /data/questions
-  CORS_ORIGINS: https://www.leehosanganson.dev
+  QUESTIONS_BASE_URL: "https://raw.githubusercontent.com/leehosanganson/life-in-the-uk-quiz/refs/heads/main/data/questions" # if set, overrides DATA_DIR and loads questions from this remote base URL
+  CORS_ORIGINS: https://life-in-the-uk-quiz.leehosanganson.dev
