@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  VITE_BACKEND_HOST: https://www.leehosanganson.dev/life-in-the-uk-quiz
+  VITE_CONTACT_EMAIL: "leehosanganson@gmail.com"
+  VITE_OPERATOR_NAME: "Ho Sang Lee"
+  VITE_POLICY_UPDATE_DATE: "5 April 2026"

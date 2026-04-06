@@ -1,0 +1,31 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: db
+  labels:
+    db: life-in-the-uk-quiz-db
+spec:
+  instances: 1
+  storage:
+    storageClass: synology-retain
+    size: 3Gi
+  monitoring:
+    enablePodMonitor: true
+  bootstrap:
+    initdb:
+      database: life-in-the-uk-quiz
+      owner: life-in-the-uk-quiz
+      secret:
+        name: life-in-the-uk-quiz-secrets
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: life-in-the-uk-quiz-backup-storage
+  externalClusters:
+    - name: clusterBackup
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: life-in-the-uk-quiz-backup-storage
+          serverName: life-in-the-uk-quiz-db-backup

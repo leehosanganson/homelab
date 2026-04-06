@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: life-in-the-uk-quiz-frontend
+  template:
+    metadata:
+      labels:
+        app: life-in-the-uk-quiz-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-frontend:latest
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+      restartPolicy: Always
