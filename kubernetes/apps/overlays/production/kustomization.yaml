@@ -16,6 +16,7 @@ resources:
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
   - ../../novnc-chrome/overlays/default
+  - ../../life-in-the-uk-quiz/overlays/default
 
 labels:
   - includeSelectors: false
