@@ -17,10 +17,22 @@ data:
             - GitHub:
               - abbr: GH
                 href: https://github.com/leehosanganson
+            
+            - Side Project:
+              - abbr: SP
+                href: https://github.com/users/leehosanganson/projects/15/views/1
+
+            - Homelab:
+              - abbr: HL
+                href: https://github.com/users/leehosanganson/projects/14
 
             - Youtube:
               - abbr: YT
                 href: https:///youtube.com/
+
+            - Azure:
+              - abbr: AZ
+                href: https://portal.azure.com/#home
 
     widgets.yaml: |
         - search:
@@ -68,20 +80,6 @@ data:
                 href: https://termix.homelab.leehosanganson.dev
                 description: Web terminal
 
-        - Tool:
-            - Open WebUI:
-                icon: openwebui.png
-                href: https://openwebui.homelab.leehosanganson.dev
-                description: AI chat interface
-            - LiteLLM:
-                icon: litellm.png
-                href: https://litellm.homelab.leehosanganson.dev
-                description: LLM proxy
-            - N8N:
-                icon: n8n.png
-                href: https://n8n.homelab.leehosanganson.dev
-                description: Workflow automation
-
         - Entertainment:
             - Jellyfin:
                 icon: jellyfin.png
@@ -99,6 +97,24 @@ data:
                 icon: chrome.png
                 href: https://novnc-chrome.homelab.leehosanganson.dev
                 description: Browser in browser
+
+        - Maintenance:
+            - Grafana:
+                icon: grafana.png
+                href: https://grafana.homelab.leehosanganson.dev/d/efa86fd1d0c121a26444b636a3f509a8/kubernetes-compute-resources-cluster?orgId=1&from=now-1h&to=now&timezone=utc&var-datasource=default&var-cluster=&refresh=10s
+                description: Monitoring Dashboard
+            - Open WebUI:
+                icon: openwebui.png
+                href: https://openwebui.homelab.leehosanganson.dev
+                description: AI chat interface
+            - LiteLLM:
+                icon: litellm.png
+                href: https://litellm.homelab.leehosanganson.dev
+                description: LLM proxy
+            - N8N:
+                icon: n8n.png
+                href: https://n8n.homelab.leehosanganson.dev
+                description: Workflow automation
 
         - Media Management:
             - Sonarr:
