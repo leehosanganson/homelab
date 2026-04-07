@@ -12,9 +12,12 @@ spec:
       labels:
         app: novnc-chrome
     spec:
+      securityContext:
+        seccompProfile:
+          type: Unconfined
       containers:
         - name: novnc-chrome
-          image: lscr.io/linuxserver/chrome:latest
+          image: ghcr.io/gitxpresso/chromekasmvnc:latest
           ports:
             - containerPort: 3000
           resources:
@@ -24,16 +27,9 @@ spec:
             limits:
               cpu: "2"
               memory: "2Gi"
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: TZ
-              value: Etc/UTC
           volumeMounts:
             - name: chrome-profile
-              mountPath: /config
+              mountPath: /home/kasm-user
       volumes:
         - name: chrome-profile
           persistentVolumeClaim:
