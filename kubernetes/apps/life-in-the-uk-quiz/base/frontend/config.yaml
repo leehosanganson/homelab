@@ -4,6 +4,8 @@ metadata:
   name: frontend-config
 data:
   VITE_BACKEND_HOST: https://life-in-the-uk-quiz.leehosanganson.dev/api
-  VITE_CONTACT_EMAIL: "leehosanganson@gmail.com"
-  VITE_OPERATOR_NAME: "Ho Sang Lee"
-  VITE_POLICY_UPDATE_DATE: "5 April 2026"
+  CONTACT_EMAIL: "leehosanganson@gmail.com"
+  OPERATOR_NAME: "Ho Sang Lee"
+  POLICY_UPDATE_DATE: "5 April 2026"
+  GITHUB_URL: https://github.com/leehosanganson/life-in-the-uk-quiz
+  APP_VERSION: staging
