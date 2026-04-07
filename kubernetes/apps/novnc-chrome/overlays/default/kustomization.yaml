@@ -1,0 +1,4 @@
+namespace: novnc-chrome
+
+resources:
+  - ../../base
