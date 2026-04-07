@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: termix
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: termix.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: termix
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - termix.leehosanganson.dev
+      secretName: termix-tls

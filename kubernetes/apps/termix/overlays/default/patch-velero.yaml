@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: termix
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: termix-pvc
