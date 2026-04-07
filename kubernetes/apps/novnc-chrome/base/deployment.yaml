@@ -12,9 +12,15 @@ spec:
       labels:
         app: novnc-chrome
     spec:
+      runtimeClassName: nvidia
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: novnc-chrome
           image: ghcr.io/gitxpresso/chromekasmvnc:latest
+          securityContext:
+            seccompProfile:
+              type: Unconfined
           ports:
             - containerPort: 3000
           resources:
@@ -22,12 +28,17 @@ spec:
               cpu: "1"
               memory: "1Gi"
             limits:
-              cpu: "2"
-              memory: "2Gi"
+              cpu: "4"
+              memory: "4Gi"
           volumeMounts:
             - name: chrome-profile
-              mountPath: /home/kasm-user
+              mountPath: /home/abc/.config/google-chrome
+            - name: dshm
+              mountPath: /dev/shm
       volumes:
         - name: chrome-profile
           persistentVolumeClaim:
             claimName: novnc-chrome-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
