@@ -12,9 +12,6 @@ spec:
       labels:
         app: novnc-chrome
     spec:
-      securityContext:
-        seccompProfile:
-          type: Unconfined
       containers:
         - name: novnc-chrome
           image: ghcr.io/gitxpresso/chromekasmvnc:latest
