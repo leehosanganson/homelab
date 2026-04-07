@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+data:
+  settings.yaml: |
+    title: Homelab
+    theme: dark
+    color: slate
+    headerStyle: clean
+    cardBlur: md
+    target: _blank
+    hideVersion: true
+
+  bookmarks.yaml: |
+    - Developer:
+        - GitHub:
+            - abbr: GH
+              href: https://github.com
+
+  widgets.yaml: |
+    - search:
+        provider: google
+        target: _blank
+
+  services.yaml: |
+    - Finance:
+        - Actual Budget:
+            icon: actual-budget.png
+            href: https://actual-budget.homelab.leehosanganson.dev
+            description: Personal finance manager
+
+    - AI:
+        - Open WebUI:
+            icon: openwebui.png
+            href: https://openwebui.homelab.leehosanganson.dev
+            description: AI chat interface
+        - LiteLLM:
+            icon: litellm.png
+            href: https://litellm.homelab.leehosanganson.dev
+            description: LLM proxy
+        - vLLM:
+            icon: fastapi.png
+            href: https://vllm.homelab.leehosanganson.dev
+            description: High-throughput LLM serving
+
+    - Media:
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://jellyfin.homelab.leehosanganson.dev
+            description: Media server
+        - Jellyseerr:
+            icon: jellyseerr.png
+            href: https://jellyseerr.homelab.leehosanganson.dev
+            description: Media request management
+        - Sonarr:
+            icon: sonarr.png
+            href: https://sonarr.homelab.leehosanganson.dev
+            description: TV series management
+        - Radarr:
+            icon: radarr.png
+            href: https://radarr.homelab.leehosanganson.dev
+            description: Movie management
+        - Lidarr:
+            icon: lidarr.png
+            href: https://lidarr.homelab.leehosanganson.dev
+            description: Music management
+        - Bazarr:
+            icon: bazarr.png
+            href: https://bazarr.homelab.leehosanganson.dev
+            description: Subtitle management
+        - Prowlarr:
+            icon: prowlarr.png
+            href: https://prowlarr.homelab.leehosanganson.dev
+            description: Indexer management
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: https://qbittorrent.homelab.leehosanganson.dev
+            description: Torrent client
+        - Navidrome:
+            icon: navidrome.png
+            href: https://navidrome.leehosanganson.dev
+            description: Music streaming
+        - LRCGet:
+            icon: lrcget.png
+            href: https://lrcget.homelab.leehosanganson.dev
+            description: Lyrics downloader
+        - Slskd:
+            icon: slskd.png
+            href: https://slskd.homelab.leehosanganson.dev
+            description: Soulseek client
+        - Soulsync:
+            icon: navidrome.png
+            href: https://soulsync.homelab.leehosanganson.dev
+            description: Music sync
+
+    - Productivity:
+        - Paperless-ngx:
+            icon: paperless.png
+            href: https://paperless.homelab.leehosanganson.dev
+            description: Document management
+        - Commafeed:
+            icon: commafeed.png
+            href: https://commafeed.leehosanganson.dev
+            description: RSS feed reader
+        - Karakeep:
+            icon: karakeep.png
+            href: https://karakeep.leehosanganson.dev
+            description: Bookmark manager
+        - Zotero WebDAV:
+            icon: zotero.png
+            href: https://zotero.leehosanganson.dev
+            description: Zotero file storage
+        - N8N:
+            icon: n8n.png
+            href: https://n8n.homelab.leehosanganson.dev
+            description: Workflow automation
+
+    - Home:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://home-assistant.homelab.leehosanganson.dev
+            description: Home automation
+
+    - Development:
+        - Coder:
+            icon: coder.png
+            href: https://coder.homelab.leehosanganson.dev
+            description: Cloud development environments
+
+    - Utilities:
+        - IT Tools:
+            icon: it-tools.png
+            href: https://it-tools.leehosanganson.dev
+            description: Developer tools
+        - NoVNC Chrome:
+            icon: chrome.png
+            href: https://novnc-chrome.homelab.leehosanganson.dev
+            description: Browser in browser
+        - Termix:
+            icon: terminal.png
+            href: https://termix.homelab.leehosanganson.dev
+            description: Web terminal
+
+  docker.yaml: |
+    {}
+
+  kubernetes.yaml: |
+    mode: default
