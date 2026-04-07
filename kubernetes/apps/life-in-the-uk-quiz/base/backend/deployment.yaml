@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-backend:6530b4c
+          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-backend:v0.0.3
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           envFrom:
