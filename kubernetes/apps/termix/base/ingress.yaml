@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: termix.leehosanganson.dev
+    - host: termix.homelab.leehosanganson.dev
       http:
         paths:
           - path: /
@@ -19,5 +19,5 @@ spec:
                   number: 8080
   tls:
     - hosts:
-        - termix.leehosanganson.dev
+        - termix.homelab.leehosanganson.dev
       secretName: termix-tls
