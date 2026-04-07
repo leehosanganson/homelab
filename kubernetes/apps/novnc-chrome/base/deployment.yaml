@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: novnc-chrome
-          image: lscr.io/linuxserver/chromium:latest
+          image: lscr.io/linuxserver/chrome:latest
           ports:
             - containerPort: 3000
           resources:
@@ -31,3 +31,10 @@ spec:
               value: "1000"
             - name: TZ
               value: Etc/UTC
+          volumeMounts:
+            - name: chrome-profile
+              mountPath: /config
+      volumes:
+        - name: chrome-profile
+          persistentVolumeClaim:
+            claimName: novnc-chrome-pvc
