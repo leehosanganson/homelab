@@ -1,3 +1,4 @@
 namespace: utility
 resources:
   - ../../base
+  - secrets.yaml
