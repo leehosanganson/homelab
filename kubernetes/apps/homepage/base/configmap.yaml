@@ -94,6 +94,14 @@ data:
                 icon: open-webui.png
                 href: https://openwebui.homelab.leehosanganson.dev
                 description: AI chat interface
+            - LiteLLM:
+                icon: litellm.png
+                href: https://litellm.homelab.leehosanganson.dev
+                description: LLM proxy and gateway
+            - vLLM:
+                icon: vllm.png
+                href: https://vllm.homelab.leehosanganson.dev
+                description: LLM inference server
             - N8N:
                 icon: n8n.png
                 href: https://n8n.homelab.leehosanganson.dev
@@ -150,6 +158,14 @@ data:
                 icon: grafana.png
                 href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&from=now-15m&to=now&timezone=browser&var-lineFormat=&var-ds=ceqjy8egm34lcf&var-filters=&var-fields=&var-levels=&var-metadata=&var-jsonFields=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-primary_label=service_name|%3D~|.%2B&refresh=auto
                 description: Loki Logs
+            - Uptime Kuma:
+                icon: uptime-kuma.png
+                href: https://uptime-kuma.homelab.leehosanganson.dev
+                description: Uptime monitoring for homelab services
+                widget:
+                    type: uptimekuma
+                    url: https://uptime-kuma.homelab.leehosanganson.dev
+                    slug: public
 
         - Infrastructure:
             - UniFi:
