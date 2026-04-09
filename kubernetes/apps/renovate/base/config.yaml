@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-config
+data:
+  config.js: |
+    module.exports = {
+      platform: 'github',
+      repositories: ['leehosanganson/homelab'],
+      gitAuthor: 'Renovate Bot <bot@renovateapp.com>',
+      onboarding: false,
+      requireConfig: 'optional',
+    };

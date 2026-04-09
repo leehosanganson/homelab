@@ -45,6 +45,7 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://external-secrets.io/latest/pictures/eso-round-logo.svg" height="32" /> | [External Secrets Operator](https://external-secrets.io/latest/) | External secrets in Azure Key Vault |
 | <img src="https://cloudnative-pg.io/logo/large_logo.svg" height="32" /> | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg) | PostgreSQL DB Cluster for other applications |
 | <img src="https://www.synology.com/img/company/branding/synology_logo.jpg" height="32" /> | [Synology CSI Driver](https://github.com/SynologyOpenSource/synology-csi) | Persistent Volume Provisioning from my Synology NAS |
+| <img src="https://avatars.githubusercontent.com/u/38656520?s=48&v=4" height="32" /> | [Renovate](https://github.com/renovatebot/renovate) | Automated dependency update bot (OSS CLI) |
 
 ### Monitoring & Observability
 
