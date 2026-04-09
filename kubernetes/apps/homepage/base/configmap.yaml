@@ -3,6 +3,15 @@ kind: ConfigMap
 metadata:
   name: homepage-config
 data:
+  kubernetes.yaml: |
+    mode: default
+
+  proxmox.yaml: ""
+
+  docker.yaml: ""
+
+  bookmarks.yaml: ""
+
   settings.yaml: |
     title: Homelab
     theme: dark
@@ -11,28 +20,40 @@ data:
     cardBlur: md
     target: _blank
     hideVersion: true
-
-  bookmarks.yaml: |
-    - Development:
-        - GitHub:
-          - abbr: GH
-            href: https://github.com/leehosanganson
-        - Side Project:
-          - abbr: SP
-            href: https://github.com/users/leehosanganson/projects/15/views/1
-        - Homelab:
-          - abbr: HL
-            href: https://github.com/users/leehosanganson/projects/14
-
-    - Cloud:
-        - Azure:
-          - abbr: AZ
-            href: https://portal.azure.com/#home
-
-    - Media:
-        - Youtube:
-          - abbr: YT
-            href: https://www.youtube.com/
+    useEqualHeights: true
+    layout:
+      Home:
+        style: row
+        columns: 3
+      Productivity:
+        style: row
+        columns: 4
+      AI:
+        style: row
+        columns: 3
+      Dev:
+        style: row
+        columns: 4
+      Entertainment:
+        style: row
+        columns: 3
+      Music:
+        style: row
+        columns: 4
+      Monitoring:
+        style: row
+        columns: 3
+      Infrastructure:
+        style: row
+        columns: 4
+      Downloads:
+        style: row
+        columns: 5
+        style: row
+        columns: 3
+      Links:
+        style: row
+        columns: 5
 
   widgets.yaml: |
     - search:
@@ -90,20 +111,6 @@ data:
             icon: n8n.png
             href: https://n8n.homelab.leehosanganson.dev
             description: Workflow automation
-
-    - AI:
-        - Open WebUI:
-            icon: open-webui.png
-            href: https://openwebui.homelab.leehosanganson.dev
-            description: AI chat interface
-        - LiteLLM:
-            icon: litellm.png
-            href: https://litellm.homelab.leehosanganson.dev
-            description: LLM proxy and gateway
-        - vLLM:
-            icon: vllm.png
-            href: https://vllm.homelab.leehosanganson.dev
-            description: LLM inference server
 
     - Dev:
         - Coder:
@@ -170,12 +177,44 @@ data:
             href: https://slskd.homelab.leehosanganson.dev
             description: Soulseek client
 
+    - Cloud:
+        - Azure Blob Storage:
+            icon: azure-blob-storage.png
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
+            description: Homelab backup blob storage
+        - Azure Key Vault:
+            icon: azure-key-vault.png
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
+            description: Kubernetes secrets vault
+        - Azure Portal:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#home
+            description: Azure portal home
+
+    - Links:
+        - GitHub:
+            icon: mdi-github
+            href: https://github.com/leehosanganson
+            description: Personal GitHub profile
+        - Side Project:
+            icon: mdi-source-repository-multiple
+            href: https://github.com/users/leehosanganson/projects/15/views/1
+            description: Side project board
+        - Homelab Project:
+            icon: mdi-home-city
+            href: https://github.com/users/leehosanganson/projects/14
+            description: Homelab project board
+        - YouTube:
+            icon: mdi-youtube
+            href: https://www.youtube.com/
+            description: YouTube
+
     - Monitoring:
-        - Grafana:
+        - Grafana Dashboards:
             icon: grafana.png
             href: https://grafana.homelab.leehosanganson.dev/d/efa86fd1d0c121a26444b636a3f509a8/kubernetes-compute-resources-cluster?orgId=1&from=now-1h&to=now&timezone=utc&var-datasource=default&var-cluster=&refresh=10s
             description: Cluster Dashboard
-        - Grafana:
+        - Grafana Logs:
             icon: grafana.png
             href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?from=now-30m&to=now&var-ds=ceqjy8egm34lcf&var-filters=&patterns=[]&var-primary_label=service_name|%3D~|.%2B&timezone=browser&var-lineFormat=&var-fields=&var-levels=&var-metadata=&var-jsonFields=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
             description: Logs 
@@ -305,10 +344,346 @@ data:
                 username: {{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}
                 password: {{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}
 
-  kubernetes.yaml: |
-    mode: default
+    - AI:
+        - Open WebUI:
+            icon: open-webui.png
+            href: https://openwebui.homelab.leehosanganson.dev
+            description: AI chat interface
+        - LiteLLM:
+            icon: litellm.png
+            href: https://litellm.homelab.leehosanganson.dev
+            description: LLM proxy and gateway
+        - vLLM:
+            icon: vllm.png
+            href: https://vllm.homelab.leehosanganson.dev
+            description: LLM inference server
 
-  proxmox.yaml: ""
-  docker.yaml: ""
-  custom.js: ""
-  custom.css: ""
+  custom.js: |
+    /* =====================================================================
+     * Homepage Dashboard — Custom JS
+     * Animated starfield background + staggered card reveal
+     * ===================================================================== */
+    (function() {
+      'use strict';
+
+      document.addEventListener('DOMContentLoaded', function() {
+
+        /* -------------------------------------------------------------------
+         * 1. ANIMATED STARFIELD CANVAS
+         * ------------------------------------------------------------------- */
+        var canvas = document.createElement('canvas');
+        canvas.id = 'starfield';
+        canvas.style.cssText = [
+          'position:fixed',
+          'top:0',
+          'left:0',
+          'width:100%',
+          'height:100%',
+          'z-index:0',
+          'pointer-events:none',
+          'opacity:0.45'
+        ].join(';');
+
+        document.body.prepend(canvas);
+
+        var ctx = canvas.getContext('2d');
+        var stars = [];
+        var STAR_COUNT = 120;
+
+        function resizeCanvas() {
+          canvas.width  = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+
+        function randomBetween(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        function initStars() {
+          stars = [];
+          for (var i = 0; i < STAR_COUNT; i++) {
+            stars.push({
+              x:       randomBetween(0, canvas.width),
+              y:       randomBetween(0, canvas.height),
+              radius:  randomBetween(0.3, 1.2),
+              speed:   randomBetween(0.03, 0.18),
+              opacity: randomBetween(0.3, 1.0)
+            });
+          }
+        }
+
+        function drawStars() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (var i = 0; i < stars.length; i++) {
+            var s = stars[i];
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + s.opacity + ')';
+            ctx.fill();
+
+            // Drift downward; wrap to top when off-screen
+            s.y += s.speed;
+            if (s.y > canvas.height) {
+              s.y      = 0;
+              s.x      = randomBetween(0, canvas.width);
+              s.opacity = randomBetween(0.3, 1.0);
+            }
+          }
+          requestAnimationFrame(drawStars);
+        }
+
+        resizeCanvas();
+        initStars();
+        drawStars();
+
+        window.addEventListener('resize', function() {
+          resizeCanvas();
+          initStars();
+        });
+
+        /* -------------------------------------------------------------------
+         * 2. STAGGERED CARD REVEAL
+         * ------------------------------------------------------------------- */
+        function animateCards(cards) {
+          var freshCards = Array.prototype.filter.call(cards, function(card) {
+            return !card.hasAttribute('data-animated');
+          });
+          if (freshCards.length === 0) return false;
+
+          freshCards.forEach(function(card, index) {
+            card.style.animationDelay = (index * 60) + 'ms';
+            card.setAttribute('data-animated', 'true');
+          });
+          return true;
+        }
+
+        // Observe DOM mutations so we catch dynamically rendered cards
+        var observer = new MutationObserver(function(mutations, obs) {
+          var cards = document.querySelectorAll('.service-card');
+          if (animateCards(cards)) {
+            obs.disconnect();
+          }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Fallback: disconnect observer after 2 s regardless
+        setTimeout(function() {
+          observer.disconnect();
+          var cards = document.querySelectorAll('.service-card');
+          animateCards(cards);
+        }, 2000);
+
+      }); // end DOMContentLoaded
+    })();
+
+  custom.css: |
+    /* =====================================================================
+     * Homepage Dashboard — Custom CSS
+     * Neon-cyan / deep-space aesthetic for a self-hosted homelab
+     * ===================================================================== */
+
+    /* -------------------------------------------------------------------
+     * 1. FONT IMPORT
+     * ------------------------------------------------------------------- */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap');
+
+    /* -------------------------------------------------------------------
+     * 2. CSS CUSTOM PROPERTIES
+     * ------------------------------------------------------------------- */
+    :root {
+      --neon-cyan:        #00e5ff;
+      --neon-teal:        #00bfa5;
+      --glow-sm:          0 0 8px rgba(0, 229, 255, 0.3);
+      --glow-md:          0 0 20px rgba(0, 229, 255, 0.25), 0 0 40px rgba(0, 229, 255, 0.1);
+      --card-border-hover: rgba(0, 229, 255, 0.4);
+    }
+
+    /* -------------------------------------------------------------------
+     * 3. GLOBAL FONT
+     * ------------------------------------------------------------------- */
+    body,
+    .service-name,
+    .service-description,
+    .service-group-name,
+    .bookmark > a {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* -------------------------------------------------------------------
+     * 4. BACKGROUND DEEPENING
+     * ------------------------------------------------------------------- */
+    body {
+      background-color: #070b10;
+    }
+
+    /* -------------------------------------------------------------------
+     * 5. SERVICE CARD HOVER GLOW
+     * ------------------------------------------------------------------- */
+    .service-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      border: 1px solid transparent;
+    }
+
+    .service-card:hover {
+      transform:    translateY(-4px);
+      box-shadow:   var(--glow-md);
+      border-color: var(--card-border-hover);
+    }
+
+    /* -------------------------------------------------------------------
+     * 6. CARD STAGGER REVEAL ANIMATION
+     * ------------------------------------------------------------------- */
+    @keyframes card-reveal {
+      from {
+        opacity:   0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity:   1;
+        transform: translateY(0);
+      }
+    }
+
+    .service-card {
+      opacity: 0;
+      animation: card-reveal 0.45s ease both;
+      animation-fill-mode: forwards;
+    }
+
+    /* -------------------------------------------------------------------
+     * 7. SECTION GROUP HEADERS
+     * ------------------------------------------------------------------- */
+    .service-group-name {
+      color:          var(--neon-teal);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size:      0.7rem;
+      border-left:    3px solid var(--neon-teal);
+      padding-left:   0.6em;
+    }
+
+    /* -------------------------------------------------------------------
+     * 8. BOOKMARK HOVER GLOW
+     * ------------------------------------------------------------------- */
+    .bookmark > a {
+      transition:    border-color 0.2s ease, box-shadow 0.2s ease;
+      border:        1px solid transparent;
+      border-radius: 6px;
+      padding:       2px 6px;
+    }
+
+    .bookmark > a:hover {
+      border-color: var(--card-border-hover);
+      box-shadow:   var(--glow-sm);
+    }
+
+    /* -------------------------------------------------------------------
+     * 9. SEARCH BAR NEON FOCUS
+     * ------------------------------------------------------------------- */
+    .information-widget-search input:focus {
+      border-bottom: 2px solid var(--neon-cyan) !important;
+      box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2) !important;
+      outline: none;
+    }
+
+    /* -------------------------------------------------------------------
+     * 10. DATETIME WIDGET LARGE GLOW
+     * ------------------------------------------------------------------- */
+    .information-widget-datetime span {
+      font-size:     clamp(1rem, 2.5vw, 1.5rem) !important;
+      letter-spacing: 0.06em;
+      color:         var(--neon-cyan);
+      text-shadow:   var(--glow-sm);
+    }
+
+    /* -------------------------------------------------------------------
+     * 11. STATUS PULSE ANIMATION
+     * ------------------------------------------------------------------- */
+    @keyframes pulse-glow {
+      0%, 100% {
+        opacity: 0.8;
+        filter:  drop-shadow(0 0 3px rgba(0, 229, 255, 0.3));
+      }
+      50% {
+        opacity: 1;
+        filter:  drop-shadow(0 0 8px rgba(0, 229, 255, 0.7));
+      }
+    }
+
+    .service-tag svg {
+      animation: pulse-glow 2.8s ease-in-out infinite;
+    }
+
+    /* -------------------------------------------------------------------
+     * 12. HEADER WIDGET SEPARATOR
+     * ------------------------------------------------------------------- */
+    #information-widgets {
+      border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* -------------------------------------------------------------------
+     * 13. CUSTOM SCROLLBAR
+     * ------------------------------------------------------------------- */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--neon-teal) #0d1117;
+    }
+
+    *::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: var(--neon-teal);
+      border-radius:    4px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background-color: var(--neon-cyan);
+    }
+
+    /* -------------------------------------------------------------------
+     * 14. COMPACT LAYOUT — denser grid, reduced padding
+     * ------------------------------------------------------------------- */
+
+    /* Tighten gap between service groups */
+    #services {
+      gap: 0.75rem !important;
+    }
+
+    /* Reduce padding inside each service card */
+    .service-card {
+      padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Shrink service icon */
+    .service-icon {
+      width:  2rem !important;
+      height: 2rem !important;
+    }
+
+    /* Smaller service name */
+    .service-name {
+      font-size: 0.8rem !important;
+    }
+
+    /* Smaller description text */
+    .service-description {
+      font-size: 0.7rem !important;
+    }
+
+    /* Tighten group header bottom margin */
+    .service-group-name {
+      margin-bottom: 0.35rem !important;
+    }
+
+    /* Reduce card gap within each group row */
+    .service-group > ul {
+      gap: 0.5rem !important;
+    }
