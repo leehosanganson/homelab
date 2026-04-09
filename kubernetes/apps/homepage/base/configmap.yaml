@@ -22,38 +22,56 @@ data:
     hideVersion: true
     useEqualHeights: true
     layout:
+      Main Dashboard:
+        tab: Main
+      DevOps & Infra:
+        tab: Infra
+      Maintenance:
+        tab: Maintenance
+      Links:
+        tab: Main
+        style: row
+        columns: 5
       Home:
+        tab: Main
         style: row
         columns: 3
       Productivity:
+        tab: Main
         style: row
         columns: 4
-      AI:
-        style: row
-        columns: 3
       Dev:
+        tab: Main
         style: row
         columns: 4
       Entertainment:
+        tab: Main
+        style: row
+        columns: 2
+      Cloud:      
+        tab: Infra
         style: row
         columns: 3
-      Music:
-        style: row
-        columns: 4
       Monitoring:
+        tab: Infra
         style: row
         columns: 3
       Infrastructure:
+        tab: Infra
         style: row
         columns: 4
       Downloads:
+        tab: Maintenance
         style: row
         columns: 5
+      Music:
+        tab: Maintenance
+        style: row
+        columns: 4
+      AI:
+        tab: Maintenance
         style: row
         columns: 3
-      Links:
-        style: row
-        columns: 5
 
   widgets.yaml: |
     - search:
@@ -150,10 +168,6 @@ data:
                 type: seerr
                 url: https://jellyseerr.homelab.leehosanganson.dev
                 key: {{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}
-        - Granblue Fantasy Remote Instance:
-            icon: chrome.png
-            href: https://novnc-chrome.homelab.leehosanganson.dev
-            description: Game streaming
 
     - Music:
         - Navidrome:
@@ -178,18 +192,18 @@ data:
             description: Soulseek client
 
     - Cloud:
-        - Azure Blob Storage:
-            icon: azure-blob-storage.png
-            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
-            description: Homelab backup blob storage
-        - Azure Key Vault:
-            icon: azure-key-vault.png
-            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
-            description: Kubernetes secrets vault
         - Azure Portal:
             icon: mdi-microsoft-azure
             href: https://portal.azure.com/#home
             description: Azure portal home
+        - Azure Blob Storage:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
+            description: Homelab backup blob storage
+        - Azure Key Vault:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
+            description: Kubernetes secrets vault
 
     - Links:
         - GitHub:
@@ -208,6 +222,10 @@ data:
             icon: mdi-youtube
             href: https://www.youtube.com/
             description: YouTube
+        - Granblue Fantasy Remote Instance:
+            icon: chrome.png
+            href: https://novnc-chrome.homelab.leehosanganson.dev
+            description: Game streaming
 
     - Monitoring:
         - Grafana Dashboards:
@@ -358,124 +376,7 @@ data:
             href: https://vllm.homelab.leehosanganson.dev
             description: LLM inference server
 
-  custom.js: |
-    /* =====================================================================
-     * Homepage Dashboard — Custom JS
-     * Animated starfield background + staggered card reveal
-     * ===================================================================== */
-    (function() {
-      'use strict';
-
-      document.addEventListener('DOMContentLoaded', function() {
-
-        /* -------------------------------------------------------------------
-         * 1. ANIMATED STARFIELD CANVAS
-         * ------------------------------------------------------------------- */
-        var canvas = document.createElement('canvas');
-        canvas.id = 'starfield';
-        canvas.style.cssText = [
-          'position:fixed',
-          'top:0',
-          'left:0',
-          'width:100%',
-          'height:100%',
-          'z-index:0',
-          'pointer-events:none',
-          'opacity:0.45'
-        ].join(';');
-
-        document.body.prepend(canvas);
-
-        var ctx = canvas.getContext('2d');
-        var stars = [];
-        var STAR_COUNT = 120;
-
-        function resizeCanvas() {
-          canvas.width  = window.innerWidth;
-          canvas.height = window.innerHeight;
-        }
-
-        function randomBetween(min, max) {
-          return Math.random() * (max - min) + min;
-        }
-
-        function initStars() {
-          stars = [];
-          for (var i = 0; i < STAR_COUNT; i++) {
-            stars.push({
-              x:       randomBetween(0, canvas.width),
-              y:       randomBetween(0, canvas.height),
-              radius:  randomBetween(0.3, 1.2),
-              speed:   randomBetween(0.03, 0.18),
-              opacity: randomBetween(0.3, 1.0)
-            });
-          }
-        }
-
-        function drawStars() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          for (var i = 0; i < stars.length; i++) {
-            var s = stars[i];
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, ' + s.opacity + ')';
-            ctx.fill();
-
-            // Drift downward; wrap to top when off-screen
-            s.y += s.speed;
-            if (s.y > canvas.height) {
-              s.y      = 0;
-              s.x      = randomBetween(0, canvas.width);
-              s.opacity = randomBetween(0.3, 1.0);
-            }
-          }
-          requestAnimationFrame(drawStars);
-        }
-
-        resizeCanvas();
-        initStars();
-        drawStars();
-
-        window.addEventListener('resize', function() {
-          resizeCanvas();
-          initStars();
-        });
-
-        /* -------------------------------------------------------------------
-         * 2. STAGGERED CARD REVEAL
-         * ------------------------------------------------------------------- */
-        function animateCards(cards) {
-          var freshCards = Array.prototype.filter.call(cards, function(card) {
-            return !card.hasAttribute('data-animated');
-          });
-          if (freshCards.length === 0) return false;
-
-          freshCards.forEach(function(card, index) {
-            card.style.animationDelay = (index * 60) + 'ms';
-            card.setAttribute('data-animated', 'true');
-          });
-          return true;
-        }
-
-        // Observe DOM mutations so we catch dynamically rendered cards
-        var observer = new MutationObserver(function(mutations, obs) {
-          var cards = document.querySelectorAll('.service-card');
-          if (animateCards(cards)) {
-            obs.disconnect();
-          }
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        // Fallback: disconnect observer after 2 s regardless
-        setTimeout(function() {
-          observer.disconnect();
-          var cards = document.querySelectorAll('.service-card');
-          animateCards(cards);
-        }, 2000);
-
-      }); // end DOMContentLoaded
-    })();
+  custom.js: ""
 
   custom.css: |
     /* =====================================================================
