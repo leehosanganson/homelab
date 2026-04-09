@@ -1,0 +1,590 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+data:
+  kubernetes.yaml: |
+    mode: default
+
+  proxmox.yaml: ""
+
+  docker.yaml: ""
+
+  bookmarks.yaml: ""
+
+  settings.yaml: |
+    title: Homelab
+    theme: dark
+    color: slate
+    headerStyle: clean
+    cardBlur: md
+    target: _blank
+    hideVersion: true
+    useEqualHeights: true
+    layout:
+      Main Dashboard:
+        tab: Main
+      DevOps & Infra:
+        tab: Infra
+      Maintenance:
+        tab: Maintenance
+      Links:
+        tab: Main
+        style: row
+        columns: 5
+      Home:
+        tab: Main
+        style: row
+        columns: 3
+      Productivity:
+        tab: Main
+        style: row
+        columns: 4
+      Dev:
+        tab: Main
+        style: row
+        columns: 4
+      Entertainment:
+        tab: Main
+        style: row
+        columns: 2
+      Cloud:      
+        tab: Infra
+        style: row
+        columns: 3
+      Monitoring:
+        tab: Infra
+        style: row
+        columns: 3
+      Infrastructure:
+        tab: Infra
+        style: row
+        columns: 4
+      Downloads:
+        tab: Maintenance
+        style: row
+        columns: 5
+      Music:
+        tab: Maintenance
+        style: row
+        columns: 4
+      AI:
+        tab: Maintenance
+        style: row
+        columns: 3
+
+  widgets.yaml: |
+    - search:
+        provider: google
+        target: _blank
+
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: short
+          timeStyle: short
+          hour12: true
+
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+
+  services.yaml: |
+    - Home:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://home-assistant.homelab.leehosanganson.dev
+            description: Home automation
+        - Actual Budget:
+            icon: actual-budget.png
+            href: https://actual-budget.homelab.leehosanganson.dev
+            description: Personal finance manager
+        - Paperless-ngx:
+            icon: paperless.png
+            href: https://paperless.homelab.leehosanganson.dev
+            description: Document management
+
+    - Productivity:
+        - Commafeed:
+            icon: commafeed.png
+            href: https://commafeed.leehosanganson.dev
+            description: RSS feed reader
+        - Karakeep:
+            icon: karakeep.png
+            href: https://karakeep.leehosanganson.dev
+            description: Bookmark manager
+        - Zotero WebDAV:
+            icon: zotero.png
+            href: https://zotero.leehosanganson.dev
+            description: Zotero file storage
+        - N8N:
+            icon: n8n.png
+            href: https://n8n.homelab.leehosanganson.dev
+            description: Workflow automation
+
+    - Dev:
+        - Coder:
+            icon: coder.png
+            href: https://coder.homelab.leehosanganson.dev
+            description: Cloud development environments
+        - Harbor:
+            icon: harbor.png
+            href: https://harbor.leehosanganson.dev/harbor/projects
+            description: Container registry
+        - IT Tools:
+            icon: it-tools.png
+            href: https://it-tools.leehosanganson.dev
+            description: Developer tools
+        - Termix:
+            icon: terminal.png
+            href: https://termix.homelab.leehosanganson.dev
+            description: Web terminal
+
+    - Entertainment:
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://jellyfin.homelab.leehosanganson.dev
+            description: Media server
+            widget:
+                type: jellyfin
+                url: https://jellyfin.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_JELLYFIN_API_KEY}}
+                version: 2
+                enableBlocks: true
+                enableNowPlaying: true
+        - Jellyseerr:
+            icon: jellyseerr.png
+            href: https://jellyseerr.homelab.leehosanganson.dev
+            description: Media request management
+            widget:
+                type: seerr
+                url: https://jellyseerr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}
+
+    - Music:
+        - Navidrome:
+            icon: navidrome.png
+            href: https://navidrome.leehosanganson.dev
+            description: Music streaming
+        - Lidarr:
+            icon: lidarr.png
+            href: https://lidarr.homelab.leehosanganson.dev
+            description: Music management
+            widget:
+                type: lidarr
+                url: https://lidarr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_LIDARR_API_KEY}}
+        - LRCGet:
+            icon: lrcget.png
+            href: https://lrcget.homelab.leehosanganson.dev
+            description: Lyrics downloader
+        - Slskd:
+            icon: slskd.png
+            href: https://slskd.homelab.leehosanganson.dev
+            description: Soulseek client
+
+    - Cloud:
+        - Azure Portal:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#home
+            description: Azure portal home
+        - Azure Blob Storage:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
+            description: Homelab backup blob storage
+        - Azure Key Vault:
+            icon: mdi-microsoft-azure
+            href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
+            description: Kubernetes secrets vault
+
+    - Links:
+        - GitHub:
+            icon: mdi-github
+            href: https://github.com/leehosanganson
+            description: Personal GitHub profile
+        - Side Project:
+            icon: mdi-source-repository-multiple
+            href: https://github.com/users/leehosanganson/projects/15/views/1
+            description: Side project board
+        - Homelab Project:
+            icon: mdi-home-city
+            href: https://github.com/users/leehosanganson/projects/14
+            description: Homelab project board
+        - YouTube:
+            icon: mdi-youtube
+            href: https://www.youtube.com/
+            description: YouTube
+        - Granblue Fantasy Remote Instance:
+            icon: chrome.png
+            href: https://novnc-chrome.homelab.leehosanganson.dev
+            description: Game streaming
+
+    - Monitoring:
+        - Grafana Dashboards:
+            icon: grafana.png
+            href: https://grafana.homelab.leehosanganson.dev/d/efa86fd1d0c121a26444b636a3f509a8/kubernetes-compute-resources-cluster?orgId=1&from=now-1h&to=now&timezone=utc&var-datasource=default&var-cluster=&refresh=10s
+            description: Cluster Dashboard
+        - Grafana Logs:
+            icon: grafana.png
+            href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?from=now-30m&to=now&var-ds=ceqjy8egm34lcf&var-filters=&patterns=[]&var-primary_label=service_name|%3D~|.%2B&timezone=browser&var-lineFormat=&var-fields=&var-levels=&var-metadata=&var-jsonFields=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
+            description: Logs 
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://uptime-kuma.homelab.leehosanganson.dev
+            description: Uptime monitoring for homelab services
+            widget:
+                type: uptimekuma
+                url: https://uptime-kuma.homelab.leehosanganson.dev
+                slug: public
+
+    - Infrastructure:
+        - UniFi:
+            icon: ubiquiti.png
+            href: http://unifi.ui.com
+            description: UniFi Network controller
+            widget:
+                type: unifi
+                url: https://192.168.1.1
+                key: {{HOMEPAGE_VAR_UNIFI_API_KEY}}
+        - Proxmox 1:
+            icon: proxmox.png
+            href: https://pve01.home.lab:8006
+            description: Proxmox VE node 1
+            widget:
+                type: proxmox
+                url: https://pve01.home.lab:8006
+                username: api@pam!homepage
+                password: {{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}
+                node: pve01
+        - Proxmox 2:
+            icon: proxmox.png
+            href: https://pve02.home.lab:8006
+            description: Proxmox VE node 2
+            widget:
+                type: proxmox
+                url: https://pve02.home.lab:8006
+                username: api@pam!homepage
+                password: {{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}
+                node: pve02
+        - Proxmox 3:
+            icon: proxmox.png
+            href: https://pve03.home.lab:8006
+            description: Proxmox VE node 3
+            widget:
+                type: proxmox
+                url: https://pve03.home.lab:8006
+                username: api@pam!homepage
+                password: {{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}
+                node: pve03
+        - Pi-hole 1:
+            icon: pi-hole.png
+            href: https://pihole-1.infra.leehosanganson.dev/admin/login
+            description: Pi-hole DNS (primary)
+            widget:
+                type: pihole
+                url: https://pihole-1.infra.leehosanganson.dev
+                version: 6
+                key: {{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}
+        - Pi-hole 2:
+            icon: pi-hole.png
+            href: https://pihole-2.infra.leehosanganson.dev/admin/login
+            description: Pi-hole DNS (secondary)
+            widget:
+                type: pihole
+                url: https://pihole-2.infra.leehosanganson.dev
+                version: 6
+                key: {{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}
+        - Synology NAS:
+            icon: synology-dsm.png
+            href: https://nas-1.infra.leehosanganson.dev/#/signin
+            description: Synology NAS
+            widget:
+                type: diskstation
+                url: https://nas-1.infra.leehosanganson.dev
+                username: {{HOMEPAGE_VAR_SYNOLOGY_USERNAME}}
+                password: {{HOMEPAGE_VAR_SYNOLOGY_PASSWORD}}
+                volume: volume_1
+        - Cloudflare:
+            icon: cloudflare.png
+            href: https://dash.cloudflare.com
+            description: Cloudflare DNS/CDN
+
+    - Downloads:
+        - Sonarr:
+            icon: sonarr.png
+            href: https://sonarr.homelab.leehosanganson.dev
+            description: TV series management
+            widget:
+                type: sonarr
+                url: https://sonarr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
+                enableQueue: true
+        - Radarr:
+            icon: radarr.png
+            href: https://radarr.homelab.leehosanganson.dev
+            description: Movie management
+            widget:
+                type: radarr
+                url: https://radarr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_RADARR_API_KEY}}
+                enableQueue: true
+        - Bazarr:
+            icon: bazarr.png
+            href: https://bazarr.homelab.leehosanganson.dev
+            description: Subtitle management
+            widget:
+                type: bazarr
+                url: https://bazarr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_BAZARR_API_KEY}}
+        - Prowlarr:
+            icon: prowlarr.png
+            href: https://prowlarr.homelab.leehosanganson.dev
+            description: Indexer management
+            widget:
+                type: prowlarr
+                url: https://prowlarr.homelab.leehosanganson.dev
+                key: {{HOMEPAGE_VAR_PROWLARR_API_KEY}}
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: https://qbittorrent.homelab.leehosanganson.dev
+            description: Torrent client
+            widget:
+                type: qbittorrent
+                url: https://qbittorrent.homelab.leehosanganson.dev
+                username: {{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}
+                password: {{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}
+
+    - AI:
+        - Open WebUI:
+            icon: open-webui.png
+            href: https://openwebui.homelab.leehosanganson.dev
+            description: AI chat interface
+        - LiteLLM:
+            icon: litellm.png
+            href: https://litellm.homelab.leehosanganson.dev
+            description: LLM proxy and gateway
+        - vLLM:
+            icon: vllm.png
+            href: https://vllm.homelab.leehosanganson.dev
+            description: LLM inference server
+
+  custom.js: ""
+
+  custom.css: |
+    /* =====================================================================
+     * Homepage Dashboard — Custom CSS
+     * Neon-cyan / deep-space aesthetic for a self-hosted homelab
+     * ===================================================================== */
+
+    /* -------------------------------------------------------------------
+     * 1. FONT IMPORT
+     * ------------------------------------------------------------------- */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap');
+
+    /* -------------------------------------------------------------------
+     * 2. CSS CUSTOM PROPERTIES
+     * ------------------------------------------------------------------- */
+    :root {
+      --neon-cyan:        #00e5ff;
+      --neon-teal:        #00bfa5;
+      --glow-sm:          0 0 8px rgba(0, 229, 255, 0.3);
+      --glow-md:          0 0 20px rgba(0, 229, 255, 0.25), 0 0 40px rgba(0, 229, 255, 0.1);
+      --card-border-hover: rgba(0, 229, 255, 0.4);
+    }
+
+    /* -------------------------------------------------------------------
+     * 3. GLOBAL FONT
+     * ------------------------------------------------------------------- */
+    body,
+    .service-name,
+    .service-description,
+    .service-group-name,
+    .bookmark > a {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* -------------------------------------------------------------------
+     * 4. BACKGROUND DEEPENING
+     * ------------------------------------------------------------------- */
+    body {
+      background-color: #070b10;
+    }
+
+    /* -------------------------------------------------------------------
+     * 5. SERVICE CARD HOVER GLOW
+     * ------------------------------------------------------------------- */
+    .service-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      border: 1px solid transparent;
+    }
+
+    .service-card:hover {
+      transform:    translateY(-4px);
+      box-shadow:   var(--glow-md);
+      border-color: var(--card-border-hover);
+    }
+
+    /* -------------------------------------------------------------------
+     * 6. CARD STAGGER REVEAL ANIMATION
+     * ------------------------------------------------------------------- */
+    @keyframes card-reveal {
+      from {
+        opacity:   0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity:   1;
+        transform: translateY(0);
+      }
+    }
+
+    .service-card {
+      opacity: 0;
+      animation: card-reveal 0.45s ease both;
+      animation-fill-mode: forwards;
+    }
+
+    /* -------------------------------------------------------------------
+     * 7. SECTION GROUP HEADERS
+     * ------------------------------------------------------------------- */
+    .service-group-name {
+      color:          var(--neon-teal);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size:      0.7rem;
+      border-left:    3px solid var(--neon-teal);
+      padding-left:   0.6em;
+    }
+
+    /* -------------------------------------------------------------------
+     * 8. BOOKMARK HOVER GLOW
+     * ------------------------------------------------------------------- */
+    .bookmark > a {
+      transition:    border-color 0.2s ease, box-shadow 0.2s ease;
+      border:        1px solid transparent;
+      border-radius: 6px;
+      padding:       2px 6px;
+    }
+
+    .bookmark > a:hover {
+      border-color: var(--card-border-hover);
+      box-shadow:   var(--glow-sm);
+    }
+
+    /* -------------------------------------------------------------------
+     * 9. SEARCH BAR NEON FOCUS
+     * ------------------------------------------------------------------- */
+    .information-widget-search input:focus {
+      border-bottom: 2px solid var(--neon-cyan) !important;
+      box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2) !important;
+      outline: none;
+    }
+
+    /* -------------------------------------------------------------------
+     * 10. DATETIME WIDGET LARGE GLOW
+     * ------------------------------------------------------------------- */
+    .information-widget-datetime span {
+      font-size:     clamp(1rem, 2.5vw, 1.5rem) !important;
+      letter-spacing: 0.06em;
+      color:         var(--neon-cyan);
+      text-shadow:   var(--glow-sm);
+    }
+
+    /* -------------------------------------------------------------------
+     * 11. STATUS PULSE ANIMATION
+     * ------------------------------------------------------------------- */
+    @keyframes pulse-glow {
+      0%, 100% {
+        opacity: 0.8;
+        filter:  drop-shadow(0 0 3px rgba(0, 229, 255, 0.3));
+      }
+      50% {
+        opacity: 1;
+        filter:  drop-shadow(0 0 8px rgba(0, 229, 255, 0.7));
+      }
+    }
+
+    .service-tag svg {
+      animation: pulse-glow 2.8s ease-in-out infinite;
+    }
+
+    /* -------------------------------------------------------------------
+     * 12. HEADER WIDGET SEPARATOR
+     * ------------------------------------------------------------------- */
+    #information-widgets {
+      border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* -------------------------------------------------------------------
+     * 13. CUSTOM SCROLLBAR
+     * ------------------------------------------------------------------- */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--neon-teal) #0d1117;
+    }
+
+    *::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: var(--neon-teal);
+      border-radius:    4px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background-color: var(--neon-cyan);
+    }
+
+    /* -------------------------------------------------------------------
+     * 14. COMPACT LAYOUT — denser grid, reduced padding
+     * ------------------------------------------------------------------- */
+
+    /* Tighten gap between service groups */
+    #services {
+      gap: 0.75rem !important;
+    }
+
+    /* Reduce padding inside each service card */
+    .service-card {
+      padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Shrink service icon */
+    .service-icon {
+      width:  2rem !important;
+      height: 2rem !important;
+    }
+
+    /* Smaller service name */
+    .service-name {
+      font-size: 0.8rem !important;
+    }
+
+    /* Smaller description text */
+    .service-description {
+      font-size: 0.7rem !important;
+    }
+
+    /* Tighten group header bottom margin */
+    .service-group-name {
+      margin-bottom: 0.35rem !important;
+    }
+
+    /* Reduce card gap within each group row */
+    .service-group > ul {
+      gap: 0.5rem !important;
+    }
