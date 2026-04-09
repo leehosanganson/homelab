@@ -25,6 +25,7 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://minecraft.wiki/images/Minecraft_franchise_logo.svg?59f89" height="32"/>| [Minecraft Server](https://github.com/itzg/minecraft-server-charts) | Game server for Minecraft |
 |  | [WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
 |  | [Media Services (*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
+| <img src="https://syncthing.net/img/logo-only.svg" alt="Syncthing" height="32"/> | [Syncthing](https://syncthing.net/) | Continuous file synchronization |
 
 ### AI
 
