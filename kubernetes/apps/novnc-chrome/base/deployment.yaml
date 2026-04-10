@@ -32,7 +32,7 @@ spec:
               memory: "4Gi"
           volumeMounts:
             - name: chrome-profile
-              mountPath: /home/abc/.config/google-chrome
+              mountPath: /config/.config/google-chrome
             - name: dshm
               mountPath: /dev/shm
       volumes:
