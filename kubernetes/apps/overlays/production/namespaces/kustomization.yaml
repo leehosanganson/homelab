@@ -14,3 +14,4 @@ resources:
   - navidrome.yaml
   - novnc-chrome.yaml
   - life-in-the-uk-quiz.yaml
+  - immich.yaml

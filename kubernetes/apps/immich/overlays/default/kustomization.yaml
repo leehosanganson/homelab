@@ -1,0 +1,14 @@
+namespace: immich
+
+resources:
+  - ../../base
+  - backup-schedule.yaml
+  - backup-store.yaml
+  - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: immich-values
+    options:
+      disableNameSuffixHash: true
