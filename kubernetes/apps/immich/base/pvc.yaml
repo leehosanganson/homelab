@@ -27,4 +27,4 @@ spec:
   resources:
     requests:
       storage: 1Ti
-    volumeName: immich-library-pv
+  volumeName: immich-library-pv
