@@ -12,3 +12,4 @@ resources:
   - harbor.yaml
   - metrics-server.yaml
   - rancher-stable.yaml
+  - traefik.yaml

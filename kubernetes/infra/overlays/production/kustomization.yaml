@@ -2,6 +2,7 @@ resources:
   - ../../helm
   - ../../cloudflare/overlays/default
   - ../../cert-manager/overlays/default
+  - ../../traefik/overlays/default
   - ../../rancher/overlays/default
   - ../../synology-csi/overlays/default
   - ../../velero/overlays/default
