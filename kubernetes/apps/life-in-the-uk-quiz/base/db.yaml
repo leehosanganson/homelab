@@ -5,7 +5,7 @@ metadata:
   labels:
     db: life-in-the-uk-quiz-db
 spec:
-  instances: 1
+  instances: 2
   storage:
     storageClass: synology-retain
     size: 3Gi
