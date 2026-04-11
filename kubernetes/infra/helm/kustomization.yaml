@@ -11,3 +11,4 @@ resources:
   - coder-v2.yaml
   - harbor.yaml
   - metrics-server.yaml
+  - rancher-stable.yaml
