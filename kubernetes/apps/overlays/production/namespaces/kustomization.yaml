@@ -12,4 +12,5 @@ resources:
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
+  - life-in-the-uk-quiz.yaml
   - immich.yaml
