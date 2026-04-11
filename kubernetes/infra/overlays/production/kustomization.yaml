@@ -2,10 +2,14 @@ resources:
   - ../../helm
   - ../../cloudflare/overlays/default
   - ../../cert-manager/overlays/default
+  - ../../traefik/overlays/default
+  - ../../rancher/overlays/default
   - ../../synology-csi/overlays/default
   - ../../velero/overlays/default
   - ../../external-secrets/overlays/default
   - ../../gpu-operator/overlays/default
+  - ../../harbor/overlays/default
+  - ../../metrics-server/overlays/default
 
 labels:
   - includeSelectors: false

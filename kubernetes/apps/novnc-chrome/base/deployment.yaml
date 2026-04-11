@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novnc-chrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: novnc-chrome
+  template:
+    metadata:
+      labels:
+        app: novnc-chrome
+    spec:
+      runtimeClassName: nvidia
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: novnc-chrome
+          image: ghcr.io/gitxpresso/chromekasmvnc:latest
+          securityContext:
+            seccompProfile:
+              type: Unconfined
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              cpu: "4"
+              memory: "4Gi"
+          volumeMounts:
+            - name: chrome-profile
+              mountPath: /config/.config/google-chrome
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: chrome-profile
+          persistentVolumeClaim:
+            claimName: novnc-chrome-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory

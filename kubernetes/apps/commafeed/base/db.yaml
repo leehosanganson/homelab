@@ -5,7 +5,7 @@ metadata:
   labels:
     db: commafeed-db
 spec:
-  instances: 3
+  instances: 2
   storage:
     storageClass: synology-retain
     size: 5Gi

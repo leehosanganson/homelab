@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: life-in-the-uk-quiz-backup-schedule
+spec:
+  cluster:
+    name: life-in-the-uk-quiz-db
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

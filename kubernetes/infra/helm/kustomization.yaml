@@ -10,3 +10,7 @@ resources:
   - uptime-kuma.yaml
   - coder-v2.yaml
   - immich-app.yaml
+  - harbor.yaml
+  - metrics-server.yaml
+  - rancher-stable.yaml
+  - traefik.yaml

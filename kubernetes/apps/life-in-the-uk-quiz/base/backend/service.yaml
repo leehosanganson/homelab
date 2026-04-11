@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: life-in-the-uk-quiz-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

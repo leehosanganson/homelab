@@ -1,0 +1,6 @@
+args:
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=InternalIP
+  - --metric-resolution=15s
+extraArgs:
+  - --kubelet-use-node-status-port

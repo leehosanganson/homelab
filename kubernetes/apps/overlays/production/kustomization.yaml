@@ -1,6 +1,7 @@
 resources:
   - namespaces
   - ../../actual-budget/overlays/default
+  - ../../homepage/overlays/default
   - ../../commafeed/overlays/default
   - ../../coder/overlays/default
   - ../../home-assistant/overlays/default
@@ -16,6 +17,10 @@ resources:
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
   - ../../immich/overlays/default
+  - ../../novnc-chrome/overlays/default
+  - ../../life-in-the-uk-quiz/overlays/default
+  - ../../termix/overlays/default
+  - ../../portfolio/overlays/default
 
 labels:
   - includeSelectors: false

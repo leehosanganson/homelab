@@ -1,0 +1,13 @@
+namespace: harbor
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: harbor-values
+    options:
+      disableNameSuffixHash: true

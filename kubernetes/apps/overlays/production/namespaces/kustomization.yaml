@@ -8,6 +8,7 @@ resources:
   - media.yaml
   - n8n.yaml
   - paperless.yaml
+  - termix.yaml
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
