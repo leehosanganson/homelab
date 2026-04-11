@@ -2,6 +2,8 @@ namespace: immich
 
 resources:
   - ../../base
+  - backup-schedule.yaml
+  - backup-store.yaml
   - secrets.yaml
 
 configMapGenerator:

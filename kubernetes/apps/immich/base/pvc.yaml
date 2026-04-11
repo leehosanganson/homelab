@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: nas-1.infra.leehosanganson.dev
+    server: nas1.home.lab
     path: /volume1/media/photos
   mountOptions:
     - hard
