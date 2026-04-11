@@ -31,8 +31,6 @@ valkey:
       enabled: true
       type: persistentVolumeClaim
       size: 1Gi
-      storageClass: nfs-csi-retain
-      accessMode: ReadWriteOnce
 
 server:
   enabled: true
@@ -60,5 +58,4 @@ machine-learning:
       enabled: true
       type: persistentVolumeClaim
       size: 10Gi
-      storageClass: nfs-csi-retain
       accessMode: ReadWriteOnce

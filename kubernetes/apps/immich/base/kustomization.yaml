@@ -2,4 +2,3 @@ resources:
   - release.yaml
   - pvc.yaml
   - db.yaml
-  - secrets.yaml
