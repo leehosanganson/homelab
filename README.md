@@ -18,15 +18,15 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 
 | Logo | Name | Description |
 |:-:|---|---|
-| <img src="https://actualbudget.org/img/actual.png" alt="Actual Budget Logo" height="32"/> | [Actual Budget](https://github.com/actualbudget/actual) | Personal finance management |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/actual-budget.png" alt="Actual Budget Logo" height="32"/> | [Actual Budget](https://github.com/actualbudget/actual) | Personal finance management |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/commafeed.svg" height="32"/> | [Commafeed](https://github.com/Athou/commafeed) | RSS reader |
-| <img src="https://github.com/CorentinTh/it-tools/raw/main/.github/logo-white.png" alt="IT-Tools" height="32" /> | [IT-Tools](https://github.com/CorentinTh/it-tools) | Collection of handy online tools for developers |
-| <img src="https://github.com/navidrome/navidrome/master/favicon.png" height="32"/> | [Navidrome](https://github.com/navidrome/navidrome) | Music streaming server |
-| <img src="https://github.com/immich-app/immich/assets/logo.png" height="32"/> | [Immich](https://github.com/immich-app/immich) | High performance self-hosted photo and video management |
-| <img src="https://n8n.io/favicon.png" height="32"/> | [n8n](https://n8n.io/) | Workflow automation tool |
-| <img src="https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/master/docs/static/img/favicon.png" height="32"/> | [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) | Document management system |
-| <img src="https://github.com/Zotero/zotero/master/favicon.ico" height="32"/> | [Zotero WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
-| <img src="https://github.com/karakeep/karakeep/master/favicon.ico" height="32"/> | [Karakeep](https://github.com/karakeep/karakeep) | Digital collection organizer |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/it-tools-light.png" alt="IT-Tools" height="32" /> | [IT-Tools](https://github.com/CorentinTh/it-tools) | Collection of handy online tools for developers |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/navidrome.png" height="32"/> | [Navidrome](https://github.com/navidrome/navidrome) | Music streaming server |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/immich.png" height="32"/> | [Immich](https://github.com/immich-app/immich) | High performance self-hosted photo and video management |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/n8n.png" height="32"/> | [n8n](https://n8n.io/) | Workflow automation tool |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/paperless-ngx.png" height="32"/> | [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) | Document management system |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/zotero.png" height="32"/> | [Zotero WebDAV](https://github.com/danuk/k8s-webdav) | Database for my Zotero Research Paper Reader |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/karakeep.png" height="32"/> | [Karakeep](https://github.com/karakeep/karakeep) | Digital collection organizer |
 | <img src="https://minecraft.wiki/images/Minecraft_franchise_logo.svg?59f89" height="32"/>| [Minecraft Server](https://github.com/itzg/minecraft-server-charts) | Game server for Minecraft |
 | <img src="https://raw.githubusercontent.com/louislam/uptime-kuma/023079733a2697f6544616e56225eff6de77060b/public/icon.svg" alt="Uptime Kuma" height="32"/>| [Uptime Kuma](https://github.com/louislam/uptime-kuma) | Service monitoring and health check |
 |  | [Media Services (*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
@@ -36,9 +36,9 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | Logo | Name | Description |
 |:-:|---|---|
 | <img src="https://docs.vllm.ai/en/latest/assets/logos/vllm-logo-text-dark.png" height="32" /> | [vLLM](https://github.com/vllm-project/vllm) | High-throughput and memory-efficient inference and serving engine for LLMs  |
-| <img src="https://raw.githubusercontent.com/ggerganov/llama2.cpp/master/favicon.ico" height="32" /> | [llama.cpp](https://github.com/ggerganov/llama2.cpp) | LLM inference in C/C++ |
-|  | [LiteLLM](https://github.com/BerriAI/litellm) | LLM Gateway for local LLM servers & other cloud providers. |
-| <img src="https://openwebui.com/logo.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM |
+|  | [llama.cpp](https://github.com/ggerganov/llama2.cpp) | LLM inference in C/C++ |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" /> | [LiteLLM](https://github.com/BerriAI/litellm) | LLM Gateway for local LLM servers & other cloud providers. |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM |
 
 ### Infrastructure
 
