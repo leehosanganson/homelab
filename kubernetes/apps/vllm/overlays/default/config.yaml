@@ -4,11 +4,9 @@ metadata:
   name: vllm-config
 data:
   config.yaml: |
-    uvicorn-log-level: "info"
-    max_num_seqs: 2
-    max_model_len: 20480
-    # kv-cache-memory: 7293324288
-
-    model: unsloth/gemma-4-E4B-it-GGUF
-    # model: unsloth/Qwen3-8B-unsloth-bnb-4bit
+    model: unsloth/Qwen3-8B-unsloth-bnb-4bit
     # model: openai/gpt-oss-20b
+    uvicorn-log-level: "info"
+    max_num_seqs: 4
+    max_model_len: 20480
+    kv-cache-memory: 7293324288

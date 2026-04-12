@@ -12,7 +12,7 @@ resources:
   - ../../n8n/overlays/default
   - ../../openwebui/overlays/default
   - ../../paperless-ngx/overlays/default
-  - ../../vllm/overlays/default
+  - ../../llama.cpp/overlays/default
   - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
