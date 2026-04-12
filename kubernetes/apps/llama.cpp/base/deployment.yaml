@@ -68,6 +68,8 @@ spec:
             - "64"
             - --alias
             - "unsloth/gemma-4"
+            - --chat-template-kwargs
+            - '{"enable_thinking":false}'
 
           ports:
             - name: http
