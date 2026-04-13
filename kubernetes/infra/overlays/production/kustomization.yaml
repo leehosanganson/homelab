@@ -10,6 +10,7 @@ resources:
   - ../../gpu-operator/overlays/default
   - ../../harbor/overlays/default
   - ../../metrics-server/overlays/default
+  - ../../renovate/overlays/default
 
 labels:
   - includeSelectors: false
