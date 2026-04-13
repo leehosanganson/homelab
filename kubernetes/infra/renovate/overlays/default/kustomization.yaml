@@ -1,3 +1,4 @@
 namespace: renovate
 resources:
+  - namespace.yaml
   - ../../base
