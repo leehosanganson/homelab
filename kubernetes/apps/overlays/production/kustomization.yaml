@@ -20,6 +20,7 @@ resources:
   - ../../novnc-chrome/overlays/default
   - ../../life-in-the-uk-quiz/overlays/default
   - ../../termix/overlays/default
+  - ../../syncthing/overlays/default
   - ../../portfolio/overlays/default
 
 labels:
