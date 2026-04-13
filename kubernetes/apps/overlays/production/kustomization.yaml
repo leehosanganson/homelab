@@ -12,14 +12,17 @@ resources:
   - ../../n8n/overlays/default
   - ../../openwebui/overlays/default
   - ../../paperless-ngx/overlays/default
-  - ../../vllm/overlays/default
+  - ../../llama.cpp/overlays/default
   - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
+  - ../../immich/overlays/default
   - ../../novnc-chrome/overlays/default
   - ../../life-in-the-uk-quiz/overlays/default
   - ../../termix/overlays/default
   - ../../renovate/overlays/default
+  - ../../syncthing/overlays/default
+  - ../../portfolio/overlays/default
 
 labels:
   - includeSelectors: false

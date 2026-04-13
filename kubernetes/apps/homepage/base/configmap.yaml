@@ -28,6 +28,7 @@ data:
         tab: Infra
       Maintenance:
         tab: Maintenance
+
       Links:
         tab: Main
         style: row
@@ -48,6 +49,7 @@ data:
         tab: Main
         style: row
         columns: 2
+
       Cloud:      
         tab: Infra
         style: row
@@ -56,10 +58,19 @@ data:
         tab: Infra
         style: row
         columns: 3
+      Networking:
+        tab: Infra
+        style: row
+        columns: 3
+      Virtual Machines:
+        tab: Infra
+        style: row
+        columns: 3
       Infrastructure:
         tab: Infra
         style: row
-        columns: 4
+        columns: 2
+
       Downloads:
         tab: Maintenance
         style: row
@@ -71,7 +82,11 @@ data:
       AI:
         tab: Maintenance
         style: row
-        columns: 3
+        columns: 2
+      Storage:
+        tab: Maintenance
+        style: row
+        columns: 2
 
   widgets.yaml: |
     - search:
@@ -245,7 +260,7 @@ data:
                 url: https://uptime-kuma.homelab.leehosanganson.dev
                 slug: public
 
-    - Infrastructure:
+    - Networking:
         - UniFi:
             icon: ubiquiti.png
             href: http://unifi.ui.com
@@ -254,6 +269,25 @@ data:
                 type: unifi
                 url: https://192.168.1.1
                 key: {{HOMEPAGE_VAR_UNIFI_API_KEY}}
+        - Pi-hole 1:
+            icon: pi-hole.png
+            href: https://pihole-1.infra.leehosanganson.dev/admin/login
+            description: Pi-hole DNS (primary)
+            widget:
+                type: pihole
+                url: https://pihole-1.infra.leehosanganson.dev
+                version: 6
+                key: {{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}
+        - Pi-hole 2:
+            icon: pi-hole.png
+            href: https://pihole-2.infra.leehosanganson.dev/admin/login
+            description: Pi-hole DNS (secondary)
+            widget:
+                type: pihole
+                url: https://pihole-2.infra.leehosanganson.dev
+                version: 6
+                key: {{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}
+    - Virtual Machines:
         - Proxmox 1:
             icon: proxmox.png
             href: https://pve01.home.lab:8006
@@ -284,38 +318,15 @@ data:
                 username: api@pam!homepage
                 password: {{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}
                 node: pve03
-        - Pi-hole 1:
-            icon: pi-hole.png
-            href: https://pihole-1.infra.leehosanganson.dev/admin/login
-            description: Pi-hole DNS (primary)
-            widget:
-                type: pihole
-                url: https://pihole-1.infra.leehosanganson.dev
-                version: 6
-                key: {{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}
-        - Pi-hole 2:
-            icon: pi-hole.png
-            href: https://pihole-2.infra.leehosanganson.dev/admin/login
-            description: Pi-hole DNS (secondary)
-            widget:
-                type: pihole
-                url: https://pihole-2.infra.leehosanganson.dev
-                version: 6
-                key: {{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}
-        - Synology NAS:
-            icon: synology-dsm.png
-            href: https://nas-1.infra.leehosanganson.dev/#/signin
-            description: Synology NAS
-            widget:
-                type: diskstation
-                url: https://nas-1.infra.leehosanganson.dev
-                username: {{HOMEPAGE_VAR_SYNOLOGY_USERNAME}}
-                password: {{HOMEPAGE_VAR_SYNOLOGY_PASSWORD}}
-                volume: volume_1
+    - Infrastructure
         - Cloudflare:
             icon: cloudflare.png
             href: https://dash.cloudflare.com
             description: Cloudflare DNS/CDN
+        - Rancher:
+            icon: rancher.png
+            href: https://rancher.homelab.leehosanganson.dev
+            description: Kubernetes Cluster Management
 
     - Downloads:
         - Sonarr:
@@ -371,10 +382,22 @@ data:
             icon: litellm.png
             href: https://litellm.homelab.leehosanganson.dev
             description: LLM proxy and gateway
-        - vLLM:
-            icon: vllm.png
-            href: https://vllm.homelab.leehosanganson.dev
-            description: LLM inference server
+
+    - Storage:
+        - Synology NAS:
+            icon: synology-dsm.png
+            href: https://nas-1.infra.leehosanganson.dev/#/signin
+            description: Synology NAS
+            widget:
+                type: diskstation
+                url: https://nas-1.infra.leehosanganson.dev
+                username: {{HOMEPAGE_VAR_SYNOLOGY_USERNAME}}
+                password: {{HOMEPAGE_VAR_SYNOLOGY_PASSWORD}}
+                volume: volume_1
+        - Syncthing:
+            icon: syncthing.png
+            href: https://syncthing.homelab.leehosanganson.dev
+            description: Syncthing
 
   custom.js: ""
 

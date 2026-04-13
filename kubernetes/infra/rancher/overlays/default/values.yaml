@@ -1,0 +1,13 @@
+hostname: rancher.homelab.leehosanganson.dev
+
+replicas: 1
+
+ingress:
+  ingressClassName: traefik
+  extraAnnotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+  tls:
+    source: secret
+    secretName: rancher-tls
+
+bootstrapPassword: ""

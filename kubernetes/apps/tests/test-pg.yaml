@@ -4,7 +4,7 @@ metadata:
   name: cluster-example
   namespace: tests
 spec:
-  instances: 3
+  instances: 2
   storage:
     size: 1Gi
   monitoring:
