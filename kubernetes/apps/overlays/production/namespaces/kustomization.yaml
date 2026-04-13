@@ -15,3 +15,4 @@ resources:
   - novnc-chrome.yaml
   - life-in-the-uk-quiz.yaml
   - syncthing.yaml
+  - immich.yaml

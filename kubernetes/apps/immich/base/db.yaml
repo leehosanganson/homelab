@@ -1,31 +1,38 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: commafeed-db
+  name: immich-db
   labels:
-    db: commafeed-db
+    db: immich-db
 spec:
   instances: 2
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
   storage:
     storageClass: synology-retain
-    size: 5Gi
+    size: 10Gi
   monitoring:
     enablePodMonitor: true
+  postgresql:
+    shared_preload_libraries:
+      - "vchord.so"
   bootstrap:
     initdb:
-      database: commafeed
-      owner: commafeed
+      database: immich
+      owner: immich
       secret:
-        name: commafeed-env
+        name: immich-db-credentials
+      postInitApplicationSQL:
+        - CREATE EXTENSION vchord CASCADE;
+        - CREATE EXTENSION earthdistance CASCADE;
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: commafeed-backup-storage
+        barmanObjectName: immich-backup-storage
   externalClusters:
     - name: clusterBackup
       plugin:
         name: barman-cloud.cloudnative-pg.io
         parameters:
           barmanObjectName: commafeed-backup-storage
-          serverName: commafeed-db-backup
+          serverName: immich-db-backup

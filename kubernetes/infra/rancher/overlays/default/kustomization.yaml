@@ -1,12 +1,12 @@
-namespace: kube-system
+namespace: cattle-system
 
 resources:
+  - namespace.yaml
   - ../../base
-  - secrets.yaml
 
 configMapGenerator:
   - files:
       - values.yaml
-    name: traefik-values
+    name: rancher-values
     options:
       disableNameSuffixHash: true

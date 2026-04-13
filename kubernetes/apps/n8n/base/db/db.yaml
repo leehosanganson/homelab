@@ -5,7 +5,7 @@ metadata:
   labels:
     db: n8n-db
 spec:
-  instances: 3
+  instances: 2
   storage:
     storageClass: synology-retain
     size: 30Gi

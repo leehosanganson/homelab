@@ -1,12 +1,14 @@
-namespace: kube-system
+namespace: immich
 
 resources:
   - ../../base
+  - backup-schedule.yaml
+  - backup-store.yaml
   - secrets.yaml
 
 configMapGenerator:
   - files:
       - values.yaml
-    name: traefik-values
+    name: immich-values
     options:
       disableNameSuffixHash: true

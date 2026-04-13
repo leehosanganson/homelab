@@ -316,6 +316,10 @@ data:
             icon: cloudflare.png
             href: https://dash.cloudflare.com
             description: Cloudflare DNS/CDN
+        - Rancher:
+            icon: rancher.png
+            href: https://rancher.homelab.leehosanganson.dev
+            description: Kubernetes Cluster Management
 
     - Downloads:
         - Sonarr:
