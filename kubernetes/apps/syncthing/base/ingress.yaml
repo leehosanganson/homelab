@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: syncthing.leehosanganson.dev
+    - host: syncthing.homelab.leehosanganson.dev
       http:
         paths:
           - path: /
@@ -19,5 +19,5 @@ spec:
                   number: 8384
   tls:
     - hosts:
-        - syncthing.leehosanganson.dev
+        - syncthing.homelab.leehosanganson.dev
       secretName: syncthing-tls
