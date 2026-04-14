@@ -1,3 +1,7 @@
 resources:
   - namespace.yaml
   - ../../uptime-kuma/overlays/default
+  - ../../kube-prometheus-stack/overlays/default
+  - ../../loki/overlays/default
+  - ../../alloy/overlays/default
+  - ../../grafana/overlays/default
