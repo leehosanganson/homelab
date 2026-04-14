@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: portfolio
-          image: harbor.leehosanganson.dev/leehosanganson/portfolio:latest
+          image: harbor.leehosanganson.dev/leehosanganson/portfolio:latest@sha256:2f10dd0fd05b261cfa2e9eedb147ba478820ee9ceed1de4cfeedcd50cf94c0f3
           imagePullPolicy: Always
           ports:
             - containerPort: 80

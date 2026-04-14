@@ -17,7 +17,7 @@ spec:
   nodeName: homelab-server-9g2t
   containers:
     - name: nginx
-      image: nginx
+      image: nginx@sha256:7f0adca1fc6c29c8dc49a2e90037a10ba20dc266baaed0988e9fb4d0d8b85ba0
       volumeMounts:
         - name: test-mount
           mountPath: /test

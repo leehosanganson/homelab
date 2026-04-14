@@ -10,4 +10,19 @@ data:
       gitAuthor: 'Renovate Bot <bot@renovateapp.com>',
       onboarding: false,
       requireConfig: 'optional',
+      pinDigests: true,
+      ignorePaths: [
+        'fluxcd/clusters/production/flux-system/gotk-components.yaml',
+        'kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml',
+        'kubernetes/infra/cloudnativepg/barman-cloud-plugin.yaml',
+      ],
+      kubernetes: {
+        managerFilePatterns: ['/^kubernetes\\/.+\\.ya?ml$/'],
+      },
+      packageRules: [
+        {
+          matchManagers: ['kubernetes'],
+          pinDigests: true,
+        },
+      ],
     };
