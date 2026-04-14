@@ -11,6 +11,8 @@ data:
       onboarding: false,
       requireConfig: 'optional',
       pinDigests: true,
+      prHourlyLimit: 0,
+      prConcurrentLimit: 0,
       ignorePaths: [
         'fluxcd/clusters/production/flux-system/gotk-components.yaml',
         'kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml',
