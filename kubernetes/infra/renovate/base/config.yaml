@@ -32,29 +32,4 @@ data:
           '/^kubernetes\\/infra\\/synology-csi\\/base\\/snapshotter\\/snapshotter\\.yaml$/',
         ],
       },
-      packageRules: [
-        {
-          matchManagers: ['kubernetes'],
-          pinDigests: true,
-        },
-        {
-          matchManagers: ['flux'],
-          matchDatasources: ['helm'],
-          registryAliases: {
-            'coder-v2': 'https://helm.coder.com/v2',
-            'external-secrets': 'https://charts.external-secrets.io',
-            'harbor': 'https://helm.goharbor.io',
-            'immich-app': 'oci://ghcr.io/immich-app/immich-charts',
-            'itzg': 'https://itzg.github.io/minecraft-server-charts/',
-            'jetstack': 'https://charts.jetstack.io',
-            'metrics-server': 'https://kubernetes-sigs.github.io/metrics-server/',
-            'nvidia': 'https://helm.ngc.nvidia.com/nvidia',
-            'rancher-stable': 'https://releases.rancher.com/server-charts/stable',
-            'traefik': 'https://traefik.github.io/charts',
-            'uptime-kuma': 'https://helm.irsigler.cloud',
-            'vmware-tanzu': 'https://vmware-tanzu.github.io/helm-charts',
-            'danuk': 'https://danuk.github.io/k8s-webdav/',
-          },
-        },
-      ],
     };
