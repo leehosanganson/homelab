@@ -92,7 +92,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-snapshotter:v4.2.1
+          image: registry.k8s.io/sig-storage/csi-snapshotter:v4.2.1@sha256:818f35653f2e214db81d655063e81995de9073328a3430498624c140881026a3
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -109,7 +109,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: synology/synology-csi:v1.2.1
+          image: synology/synology-csi:v1.2.1@sha256:a9e5bc672a704440e839accb3758c283ffa19ed28930b888985841a0b5dbc134
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

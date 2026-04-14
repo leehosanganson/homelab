@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: soulsync
-          image: boulderbadgedad/soulsync:latest
+          image: boulderbadgedad/soulsync:latest@sha256:0c97e1682767d841b326d6441dc23edb9316ed86bd3df5337aa2ef937cc8a55f
           ports:
             - containerPort: 8008
               name: web

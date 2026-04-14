@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/karakeep-app/karakeep
+          image: ghcr.io/karakeep-app/karakeep@sha256:f083a8c7defe6ad6e609a4fc3357be8815df0517719af8ed31a362e81a00992c
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

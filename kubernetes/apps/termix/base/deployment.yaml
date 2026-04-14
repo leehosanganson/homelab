@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: termix
-          image: ghcr.io/lukegus/termix:latest
+          image: ghcr.io/lukegus/termix:latest@sha256:6fe521f60ac4e3b85d80b3c3d496ae955d2968c7b0f0e1fcecc8f54b56381aee
           ports:
             - containerPort: 8080
           env:
@@ -30,7 +30,7 @@ spec:
             - mountPath: /app/data
               name: termix-pvc
         - name: guacd
-          image: guacamole/guacd:latest
+          image: guacamole/guacd:latest@sha256:2d266a525a72ad55d8ea7cd4ca8342a1b44075759b03660d8684821b3636a922
           ports:
             - containerPort: 4822
           resources:
