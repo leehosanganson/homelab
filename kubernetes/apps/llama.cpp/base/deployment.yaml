@@ -17,7 +17,7 @@ spec:
       runtimeClassName: nvidia
       initContainers:
         - name: download-model
-          image: python:3.11-slim@sha256:233de06753d30d120b1a3ce359d8d3be8bda78524cd8f520c99883bfe33964cf
+          image: python:3.14-slim@sha256:bc389f7dfcb21413e72a28f491985326994795e34d2b86c8ae2f417b4e7818aa
           command:
             - sh
             - -c
