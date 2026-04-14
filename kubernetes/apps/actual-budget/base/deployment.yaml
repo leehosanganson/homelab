@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: actual-budget
-          image: docker.io/actualbudget/actual-server:latest
+          image: docker.io/actualbudget/actual-server:latest@sha256:b0e732e2c41b3dc468a71548e88ef76d3f0c157fc43d15fa05d14ec1c5747e1e
           ports:
             - containerPort: 5006
           volumeMounts:

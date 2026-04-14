@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: litellm
-          image: ghcr.io/berriai/litellm:main-v1.75.5-stable
+          image: ghcr.io/berriai/litellm:main-v1.75.5-stable@sha256:ee8ccad518f5c65c75f3aed907603487a04c21c0fe39818855c47a1a228f39d2
           ports:
             - containerPort: 4000
           args:

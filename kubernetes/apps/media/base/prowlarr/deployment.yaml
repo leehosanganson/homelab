@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: prowlarr
-          image: linuxserver/prowlarr:latest
+          image: linuxserver/prowlarr:latest@sha256:35f48abb3e976fcf077fae756866c582e4a90f8b24810ae4067b3558f7cdbbdf
           ports:
             - containerPort: 9696
               name: http
