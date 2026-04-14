@@ -318,7 +318,7 @@ data:
                 username: api@pam!homepage
                 password: {{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}
                 node: pve03
-    - Infrastructure
+    - Infrastructure:
         - Cloudflare:
             icon: cloudflare.png
             href: https://dash.cloudflare.com
