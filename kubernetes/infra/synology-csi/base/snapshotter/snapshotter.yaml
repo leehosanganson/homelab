@@ -92,7 +92,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/csi-snapshotter:v4.2.1@sha256:818f35653f2e214db81d655063e81995de9073328a3430498624c140881026a3
+          image: registry.k8s.io/sig-storage/csi-snapshotter:v8.5.0@sha256:da081c27e8a6d91f36042c1942362d0515ced8d06e18c11b8f893e58c4d6d797
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
