@@ -1,9 +1,0 @@
-resources:
-  - deployment.yaml
-  - ingress.yaml
-  - pvc.yaml
-  - service.yaml
-
-labels:
-  - pairs:
-      app: soulsync
