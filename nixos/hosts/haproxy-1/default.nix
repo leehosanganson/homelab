@@ -67,14 +67,14 @@
 
   security.sudo = {
     enable = true;
-    wheelNeedsPassword = false;
+    wheelNeedsPassword = true;
   };
 
   # ssh
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
-    settings.PermitRootLogin = "prohibit-password";
+    settings.PermitRootLogin = "no";
   };
 
   # Firewall

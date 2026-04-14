@@ -4,4 +4,4 @@ metadata:
   name: karakeep-configuration
 data:
   NEXTAUTH_URL: http://localhost:3000
-  KARAKEEP_VERSION: release
+  KARAKEEP_VERSION: "0.24.1"
