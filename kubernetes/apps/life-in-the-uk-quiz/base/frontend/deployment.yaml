@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-frontend:v0.0.4
+          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-frontend:v0.0.4@sha256:4d0ca6c2831b9dd1bf2a6cc9991dd1f8436df9cd1da413eaa0be29e589b8f153
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -17,7 +17,7 @@ spec:
       runtimeClassName: nvidia
       initContainers:
         - name: download-model
-          image: python:3.11-slim
+          image: python:3.11-slim@sha256:233de06753d30d120b1a3ce359d8d3be8bda78524cd8f520c99883bfe33964cf
           command:
             - sh
             - -c
@@ -48,7 +48,7 @@ spec:
               memory: 4Gi
       containers:
         - name: llama-cpp
-          image: ghcr.io/ggml-org/llama.cpp:server-cuda
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:81c0f4a338c4851e0c5ab89ed47d8a4191af1b5ece560c0038c641435e897dc7
           args:
             - -m
             - /models/gemma-4-26B-A4B-it-UD-IQ2_M.gguf

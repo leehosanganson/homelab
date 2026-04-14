@@ -17,7 +17,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: novnc-chrome
-          image: ghcr.io/gitxpresso/chromekasmvnc:latest
+          image: ghcr.io/gitxpresso/chromekasmvnc:latest@sha256:1075f96a5bd7631e300c10f6282d0e05164c8732f61378f09f78179e8a8b1b7f
           securityContext:
             seccompProfile:
               type: Unconfined

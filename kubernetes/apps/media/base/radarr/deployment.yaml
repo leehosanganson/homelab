@@ -21,7 +21,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: radarr
-          image: linuxserver/radarr:latest
+          image: linuxserver/radarr:latest@sha256:6f1dda18354ea7f28cead8f6d099fc8222498c3ae165f567d504ed04d70980d7
           ports:
             - containerPort: 7878
               name: http

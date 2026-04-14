@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:43
+              image: ghcr.io/renovatebot/renovate:43@sha256:6488fcff4416a3872e2bbb305bfff73e9aa65556e89c39778c2920a2a52832ed
               env:
                 - name: RENOVATE_TOKEN
                   valueFrom:
