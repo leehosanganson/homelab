@@ -18,7 +18,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: commafeed
-          image: athou/commafeed:7.0.0-postgresql@sha256:7bf7c964e989c0fcac8d167e64580879dc2e241da0935a7d42f2eb6fb190e0c4
+          image: athou/commafeed:7.1.0-postgresql@sha256:bf2e673a0a969ee26541c896e98c9cd2cc68fc0497a41cc202c6568d0046c4c0
           ports:
             - containerPort: 8082
               protocol: TCP
