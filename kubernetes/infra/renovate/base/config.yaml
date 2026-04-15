@@ -15,8 +15,8 @@ data:
       prConcurrentLimit: 0,
       ignorePaths: [
         'fluxcd/clusters/production/flux-system/gotk-components.yaml',
-        'kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml',
-        'kubernetes/infra/cloudnativepg/barman-cloud-plugin.yaml',
+        'kubernetes/infra/cloudnativepg/**',
+        'kubernetes/infra/synology-csi/**',
       ],
       flux: {
         managerFilePatterns: [
@@ -27,9 +27,7 @@ data:
       },
       kubernetes: {
         managerFilePatterns: [
-          '/^kubernetes\\/.+\\/(?:[a-z]+-)?(?:deployment|statefulset|daemonset|cronjob)\\.ya?ml$/',
-          '/^kubernetes\\/infra\\/synology-csi\\/base\\/(?:controller|node)\\.yml$/',
-          '/^kubernetes\\/infra\\/synology-csi\\/base\\/snapshotter\\/snapshotter\\.yaml$/',
+          '/^kubernetes\\/.+\\.ya?ml$/',
         ],
       },
     };
