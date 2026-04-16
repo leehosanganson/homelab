@@ -19,13 +19,13 @@ spec:
                       name: renovate-env
                       key: token
                 - name: RENOVATE_CONFIG_FILE
-                  value: /usr/src/app/config.js
+                  value: /usr/src/app/config.json
                 - name: LOG_LEVEL
                   value: "debug"
               volumeMounts:
                 - name: renovate-config
-                  mountPath: /usr/src/app/config.js
-                  subPath: config.js
+                  mountPath: /usr/src/app/config.json
+                  subPath: config.json
           restartPolicy: Never
           volumes:
             - name: renovate-config
