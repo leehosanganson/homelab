@@ -12,10 +12,20 @@ data:
       "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
       "onboarding": false,
       "requireConfig": "optional",
+      "extends": [
+        "config:recommended",
+      ],
       "pinDigests": true,
       "prHourlyLimit": 0,
       "prConcurrentLimit": 0,
       "minimumReleaseAge": "7 days",
+      "dependencyDashboard": true,
+      "packageRules": [
+        {
+          "matchUpdateTypes": ["minor", "patch"],
+          "automerge": true
+        }
+      ],
       "ignorePaths": [
         "fluxcd/clusters/production/flux-system/gotk-components.yaml",
         "kubernetes/infra/cloudnativepg/**",
