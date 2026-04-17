@@ -33,14 +33,12 @@ data:
       ],
       "flux": {
         "managerFilePatterns": [
-          "/^fluxcd\\/clusters\\/production\\/.+\\.ya?ml$/",
-          "/^kubernetes\\/.+\\/release\\.yaml$/",
-          "/^kubernetes\\/infra\\/helm\\/.+\\.ya?ml$/"
+          "^fluxcd/clusters/production/.+\\.ya?ml$",
         ]
       },
       "kubernetes": {
         "managerFilePatterns": [
-          "/^kubernetes\\/.+\\.ya?ml$/"
+          "^kubernetes/.+\\.ya?ml$/"
         ]
       }
     }
