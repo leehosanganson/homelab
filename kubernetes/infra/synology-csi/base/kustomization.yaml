@@ -1,6 +1,6 @@
 resources:
-  - github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v7.0.2
-  - github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller?ref=v7.0.2
+  - github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.5.0
+  - github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller?ref=v8.5.0
   - namespace.yml
   - controller.yml
   - csi-driver.yml
