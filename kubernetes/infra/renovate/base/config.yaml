@@ -20,12 +20,13 @@ data:
       "pinDigests": true,
       "prHourlyLimit": 0,
       "prConcurrentLimit": 0,
+      "prCreation": "approval",
       "minimumReleaseAge": "7 days",
       "dependencyDashboard": true,
       "packageRules": [
         {
-          "description": "Automatically merge non-breaking patch updates (Optional, but highly recommended)",
-          "matchUpdateTypes": ["patch", "minor"],
+          "description": "Automatically merge non-breaking patch updates",
+          "matchUpdateTypes": ["patch"],
           "automerge": true,
           "automergeType": "pr"
         },
@@ -46,13 +47,18 @@ data:
         "kubernetes/infra/synology-csi/**"
       ],
       "flux": {
-        "managerFilePatterns": [
-          "^fluxcd/clusters/production/.+\\.ya?ml$",
+        "fileMatch": [
+          "^fluxcd/clusters/production/.+\\.ya?ml$"
         ]
       },
       "kubernetes": {
-        "managerFilePatterns": [
-          "^kubernetes/.+\\.ya?ml$/"
+        "fileMatch": [
+          "^kubernetes/.+\\.ya?ml$"
+        ]
+      },
+      "helm-values": {
+        "fileMatch": [
+          "^kubernetes/.+/values\\.ya?ml$"
         ]
       }
     }
