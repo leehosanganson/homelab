@@ -27,7 +27,6 @@ data:
         }
       ],
       "ignorePaths": [
-        "fluxcd/clusters/production/flux-system/gotk-components.yaml",
         "kubernetes/infra/cloudnativepg/**",
         "kubernetes/infra/synology-csi/**"
       ],
