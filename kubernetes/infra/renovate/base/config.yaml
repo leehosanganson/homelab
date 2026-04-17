@@ -14,6 +14,8 @@ data:
       "requireConfig": "optional",
       "extends": [
         "config:recommended",
+        "kubernetes:recommended",
+        ":dependencyDashboard"
       ],
       "pinDigests": true,
       "prHourlyLimit": 0,
@@ -22,8 +24,21 @@ data:
       "dependencyDashboard": true,
       "packageRules": [
         {
-          "matchUpdateTypes": ["minor", "patch"],
-          "automerge": true
+          "description": "Automatically merge non-breaking patch updates (Optional, but highly recommended)",
+          "matchUpdateTypes": ["patch", "minor"],
+          "automerge": true,
+          "automergeType": "pr"
+        },
+        {
+          "description": "Group all FluxCD system component updates together to avoid PR spam",
+          "matchPackageNames": ["ghcr.io/fluxcd/**", "fluxcd/flux2"],
+          "groupName": "flux-system"
+        },
+        {
+          "description": "Disable digest pinning for the Flux GitHub release to prevent errors in gotk-components",
+          "matchDatasources": ["github-releases"],
+          "matchPackageNames": ["fluxcd/flux2"],
+          "pinDigests": false
         }
       ],
       "ignorePaths": [
