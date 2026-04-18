@@ -8,6 +8,11 @@ A strict `base/overlays` hierarchy is enforced for all Kubernetes resources:
 
 - **`base/`**: Contains environment-agnostic manifests (Deployments, Services, etc.).
 - **`overlays/`**: Manages environment-specific patches, secrets, and configurations (e.g., `default`, `staging`).
+- **`overlays/<env>/secrets.yaml`**: ExternalSecret manifests must be placed in the overlay directory (not `base/`), since they reference environment-specific secret stores and keys.
+
+### Database Manifests
+
+All database-related Kubernetes manifests (e.g., `deployment.yaml`, `service.yaml`, `pvc.yaml`) must be co-located under a `db/` subdirectory within the application's directory (e.g., `kubernetes/apps/immich/db/`), keeping database resources separate from the main application manifests.
 
 ### Infrastructure vs. Applications
 
@@ -30,3 +35,48 @@ Consistency in naming ensures that the repository remains searchable and predict
 - **Resources**: Kubernetes resources follow a `lowercase-kebab-case` convention (e.g., `actual-budget`).
 - **Files**: File names are standardized based on their functional purpose (e.g., `deployment.yaml`, `ingress.yaml`, `kustomization.yaml`).
 - **Directories**: Directory names match the service name or component type (e.g., `kubernetes/apps/immich`).
+
+## 3. Kubernetes Best Practices
+
+The following conventions apply to all Kubernetes workloads defined in this repository.
+
+### ConfigMap for Environment Variables
+
+Environment variables must never be defined inline under `env:` in the container spec of a Deployment manifest.
+
+- **`configmap.yaml`**: Must be created in the `base/` directory alongside `deployment.yaml` and referenced via `envFrom` or `env[].valueFrom.configMapKeyRef` in the Deployment.
+- **Sensitive values** (passwords, tokens, API keys) remain in `secrets.yaml` under the overlay (via ExternalSecret); ConfigMaps are for non-sensitive configuration only.
+- The ConfigMap resource must be listed in the corresponding `kustomization.yaml` `resources:` list.
+
+### Security Context & Non-Root Execution
+
+Containers must not run as root; a `securityContext` block is required on every container spec.
+
+- **`runAsNonRoot: true`**: Must be set on all containers.
+- **`runAsUser` / `runAsGroup`**: Should be set to a non-zero UID/GID appropriate for the image (e.g., `1000`).
+- **`allowPrivilegeEscalation: false`**: Must be set on all containers.
+- **`capabilities.drop: ["ALL"]`**: Must be set to remove all Linux capabilities by default; add back only the minimum required via `capabilities.add`.
+- **`readOnlyRootFilesystem: true`**: Should be set where the application supports it; writable paths must be mounted explicitly via `volumeMounts`.
+
+## 4. Memory Management
+
+The agent maintains persistent memory across sessions by categorizing user-shared information into typed Markdown documents stored under `docs/`.
+
+### Buckets & File Locations
+
+Information must be classified into exactly one of three buckets, each mapped to a dedicated file:
+
+- **`user-preference`** → **`docs/user-preference.md`**: Stores personal preferences, stylistic choices, and behavioral expectations expressed by the user (e.g., preferred languages, formatting style, tool choices).
+- **`project-context`** → **`docs/project-context.md`**: Stores facts about this repository and its environment that are unlikely to change often (e.g., cluster topology, external service dependencies, design decisions).
+- **`workflow`** → **`docs/workflow.md`**: Stores recurring processes, step sequences, and procedural conventions the user follows (e.g., how to deploy, how to test, how to cut a release).
+
+### File Lifecycle
+
+- **Creating**: If the target `docs/<bucket>.md` file does not exist when a piece of information is to be stored, create it before writing.
+- **Updating**: Append or merge new information into the appropriate file; do not duplicate entries that are already recorded.
+- **Loading**: Before responding to any request where relevant context may be missing or ambiguous, read the applicable `docs/<bucket>.md` file(s) into memory.
+
+### Recall Guarantee
+
+- Never ask the user to repeat or re-explain anything that is already recorded in one of the three `docs/<bucket>.md` files.
+- Cross-reference all three files when context spans multiple buckets.
