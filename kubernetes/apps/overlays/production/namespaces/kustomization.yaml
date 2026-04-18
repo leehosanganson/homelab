@@ -2,6 +2,7 @@ resources:
   - actual-budget.yaml
   - commafeed.yaml
   - coder.yaml
+  - grimmory.yaml
   - home-assistant.yaml
   - karakeep.yaml
   - llm.yaml

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grimmory
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: grimmory
+  template:
+    metadata:
+      labels:
+        app: grimmory
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: grimmory
+          image: ghcr.io/grimmory-tools/grimmory:v2.3.0@sha256:9014247f591074529894f81115ca40f899db697e89f72c2fe91ec530e3f19597
+          ports:
+            - containerPort: 6060
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-env
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-env
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: grimmory-configmap
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: books
+              mountPath: /books
+            - name: bookdrop
+              mountPath: /bookdrop
+          resources:
+            limits:
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /api/v1/healthcheck
+              port: 6060
+            initialDelaySeconds: 60
+            periodSeconds: 60
+            timeoutSeconds: 10
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: grimmory-data-pvc
+        - name: books
+          persistentVolumeClaim:
+            claimName: grimmory-books-pvc
+        - name: bookdrop
+          persistentVolumeClaim:
+            claimName: grimmory-bookdrop-pvc

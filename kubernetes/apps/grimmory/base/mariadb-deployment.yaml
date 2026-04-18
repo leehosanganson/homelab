@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grimmory-mariadb
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: grimmory-mariadb
+  template:
+    metadata:
+      labels:
+        app: grimmory-mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: lscr.io/linuxserver/mariadb:11.4.8@sha256:91de7f701bc7fc3a424b81beafca7a7c6c4c5b7c8be6afd2ae148698695c0b0c
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Etc/UTC"
+            - name: MYSQL_DATABASE
+              value: "grimmory"
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-env
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-env
+                  key: password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-env
+                  key: root-password
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - name: mariadb-config
+              mountPath: /config
+          livenessProbe:
+            exec:
+              command:
+                - mariadb-admin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: "512Mi"
+      volumes:
+        - name: mariadb-config
+          persistentVolumeClaim:
+            claimName: grimmory-mariadb-pvc

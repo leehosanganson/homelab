@@ -4,6 +4,7 @@ resources:
   - ../../homepage/overlays/default
   - ../../commafeed/overlays/default
   - ../../coder/overlays/default
+  - ../../grimmory/overlays/default
   - ../../home-assistant/overlays/default
   - ../../it-tools/overlays/default
   - ../../karakeep/overlays/default

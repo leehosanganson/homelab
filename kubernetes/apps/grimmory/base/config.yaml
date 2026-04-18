@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grimmory-configmap
+data:
+  DATABASE_URL: "jdbc:mariadb://grimmory-mariadb:3306/grimmory"
+  TZ: "Etc/UTC"
+  SWAGGER_ENABLED: "false"
+  FORCE_DISABLE_OIDC: "false"
