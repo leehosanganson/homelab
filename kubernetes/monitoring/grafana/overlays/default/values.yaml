@@ -30,23 +30,14 @@ datasources:
         jsonData:
           maxLines: 2048
 
-dashboardProviders:
-  dashboardproviders.yaml:
-    apiVersion: 1
-    providers:
-      - name: grafana-com
-        orgId: 1
-        folder: "Homelab"
-        type: file
-        disableDeletion: true
-        editable: false
-        options:
-          path: /var/lib/grafana/dashboards/grafana-com
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    searchNamespace: ALL
+    provider:
+      allowUiUpdates: false
 
-downloadDashboardsImage:
-  repository: curlimages/curl
-  tag: 8.7.1
-  pullPolicy: IfNotPresent
-
-downloadDashboards:
-  env: {}
+rbac:
+  create: true
