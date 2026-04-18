@@ -2,9 +2,6 @@ resources:
   - namespace.yaml
   - ../../uptime-kuma/overlays/default
   - ../../prometheus/overlays/default
-  - ../../kube-state-metrics/overlays/default
-  - ../../prometheus-node-exporter/overlays/default
-  - ../../alertmanager/overlays/default
   - ../../loki/overlays/default
   - ../../alloy/overlays/default
   - ../../grafana/overlays/default
