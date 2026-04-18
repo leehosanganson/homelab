@@ -3,10 +3,9 @@ persistence:
   accessModes:
     - ReadWriteOnce
   size: 1Gi
-  existingClaim: pvc-89ae83eb-0c63-401b-8739-5e15a89effe7
 
 admin:
-  existingSecret: prometheus-grafana
+  existingSecret: grafana-secrets
   userKey: admin-user
   passwordKey: admin-password
 
