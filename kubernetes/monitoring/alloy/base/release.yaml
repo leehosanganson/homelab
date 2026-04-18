@@ -15,3 +15,6 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: alloy-values
+  dependsOn:
+    - name: loki
+      namespace: monitoring
