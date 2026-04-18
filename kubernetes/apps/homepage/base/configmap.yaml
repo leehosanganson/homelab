@@ -36,7 +36,7 @@ data:
       Home:
         tab: Main
         style: row
-        columns: 3
+        columns: 4
       Productivity:
         tab: Main
         style: row
@@ -126,6 +126,10 @@ data:
             icon: paperless.png
             href: https://paperless.homelab.leehosanganson.dev
             description: Document management
+        - Immich:
+            icon: immich.png
+            href: https://immich.homelab.leehosanganson.dev
+            description: Photos management
 
     - Productivity:
         - Commafeed:
