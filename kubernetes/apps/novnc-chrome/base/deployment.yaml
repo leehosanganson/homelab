@@ -19,7 +19,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: novnc-chrome
-          image: linuxserver/chromium:latest@sha256:be565732328d95754e45d826b3987e659b5f961fe267be88e8b1808567e94842
+          image: linuxserver/chrome:latest@sha256:aec9671971c1aaf3e409cab70a10aad5271801ee1275b752450aff8fc226172d
           securityContext:
             seccompProfile:
               type: Unconfined
