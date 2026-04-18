@@ -1,0 +1,6 @@
+namespace: termix
+resources:
+  - ../../base
+
+patches:
+  - path: patch-velero.yaml

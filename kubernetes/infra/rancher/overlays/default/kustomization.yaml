@@ -1,0 +1,12 @@
+namespace: cattle-system
+
+resources:
+  - namespace.yaml
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: rancher-values
+    options:
+      disableNameSuffixHash: true

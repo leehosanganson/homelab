@@ -4,6 +4,8 @@ metadata:
   name: bazarr
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: bazarr
@@ -20,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bazarr
-          image: linuxserver/bazarr:latest
+          image: linuxserver/bazarr:1.5.6@sha256:d736df5df0286373a26d34f47aa413cb8aeada74f6338dac372a6d37ba1b3b0d
           ports:
             - containerPort: 6767
               name: http

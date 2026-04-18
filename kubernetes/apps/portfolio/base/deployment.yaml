@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portfolio
+  template:
+    metadata:
+      labels:
+        app: portfolio
+    spec:
+      containers:
+        - name: portfolio
+          image: harbor.leehosanganson.dev/leehosanganson/portfolio:latest@sha256:2f10dd0fd05b261cfa2e9eedb147ba478820ee9ceed1de4cfeedcd50cf94c0f3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: termix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: termix
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: termix
+    spec:
+      containers:
+        - name: termix
+          image: ghcr.io/lukegus/termix:release-2.0.0@sha256:6fe521f60ac4e3b85d80b3c3d496ae955d2968c7b0f0e1fcecc8f54b56381aee
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - mountPath: /app/data
+              name: termix-pvc
+        - name: guacd
+          image: guacamole/guacd:latest@sha256:2d266a525a72ad55d8ea7cd4ca8342a1b44075759b03660d8684821b3636a922
+          ports:
+            - containerPort: 4822
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+      volumes:
+        - name: termix-pvc
+          persistentVolumeClaim:
+            claimName: termix-pvc

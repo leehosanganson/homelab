@@ -4,6 +4,8 @@ metadata:
   name: jellyseerr
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: jellyseerr
@@ -13,9 +15,13 @@ spec:
         app: jellyseerr
     spec:
       dnsPolicy: ClusterFirst
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: jellyseerr
-          image: ghcr.io/fallenbagel/jellyseerr:latest
+          image: seerr/seerr:v3.2.0@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad
           ports:
             - containerPort: 5055
               name: http

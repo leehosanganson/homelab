@@ -1,0 +1,8 @@
+resources:
+  - cronjob.yaml
+  - config.yaml
+  - secret.yaml
+
+labels:
+  - pairs:
+      app: renovate

@@ -2,12 +2,18 @@ resources:
   - actual-budget.yaml
   - commafeed.yaml
   - coder.yaml
+  - grimmory.yaml
   - home-assistant.yaml
   - karakeep.yaml
   - llm.yaml
   - media.yaml
   - n8n.yaml
   - paperless.yaml
+  - termix.yaml
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
+  - novnc-chrome.yaml
+  - life-in-the-uk-quiz.yaml
+  - syncthing.yaml
+  - immich.yaml

@@ -1,8 +1,10 @@
 resources:
   - namespaces
   - ../../actual-budget/overlays/default
+  - ../../homepage/overlays/default
   - ../../commafeed/overlays/default
   - ../../coder/overlays/default
+  - ../../grimmory/overlays/default
   - ../../home-assistant/overlays/default
   - ../../it-tools/overlays/default
   - ../../karakeep/overlays/default
@@ -11,10 +13,16 @@ resources:
   - ../../n8n/overlays/default
   - ../../openwebui/overlays/default
   - ../../paperless-ngx/overlays/default
-  - ../../vllm/overlays/default
+  - ../../llama.cpp/overlays/default
   - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
+  - ../../immich/overlays/default
+  - ../../novnc-chrome/overlays/default
+  - ../../life-in-the-uk-quiz/overlays/default
+  - ../../termix/overlays/default
+  - ../../syncthing/overlays/default
+  - ../../portfolio/overlays/default
 
 labels:
   - includeSelectors: false

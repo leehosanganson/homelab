@@ -1,0 +1,4 @@
+namespace: grimmory
+resources:
+  - ../../base
+  - secrets.yaml

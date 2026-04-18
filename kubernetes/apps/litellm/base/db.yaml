@@ -5,7 +5,7 @@ metadata:
   labels:
     db: litellm-db
 spec:
-  instances: 3
+  instances: 2
   storage:
     size: 3Gi
   monitoring:

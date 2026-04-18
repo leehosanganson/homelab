@@ -1,0 +1,4 @@
+namespace: syncthing
+
+resources:
+  - ../../base

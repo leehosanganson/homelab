@@ -4,6 +4,8 @@ metadata:
   name: broker
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: broker
@@ -23,7 +25,7 @@ spec:
             claimName: broker-pvc
       containers:
         - name: broker
-          image: redis:latest
+          image: redis:latest@sha256:1f073813b641755b70b0200da64131bbeeb4ec5b633ca67772229b49820caafa
           ports:
             - containerPort: 6379
               protocol: TCP

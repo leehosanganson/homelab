@@ -37,3 +37,9 @@ tolerations:
   - effect: NoSchedule
     key: node-role.kubernetes.io/master
     operator: Exists
+env:
+  - name: CF_DNS_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: traefik-cloudflare-api-token
+        key: CF_DNS_API_TOKEN

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      automountServiceAccountToken: true
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:v1.12.3@sha256:cc84f2f5eb3c7734353701ccbaa24ed02dacb0d119114e50e4251e2005f3990a
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - containerPort: 3000
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.homelab.leehosanganson.dev
+          envFrom:
+            - secretRef:
+                name: homepage-secrets
+          volumeMounts:
+            - name: homepage-config
+              mountPath: /app/config/widgets.yaml
+              subPath: widgets.yaml
+            - name: homepage-config
+              mountPath: /app/config/settings.yaml
+              subPath: settings.yaml
+            - name: homepage-config
+              mountPath: /app/config/services.yaml
+              subPath: services.yaml
+            - name: homepage-config
+              mountPath: /app/config/kubernetes.yaml
+              subPath: kubernetes.yaml
+            - name: homepage-config
+              mountPath: /app/config/bookmarks.yaml
+              subPath: bookmarks.yaml
+            - name: homepage-config
+              mountPath: /app/config/docker.yaml
+              subPath: docker.yaml
+            - name: homepage-config
+              mountPath: /app/config/proxmox.yaml
+              subPath: proxmox.yaml
+            - name: homepage-config
+              mountPath: /app/config/custom.js
+              subPath: custom.js
+            - name: homepage-config
+              mountPath: /app/config/custom.css
+              subPath: custom.css
+            - name: logs
+              mountPath: /app/config/logs
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: homepage-config
+          configMap:
+            name: homepage-config
+        - name: logs
+          emptyDir: {}

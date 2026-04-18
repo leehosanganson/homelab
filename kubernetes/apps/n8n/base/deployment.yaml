@@ -16,13 +16,13 @@ spec:
     spec:
       initContainers:
         - name: volume-permissions
-          image: busybox:1.36
+          image: busybox:1.37@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
           command: ["sh", "-c", "chown 1000:1000 /data"]
           volumeMounts:
             - name: n8n-pvc
               mountPath: /data
       containers:
-        - image: n8nio/n8n
+        - image: n8nio/n8n:2.17.2@sha256:4e5be628f9eb05e3fde3cd242c84f6000165c95d2048d5076fcc569421ada4f3
           name: n8n
           ports:
             - containerPort: 5678

@@ -4,6 +4,8 @@ metadata:
   name: web
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: karakeep-web
@@ -14,7 +16,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/karakeep-app/karakeep
+          image: ghcr.io/karakeep-app/karakeep:0.31.0@sha256:20754dbdafb11dfe288bbb1c2342a7855081b08ea069e86fcf2d4a2d945d3653
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

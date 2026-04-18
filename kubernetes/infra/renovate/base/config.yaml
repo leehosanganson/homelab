@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-config
+data:
+  config.json: |
+    {
+      "platform": "github",
+      "repositories": [
+        "leehosanganson/homelab"
+      ],
+      "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+      "onboarding": false,
+      "requireConfig": "optional",
+      "extends": [
+        "config:recommended",
+        ":dependencyDashboard"
+      ],
+      "pinDigests": true,
+      "prHourlyLimit": 0,
+      "prConcurrentLimit": 0,
+      "prCreation": "approval",
+      "minimumReleaseAge": "7 days",
+      "dependencyDashboard": true,
+      "packageRules": [
+        {
+          "description": "Automatically merge non-breaking patch updates",
+          "matchUpdateTypes": ["patch"],
+          "automerge": true,
+          "automergeType": "pr"
+        },
+        {
+          "description": "Group all FluxCD system component updates together to avoid PR spam",
+          "matchPackageNames": ["ghcr.io/fluxcd/**", "fluxcd/flux2"],
+          "groupName": "flux-system"
+        },
+        {
+          "description": "Disable digest pinning for the Flux GitHub release to prevent errors in gotk-components",
+          "matchDatasources": ["github-releases"],
+          "matchPackageNames": ["fluxcd/flux2"],
+          "pinDigests": false
+        }
+      ],
+      "ignorePaths": [
+        "kubernetes/infra/cloudnativepg/**",
+        "kubernetes/infra/synology-csi/**"
+      ],
+      "flux": {
+        "managerFilePatterns": [
+          "/^fluxcd/clusters/production/.+\\.ya?ml$/"
+        ]
+      },
+      "kubernetes": {
+        "managerFilePatterns": [
+          "/^kubernetes/.+\\.ya?ml$/"
+        ]
+      },
+      "helm-values": {
+        "managerFilePatterns": [
+          "/^kubernetes/.+/values\\.ya?ml$/"
+        ]
+      }
+    }

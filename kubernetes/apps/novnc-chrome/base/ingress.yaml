@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: novnc-chrome
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: novnc-chrome.homelab.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: novnc-chrome
+                port:
+                  number: 3000
+  tls:
+    - hosts:
+        - novnc-chrome.homelab.leehosanganson.dev
+      secretName: novnc-chrome-tls

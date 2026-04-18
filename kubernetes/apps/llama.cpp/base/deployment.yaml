@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama-cpp
+spec:
+  selector:
+    matchLabels:
+      name: llama-cpp
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: llama-cpp
+    spec:
+      runtimeClassName: nvidia
+      initContainers:
+        - name: download-model
+          image: python:3.14-slim@sha256:bc389f7dfcb21413e72a28f491985326994795e34d2b86c8ae2f417b4e7818aa
+          command:
+            - sh
+            - -c
+            - |
+              apt-get update -qq && \
+              apt-get install -y --no-install-recommends curl git && \
+              pip install -U huggingface_hub[hf_transfer] hf_transfer && \
+              export HF_HUB_ENABLE_HF_TRANSFER=1 && \
+              mkdir -p /models && \
+              hf download unsloth/gemma-4-26B-A4B-it-GGUF \
+                gemma-4-26B-A4B-it-UD-IQ2_M.gguf \
+                --local-dir /models
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token-secret
+                  key: token
+          volumeMounts:
+            - name: model-storage
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: 1
+              memory: 4Gi
+      containers:
+        - name: llama-cpp
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:c1243a7914e9d3afc49b271fd0a42e7ee65c2a8a1b6ad9719745707147941319
+          args:
+            - -m
+            - /models/gemma-4-26B-A4B-it-UD-IQ2_M.gguf
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8080"
+            - -c
+            - "131072"
+            - -np
+            - "1"
+            - -ngl
+            - "99"
+            - --temp
+            - "1.0"
+            - --top-p
+            - "0.95"
+            - --top-k
+            - "64"
+            - --alias
+            - "unsloth/gemma-4"
+            - --chat-template-kwargs
+            - '{"enable_thinking":false}'
+
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: model-storage
+              mountPath: /models
+          resources:
+            limits:
+              cpu: "4"
+              memory: 16G
+              nvidia.com/gpu: "1"
+            requests:
+              cpu: "2"
+              memory: 4G
+              nvidia.com/gpu: "1"
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: llm-model-cache-pvc

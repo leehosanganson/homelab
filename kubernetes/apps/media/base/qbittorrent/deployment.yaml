@@ -4,6 +4,8 @@ metadata:
   name: qbittorrent
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: qbittorrent
@@ -21,7 +23,7 @@ spec:
             value: "1"
       containers:
         - name: qbittorrent
-          image: linuxserver/qbittorrent:latest
+          image: linuxserver/qbittorrent:5.1.4@sha256:1fc78c81850d658f17701bfa9d8de58ccc12ff27d36a9a176c6299e55aaf4b4e
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -48,7 +50,7 @@ spec:
             - name: downloads
               mountPath: /downloads
         - name: gluetun
-          image: qmcgaw/gluetun:latest
+          image: qmcgaw/gluetun:v3.41@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
           securityContext:
             capabilities:
               add:
@@ -65,7 +67,7 @@ spec:
                   name: gluetun-secrets
                   key: WIREGUARD_PRIVATE_KEY
         - name: slskd
-          image: slskd/slskd:latest
+          image: slskd/slskd:0.24.5@sha256:17ef977563be206f3b5932080b1e23883b2cb39dc9010640f6f39b4eaec887e3
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000

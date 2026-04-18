@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: life-in-the-uk-quiz-backup-storage
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/life-in-the-uk-quiz
+    azureCredentials:
+      storageAccount:
+        name: life-in-the-uk-quiz-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: life-in-the-uk-quiz-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d

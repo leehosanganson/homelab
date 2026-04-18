@@ -1,7 +1,0 @@
-resources:
-  - deployment.yaml
-  - pvc.yaml
-
-labels:
-  - pairs:
-      app: soularr

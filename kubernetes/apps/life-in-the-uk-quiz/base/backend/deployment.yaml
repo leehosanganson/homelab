@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: life-in-the-uk-quiz-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: life-in-the-uk-quiz-backend
+    spec:
+      containers:
+        - name: backend
+          image: harbor.leehosanganson.dev/leehosanganson/life-in-the-uk-quiz-backend:v0.0.4@sha256:8cf8a4eb4d9e44245a3b5323ee67d7eb17e669b0679dc9d6453fd66acbaafb8b
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: life-in-the-uk-quiz-db-url
+                  key: database-url
+      restartPolicy: Always
