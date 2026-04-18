@@ -1,0 +1,4 @@
+resources:
+  - mariadb-deployment.yaml
+  - mariadb-pvc.yaml
+  - mariadb-service.yaml

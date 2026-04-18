@@ -1,12 +1,9 @@
 resources:
+  - db
   - config.yaml
   - deployment.yaml
   - ingress.yaml
-  - mariadb-deployment.yaml
-  - mariadb-pvc.yaml
-  - mariadb-service.yaml
   - pvc.yaml
-  - secrets.yaml
   - service.yaml
 labels:
   - pairs:

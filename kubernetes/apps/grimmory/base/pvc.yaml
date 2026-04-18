@@ -7,7 +7,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -16,7 +16,7 @@ metadata:
 spec:
   storageClassName: ""
   capacity:
-    storage: 1Ti
+    storage: 50GI
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
@@ -37,7 +37,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Ti
+      storage: 50Gi
   volumeName: grimmory-books-pv
 ---
 apiVersion: v1
@@ -49,4 +49,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Gi
