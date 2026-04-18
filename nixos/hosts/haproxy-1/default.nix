@@ -1,5 +1,6 @@
 { sops-secrets, ... }: {
   imports = [
+    ../../modules/disko.nix
     ../../modules/haproxy.nix
   ];
 
@@ -18,19 +19,11 @@
     defaultGateway = "192.168.1.1";
   };
 
-  services.cloud-init = {
-    enable = true;
-    settings.ssh_deletekeys = false;
-  };
-
   services.qemuGuest.enable = true;
 
-  boot.loader.grub.device = "/dev/sda";
-
-  proxmox.qemuConf = {
-    cores = 2;
-    memory = 4096;
-    diskSize = 8192;
+  boot.loader.grub = {
+    enable = true;
+    device = "/dev/sda";
   };
 
   environment.etc."ssh/haproxy" = {

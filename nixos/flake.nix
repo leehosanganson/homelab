@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
+    disko = {
+      url = "github:nix-community/disko/latest";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -16,14 +16,14 @@
     };
   };
 
-  outputs = { nixpkgs, sops-nix, sops-secrets, ... }@inputs: {
+  outputs = { nixpkgs, disko, sops-nix, sops-secrets, ... }@inputs: {
     nixosConfigurations.haproxy-1 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/haproxy-1
+        disko.nixosModules.disko
         sops-nix.nixosModules.sops
-        "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
       ];
     };
   };
