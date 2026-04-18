@@ -14,10 +14,10 @@ spec:
       labels:
         app: grimmory
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+      # securityContext:
+      #   runAsUser: 1000
+      #   runAsGroup: 1000
+      #   fsGroup: 1000
       containers:
         - name: grimmory
           image: ghcr.io/grimmory-tools/grimmory:v2.3.0@sha256:9014247f591074529894f81115ca40f899db697e89f72c2fe91ec530e3f19597
