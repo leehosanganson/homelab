@@ -12,9 +12,6 @@ admin:
 plugins:
   - grafana-lokiexplore-app 1.0.37
 
-deploymentStrategy:
-  type: Recreate
-
 datasources:
   datasources.yaml:
     apiVersion: 1
