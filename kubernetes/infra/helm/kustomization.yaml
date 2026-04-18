@@ -15,4 +15,5 @@ resources:
   - rancher-stable.yaml
   - traefik.yaml
   - grafana.yaml
+  - grafana-community.yaml
   - prometheus-community.yaml
