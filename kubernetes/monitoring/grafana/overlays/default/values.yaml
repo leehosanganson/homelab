@@ -11,3 +11,66 @@ admin:
 
 plugins:
   - grafana-lokiexplore-app 1.0.37
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        url: http://prometheus-server.monitoring.svc.cluster.local
+        access: proxy
+        isDefault: true
+        jsonData:
+          timeInterval: 30s
+
+      - name: Loki
+        type: loki
+        uid: loki
+        url: http://loki-gateway.monitoring.svc.cluster.local
+        access: proxy
+        jsonData:
+          maxLines: 2048
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: grafana-com
+        orgId: 1
+        folder: "Homelab"
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/grafana-com
+
+dashboards:
+  grafana-com:
+    node-exporter-full:
+      gnetId: 1860
+      revision: 37
+      datasource:
+        - name: DS_PROMETHEUS
+          value: prometheus
+    kubernetes-cluster-overview:
+      gnetId: 15661
+      revision: 1
+      datasource:
+        - name: DS_PROMETHEUS
+          value: prometheus
+    loki-quick-search:
+      gnetId: 13639
+      revision: 2
+      datasource:
+        - name: DS_LOKI
+          value: loki
+
+downloadDashboardsImage:
+  repository: curlimages/curl
+  tag: 8.7.1
+  pullPolicy: IfNotPresent
+
+downloadDashboards:
+  env: {}
