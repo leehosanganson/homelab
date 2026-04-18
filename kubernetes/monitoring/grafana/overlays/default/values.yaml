@@ -9,9 +9,6 @@ admin:
   userKey: admin-user
   passwordKey: admin-password
 
-plugins:
-  - grafana-lokiexplore-app 1.0.37
-
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -45,27 +42,6 @@ dashboardProviders:
         editable: false
         options:
           path: /var/lib/grafana/dashboards/grafana-com
-
-dashboards:
-  grafana-com:
-    node-exporter-full:
-      gnetId: 1860
-      revision: 37
-      datasource:
-        - name: DS_PROMETHEUS
-          value: prometheus
-    kubernetes-cluster-overview:
-      gnetId: 15661
-      revision: 1
-      datasource:
-        - name: DS_PROMETHEUS
-          value: prometheus
-    loki-quick-search:
-      gnetId: 13639
-      revision: 2
-      datasource:
-        - name: DS_LOKI
-          value: loki
 
 downloadDashboardsImage:
   repository: curlimages/curl
