@@ -16,7 +16,7 @@ metadata:
 spec:
   storageClassName: ""
   capacity:
-    storage: 50GI
+    storage: 50Gi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
