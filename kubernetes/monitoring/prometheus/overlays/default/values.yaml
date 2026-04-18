@@ -1,0 +1,29 @@
+server:
+  retention: 14d
+  retentionSize: 100GB
+  securityContext:
+    runAsUser: 65534
+    runAsGroup: 65534
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 150Gi
+  # Uncomment and configure to enable remote_write to Mimir in the future:
+  # remoteWrite:
+  #   - url: http://mimir-nginx.monitoring.svc.cluster.local/api/v1/push
+  #     headers:
+  #       X-Scope-OrgID: homelab
+
+# Disable built-in sub-charts — managed as separate HelmReleases
+alertmanager:
+  enabled: false
+
+kube-state-metrics:
+  enabled: false
+
+prometheus-node-exporter:
+  enabled: false
+
+prometheus-pushgateway:
+  enabled: false

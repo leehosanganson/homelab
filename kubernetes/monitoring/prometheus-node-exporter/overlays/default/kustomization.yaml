@@ -1,11 +1,9 @@
-namespace: monitoring
-
 resources:
   - ../../base
 
 configMapGenerator:
   - files:
       - values.yaml
-    name: grafana-values
+    name: prometheus-node-exporter-values
     options:
       disableNameSuffixHash: true

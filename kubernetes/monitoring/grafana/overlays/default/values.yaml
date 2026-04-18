@@ -1,0 +1,8 @@
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+plugins:
+  - grafana-lokiexplore-app 1.0.37

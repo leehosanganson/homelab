@@ -1,17 +1,17 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: kube-prometheus-stack
+  name: kube-state-metrics
 spec:
   interval: 1h
   chart:
     spec:
-      chart: kube-prometheus-stack
-      version: 72.6.2
+      chart: kube-state-metrics
+      version: 5.30.0
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
         namespace: flux-system
   valuesFrom:
     - kind: ConfigMap
-      name: kube-prometheus-stack-values
+      name: kube-state-metrics-values
