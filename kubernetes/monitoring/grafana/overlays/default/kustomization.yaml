@@ -1,0 +1,12 @@
+namespace: monitoring
+
+resources:
+  - ../../base
+  - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: grafana-values
+    options:
+      disableNameSuffixHash: true

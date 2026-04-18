@@ -1,0 +1,13 @@
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+admin:
+  existingSecret: grafana-secrets
+  userKey: admin-user
+  passwordKey: admin-password
+
+plugins:
+  - grafana-lokiexplore-app 1.0.37
