@@ -19,13 +19,6 @@ loki:
   ruler:
     enable_api: true
   auth_enabled: false
-  compactor:
-    enabled: true
-    compaction_interval: 30m
-    retention_enabled: true
-    retention_delete_delay: 2h
-    delete_request_store: s3
-    retention_period: 336h
 
 minio:
   enabled: true
@@ -53,6 +46,14 @@ queryScheduler:
   replicas: 0
 distributor:
   replicas: 0
+
+compactor:
+  enabled: true
+  compaction_interval: 30m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  delete_request_store: s3
+  retention_period: 336h
 
 indexGateway:
   replicas: 0
