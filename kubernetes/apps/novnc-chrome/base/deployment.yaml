@@ -19,10 +19,17 @@ spec:
         fsGroup: 1000
       containers:
         - name: novnc-chrome
-          image: ghcr.io/gitxpresso/chromekasmvnc:latest@sha256:1075f96a5bd7631e300c10f6282d0e05164c8732f61378f09f78179e8a8b1b7f
+          image: lscr.io/linuxserver/chromium:latest@sha256:be565732328d95754e45d826b3987e659b5f961fe267be88e8b1808567e94842
           securityContext:
             seccompProfile:
               type: Unconfined
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
           ports:
             - containerPort: 3000
           resources:
@@ -34,7 +41,7 @@ spec:
               memory: "4Gi"
           volumeMounts:
             - name: chrome-profile
-              mountPath: /config/.config/google-chrome
+              mountPath: /config
             - name: dshm
               mountPath: /dev/shm
       volumes:
