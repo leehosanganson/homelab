@@ -253,7 +253,7 @@ data:
             description: Cluster Dashboard
         - Grafana Logs:
             icon: grafana.png
-            href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?from=now-30m&to=now&var-ds=ceqjy8egm34lcf&var-filters=&patterns=[]&var-primary_label=service_name|%3D~|.%2B&timezone=browser&var-lineFormat=&var-fields=&var-levels=&var-metadata=&var-jsonFields=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
+            href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
             description: Logs 
         - Uptime Kuma:
             icon: uptime-kuma.png
