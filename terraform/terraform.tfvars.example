@@ -1,0 +1,14 @@
+proxmox_endpoint = "https://pve03.home.lab:8006"
+proxmox_insecure = true
+
+nodes = {
+  haproxy-1 = {
+    target_node = "pve03"
+    vm_id       = 900
+    cores       = 2
+    memory      = 4096
+    disk_size   = 8
+    storage     = "local-lvm"
+    bridge      = "vmbr0"
+  }
+}
