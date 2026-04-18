@@ -249,7 +249,7 @@ data:
     - Monitoring:
         - Grafana Dashboards:
             icon: grafana.png
-            href: https://grafana.homelab.leehosanganson.dev/d/efa86fd1d0c121a26444b636a3f509a8/kubernetes-compute-resources-cluster?orgId=1&from=now-1h&to=now&timezone=utc&var-datasource=default&var-cluster=&refresh=10s
+            href: https://grafana.homelab.leehosanganson.dev/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=prometheus&var-cluster=&var-resolution=30s&var-job=kubernetes-service-endpoints&refresh=auto
             description: Cluster Dashboard
         - Grafana Logs:
             icon: grafana.png
