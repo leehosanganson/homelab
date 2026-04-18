@@ -1,0 +1,9 @@
+resources:
+  - https://github.com/dotdc/grafana-dashboards-kubernetes//?ref=master
+
+labels:
+  - pairs:
+      grafana_dashboard: "1"
+
+commonAnnotations:
+  grafana_folder: "Kubernetes"
