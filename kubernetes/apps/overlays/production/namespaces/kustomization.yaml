@@ -13,7 +13,7 @@ resources:
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
-  - novnc-chrome.yaml
+  - chrome.yaml
   - life-in-the-uk-quiz.yaml
   - syncthing.yaml
   - immich.yaml

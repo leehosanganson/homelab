@@ -6,4 +6,4 @@ resources:
 
 labels:
   - pairs:
-      app: novnc-chrome
+      app: chrome
