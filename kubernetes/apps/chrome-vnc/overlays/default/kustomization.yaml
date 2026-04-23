@@ -1,4 +1,4 @@
-namespace: novnc-chrome
+namespace: chrome-vnc
 
 resources:
   - ../../base

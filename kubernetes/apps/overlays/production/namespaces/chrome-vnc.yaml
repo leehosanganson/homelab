@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: novnc-chrome
+  name: chrome-vnc

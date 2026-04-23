@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: novnc-chrome
+  name: chrome-vnc
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: novnc-chrome
+      app: chrome-vnc
   template:
     metadata:
       labels:
-        app: novnc-chrome
+        app: chrome-vnc
     spec:
       runtimeClassName: nvidia
       securityContext:
         fsGroup: 1000
       containers:
-        - name: novnc-chrome
+        - name: chrome
           image: linuxserver/chrome:latest@sha256:aec9671971c1aaf3e409cab70a10aad5271801ee1275b752450aff8fc226172d
           securityContext:
             seccompProfile:
@@ -47,7 +47,7 @@ spec:
       volumes:
         - name: chrome-profile
           persistentVolumeClaim:
-            claimName: novnc-chrome-pvc
+            claimName: chrome-vnc-pvc
         - name: dshm
           emptyDir:
             medium: Memory

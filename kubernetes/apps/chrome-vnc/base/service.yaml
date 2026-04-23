@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: novnc-chrome
+  name: chrome-vnc
 spec:
   selector:
-    app: novnc-chrome
+    app: chrome-vnc
   ports:
     - port: 3000
       targetPort: 3000

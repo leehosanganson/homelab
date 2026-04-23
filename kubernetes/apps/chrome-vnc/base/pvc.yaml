@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: novnc-chrome-pvc
+  name: chrome-vnc-pvc
 spec:
   accessModes:
     - ReadWriteOnce
