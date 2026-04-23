@@ -1,4 +1,4 @@
-namespace: chrome-vnc
+namespace: chrome
 
 resources:
   - ../../base

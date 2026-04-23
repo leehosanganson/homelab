@@ -12,7 +12,7 @@ resources:
   - utility.yaml
   - zotero.yaml
   - navidrome.yaml
-  - chrome-vnc.yaml
+  - chrome.yaml
   - life-in-the-uk-quiz.yaml
   - syncthing.yaml
   - immich.yaml

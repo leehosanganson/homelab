@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chrome
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: chrome
+  template:
+    metadata:
+      labels:
+        app: chrome
+    spec:
+      runtimeClassName: nvidia
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: chrome
+          image: linuxserver/chrome:147.0.7727@sha256:c8f38d381285ca4f0bbd9c9c9becbbe4f9aeab870a4bc7021567dd32a011a706
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
+            - name: LC_ALL
+              value: "ja_JP.UTF-8"
+            - name: INSTALL_PACKAGES
+              value: "fonts-noto-cjk"
+            # --- NVIDIA / Hardware Acceleration Configuration ---
+            - name: PIXELFLUX_WAYLAND
+              value: "true"
+            - name: DRINODE
+              value: "/dev/dri/renderD128"
+            - name: DRI_NODE
+              value: "/dev/dri/renderD128"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+            - name: SELKIES_ENCODER
+              value: "nvenc" # Use Nvidia Hardware Encoder for the stream
+          ports:
+            - containerPort: 3000
+              name: http
+            - containerPort: 3001
+              name: https
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              cpu: "4"
+              memory: "4Gi"
+          volumeMounts:
+            - name: chrome-profile
+              mountPath: /config
+            - name: dri
+              mountPath: /dev/dri
+      volumes:
+        - name: chrome-profile
+          persistentVolumeClaim:
+            claimName: chrome-pvc
+        - name: dri
+          hostPath:
+            path: /dev/dri

@@ -6,4 +6,4 @@ resources:
 
 labels:
   - pairs:
-      app: chrome-vnc
+      app: chrome

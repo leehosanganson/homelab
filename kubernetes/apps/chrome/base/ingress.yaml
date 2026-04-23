@@ -1,13 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: chrome-vnc
+  name: chrome
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
 spec:
   ingressClassName: traefik
   rules:
-    - host: chrome-vnc.homelab.leehosanganson.dev
+    - host: chrome.homelab.leehosanganson.dev
       http:
         paths:
           - path: /
@@ -19,5 +19,5 @@ spec:
                   number: 3000
   tls:
     - hosts:
-        - chrome-vnc.homelab.leehosanganson.dev
-      secretName: chrome-vnc-tls
+        - chrome.homelab.leehosanganson.dev
+      secretName: chrome-tls
