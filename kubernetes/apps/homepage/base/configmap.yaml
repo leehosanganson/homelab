@@ -243,7 +243,7 @@ data:
             description: YouTube
         - Granblue Fantasy Remote Instance:
             icon: chrome.png
-            href: https://chrome-vnc.homelab.leehosanganson.dev
+            href: https://chrome.homelab.leehosanganson.dev
             description: Game streaming
 
     - Monitoring:
