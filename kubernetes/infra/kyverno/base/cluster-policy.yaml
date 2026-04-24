@@ -13,6 +13,7 @@ metadata:
       Mappings:
         ghcr.io       → harbor.leehosanganson.dev/ghcr
         gcr.io        → harbor.leehosanganson.dev/gcr
+        lscr.io       → harbor.leehosanganson.dev/lscr
         docker.io     → harbor.leehosanganson.dev/dockerhub
         <unqualified> → harbor.leehosanganson.dev/dockerhub
 spec:
@@ -114,6 +115,54 @@ spec:
                   - (name): "{{ element.name }}"
                     image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
 
+    - name: replace-lscr-io
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^lscr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+          - list: "request.object.spec.containers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^lscr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            preconditions:
+              any:
+                - key: "{{ element.image }}"
+                  operator: Regex
+                  value: "^lscr\\.io/.*"
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+
     - name: replace-docker-io
       match:
         any:
@@ -179,7 +228,7 @@ spec:
           - list: "request.object.spec.initContainers[]"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
@@ -190,7 +239,7 @@ spec:
           - list: "request.object.spec.containers[]"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
@@ -201,7 +250,7 @@ spec:
           - list: "request.object.spec.ephemeralContainers[]"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
