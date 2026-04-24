@@ -1,0 +1,11 @@
+server:
+  retention: 14d
+  retentionSize: 100GB
+  securityContext:
+    runAsUser: 65534
+    runAsGroup: 65534
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 150Gi

@@ -7,3 +7,5 @@ data:
   TZ: "Etc/UTC"
   SWAGGER_ENABLED: "false"
   FORCE_DISABLE_OIDC: "false"
+  USER_ID: "1000"
+  GROUP_ID: "1000"

@@ -14,7 +14,7 @@ data:
       "requireConfig": "optional",
       "extends": [
         "config:recommended",
-        ":dependencyDashboard"
+        ":disableDependencyDashboard"
       ],
       "pinDigests": true,
       "prHourlyLimit": 0,

@@ -1,30 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: novnc-chrome
+  name: chrome
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: novnc-chrome
+      app: chrome
   template:
     metadata:
       labels:
-        app: novnc-chrome
+        app: chrome
     spec:
       runtimeClassName: nvidia
-      securityContext:
-        fsGroup: 1000
       containers:
-        - name: novnc-chrome
-          image: ghcr.io/gitxpresso/chromekasmvnc:latest@sha256:1075f96a5bd7631e300c10f6282d0e05164c8732f61378f09f78179e8a8b1b7f
-          securityContext:
-            seccompProfile:
-              type: Unconfined
+        - name: chrome
+          image: linuxserver/chrome:147.0.7727@sha256:c8f38d381285ca4f0bbd9c9c9becbbe4f9aeab870a4bc7021567dd32a011a706
+          envFrom:
+            - configMapRef:
+                name: chrome-env
           ports:
             - containerPort: 3000
+              name: http
+            - containerPort: 3001
+              name: https
           resources:
             requests:
               cpu: "1"
@@ -34,13 +35,19 @@ spec:
               memory: "4Gi"
           volumeMounts:
             - name: chrome-profile
-              mountPath: /config/.config/google-chrome
-            - name: dshm
+              mountPath: /config
+            - name: dri
+              mountPath: /dev/dri
+            - name: shm
               mountPath: /dev/shm
       volumes:
         - name: chrome-profile
           persistentVolumeClaim:
-            claimName: novnc-chrome-pvc
-        - name: dshm
+            claimName: chrome-pvc
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+        - name: shm
           emptyDir:
             medium: Memory

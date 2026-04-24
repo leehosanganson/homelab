@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: renovate
 spec:
-  schedule: "0 * * * *"
+  schedule: "0 0 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:43@sha256:e4abd88d1d6326fe8a702b38c5ee76487d94b455ba4f305bd904521aba9f5a08
+              image: ghcr.io/renovatebot/renovate:43.131.0@sha256:fd0675dce26fbe51df104812b725df73ec37d273f6e08fe5753eb3b61ad8a00a
               env:
                 - name: RENOVATE_TOKEN
                   valueFrom:

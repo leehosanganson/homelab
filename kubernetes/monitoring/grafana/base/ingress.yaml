@@ -1,23 +1,23 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: novnc-chrome
+  name: grafana
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
 spec:
   ingressClassName: traefik
   rules:
-    - host: novnc-chrome.homelab.leehosanganson.dev
+    - host: grafana.homelab.leehosanganson.dev
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: novnc-chrome
+                name: grafana
                 port:
-                  number: 3000
+                  number: 80
   tls:
     - hosts:
-        - novnc-chrome.homelab.leehosanganson.dev
-      secretName: novnc-chrome-tls
+        - grafana.homelab.leehosanganson.dev
+      secretName: grafana-tls

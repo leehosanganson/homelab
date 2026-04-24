@@ -243,17 +243,17 @@ data:
             description: YouTube
         - Granblue Fantasy Remote Instance:
             icon: chrome.png
-            href: https://novnc-chrome.homelab.leehosanganson.dev
+            href: https://chrome.homelab.leehosanganson.dev
             description: Game streaming
 
     - Monitoring:
         - Grafana Dashboards:
             icon: grafana.png
-            href: https://grafana.homelab.leehosanganson.dev/d/efa86fd1d0c121a26444b636a3f509a8/kubernetes-compute-resources-cluster?orgId=1&from=now-1h&to=now&timezone=utc&var-datasource=default&var-cluster=&refresh=10s
+            href: https://grafana.homelab.leehosanganson.dev/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=prometheus&var-cluster=&var-resolution=30s&var-job=kubernetes-service-endpoints&refresh=auto
             description: Cluster Dashboard
         - Grafana Logs:
             icon: grafana.png
-            href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?from=now-30m&to=now&var-ds=ceqjy8egm34lcf&var-filters=&patterns=[]&var-primary_label=service_name|%3D~|.%2B&timezone=browser&var-lineFormat=&var-fields=&var-levels=&var-metadata=&var-jsonFields=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
+            href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
             description: Logs 
         - Uptime Kuma:
             icon: uptime-kuma.png

@@ -1,0 +1,11 @@
+namespace: monitoring
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: alloy-values
+    options:
+      disableNameSuffixHash: true
