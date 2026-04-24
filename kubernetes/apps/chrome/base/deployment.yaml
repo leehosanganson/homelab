@@ -15,19 +15,12 @@ spec:
         app: chrome
     spec:
       runtimeClassName: nvidia
-      securityContext:
-        fsGroup: 1000
       containers:
         - name: chrome
           image: linuxserver/chrome:147.0.7727@sha256:c8f38d381285ca4f0bbd9c9c9becbbe4f9aeab870a4bc7021567dd32a011a706
           envFrom:
             - configMapRef:
                 name: chrome-env
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
           ports:
             - containerPort: 3000
               name: http
