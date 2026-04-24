@@ -1,0 +1,10 @@
+# Terraform state files may contain sensitive data — never commit them
+*.tfstate
+*.tfstate.backup
+
+# Local Terraform plugin cache and working directory
+.terraform/
+
+# Actual variable files with real credentials — use terraform.tfvars.example as a template
+terraform.tfvars
+*.auto.tfvars

@@ -12,6 +12,61 @@ I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control 
 
 My most recent addition to the cluster is a GPU node with a low-mid tier consumer graphics card (RTX5060 Ti). It allows me to schedule GPU workload such as local LLM inferencing server, or lightweight model training. With the current configuration, I can easily add more GPU nodes and scale out & up my private LLM inferencing service for AI workflows and Agentic Coding concurrently with my own resources.
 
+## Infrastructure as Code
+
+NixOS VMs (e.g. `haproxy-1`) are provisioned and configured using a fully declarative, two-layer IaC approach.
+
+### Layer 1 — VM Lifecycle (Terraform)
+
+Terraform (`terraform/`) manages the virtual hardware boundary of each VM on Proxmox using the [bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest) provider. It defines CPU, memory, disk size, and network — but intentionally avoids Cloud-Init or any OS-level configuration.
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars  # fill in your credentials
+terraform init
+terraform apply
+```
+
+### Layer 2 — OS & Configuration (NixOS + nixos-anywhere + disko)
+
+Once Terraform creates the blank VMs, `nixos-anywhere` + `disko` remotely partitions the disk and installs NixOS from the flake in one step.
+
+#### Build the installer ISO (one-time setup)
+
+Build a minimal NixOS installer ISO, upload it to Proxmox storage, and reference it in `terraform.tfvars` as `nixos_iso`. Terraform will attach the ISO to new VMs so they boot into the installer.
+
+```bash
+cd nixos
+nix build .#packages.x86_64-linux.installer
+# result/iso/nixos-*.iso  →  upload to Proxmox
+```
+
+#### Initial provisioning
+
+Boot the VM from the installer ISO (start it in Proxmox), then run:
+
+```bash
+cd nixos
+./scripts/provision.sh haproxy-1 192.168.1.251
+```
+
+This calls `nixos-anywhere --flake .#haproxy-1 root@192.168.1.251`, which uses disko to partition `/dev/sda` and installs the full NixOS configuration in one shot.
+
+To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, place them under `scripts/keys/<hostname>/etc/ssh/` before running `provision.sh`.
+
+#### Updating an existing host
+
+```bash
+cd nixos
+./scripts/rebuild.sh haproxy-1 192.168.1.251
+```
+
+This runs `nixos-rebuild switch --target-host root@192.168.1.251`, building the new closure locally and activating it on the remote host over SSH.
+
+### Secrets (sops-nix)
+
+Secrets are managed with [sops-nix](https://github.com/Mic92/sops-nix). Each host has a pre-generated SSH host key whose **public** key is registered as an age recipient in the sops-secrets repository. The corresponding **private** key is injected onto the host at provisioning time via `nixos-anywhere --extra-files` (stored locally in `nixos/scripts/keys/<hostname>/etc/ssh/`, which is gitignored). On first boot, sops-nix uses the SSH host key to derive the age private key for decrypting secrets.
+
 ## Services
 
 ### Applications
