@@ -44,7 +44,7 @@ data:
         {
           "description": "Digest Updates Schedule",
           "matchUpdateTypes": ["digest"],
-          "schedule": ["on sunday"]
+          "schedule": ["* * * * 0"]
         }
       ],
       "ignorePaths": [
