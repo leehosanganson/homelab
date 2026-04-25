@@ -44,9 +44,18 @@ The following conventions apply to all Kubernetes workloads defined in this repo
 
 Environment variables must never be defined inline under `env:` in the container spec of a Deployment manifest.
 
-- **`configmap.yaml`**: Must be created in the `base/` directory alongside `deployment.yaml` and referenced via `envFrom` or `env[].valueFrom.configMapKeyRef` in the Deployment.
+- **`configmap.yaml`**: Must be created in the `overlays/<env>/` directory (not `base/`) and referenced via `envFrom` or `env[].valueFrom.configMapKeyRef` in the Deployment.
 - **Sensitive values** (passwords, tokens, API keys) remain in `secrets.yaml` under the overlay (via ExternalSecret); ConfigMaps are for non-sensitive configuration only.
-- The ConfigMap resource must be listed in the corresponding `kustomization.yaml` `resources:` list.
+- The ConfigMap resource must be listed in the overlay's `kustomization.yaml` `resources:` list.
+
+### File-based ConfigMaps and Secrets
+
+When a ConfigMap or Secret mounts a file (e.g. a JSON or YAML configuration file) rather than individual environment variables, the file content must not be inlined directly in the manifest YAML.
+
+- **Separate source file**: The content must live as a standalone file in the overlay directory (e.g., `overlays/<env>/config.json`).
+- **Kustomize generator**: The overlay's `kustomization.yaml` must use `configMapGenerator` (for non-sensitive files) or `secretGenerator` (for sensitive files) with a `files:` entry pointing to that source file, so Kustomize generates the manifest automatically.
+- **No hand-authored data blocks**: Do not write a `data:` or `binaryData:` block by hand in `configmap.yaml` / `secret.yaml` for file-mounted content; let the generator produce it.
+- **Naming**: The generator entry's `name:` must match the volume's `configMap.name` / `secret.secretName` reference in the Deployment. Use `generatorOptions.disableNameSuffixHash: true` in `kustomization.yaml` to prevent the auto-appended content hash from breaking fixed-name references.
 
 ### Security Context & Non-Root Execution
 
