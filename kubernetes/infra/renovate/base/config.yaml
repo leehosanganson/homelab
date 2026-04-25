@@ -44,7 +44,7 @@ data:
           "description": "Ignore Paths",
           "matchPaths" : [
             "kubernetes/infra/cloudnativepg/**",
-            "kubernetes/infra/synology-csi/**",
+            "kubernetes/infra/synology-csi/**"
           ],
           "enabled": false
         },
