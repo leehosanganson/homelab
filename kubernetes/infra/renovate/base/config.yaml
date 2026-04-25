@@ -22,7 +22,6 @@ data:
       "prCreation": "not-pending",
       "minimumReleaseAge": "7 days",
       "internalChecksFilter": "strict",
-      "dependencyDashboard": true,
       "packageRules": [
         {
           "description": "Automatically merge non-breaking patch updates",
@@ -44,7 +43,8 @@ data:
         {
           "description": "Digest Updates Schedule",
           "matchUpdateTypes": ["digest"],
-          "schedule": ["* * * * 0"]
+          "schedule": ["on Sunday"],
+          "enabled":  false
         }
       ],
       "ignorePaths": [
