@@ -41,15 +41,19 @@ data:
           "pinDigests": false
         },
         {
+          "description": "Ignore Paths",
+          "matchPaths" : [
+            "kubernetes/infra/cloudnativepg/**",
+            "kubernetes/infra/synology-csi/**",
+          ],
+          "enabled": false
+        },
+        {
           "description": "Digest Updates Schedule",
           "matchUpdateTypes": ["digest"],
           "schedule": ["on Sunday"],
           "enabled":  false
         }
-      ],
-      "ignorePaths": [
-        "**/kubernetes/infra/cloudnativepg/**",
-        "**/kubernetes/infra/synology-csi/**"
       ],
       "flux": {
         "managerFilePatterns": [
