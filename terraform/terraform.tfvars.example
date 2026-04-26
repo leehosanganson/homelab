@@ -1,7 +1,10 @@
 proxmox_endpoint      = "https://pve01.home.lab:8006/"
 proxmox_username      = "terraform@pve"
+# Path to a file containing the Proxmox password. Tilde (~) is expanded by
+# Terraform's pathexpand(), so home-relative paths are supported.
 proxmox_password_file = "~/.proxmox-password"
-proxmox_insecure      = true
+# Set to true only when your Proxmox uses a self-signed certificate.
+proxmox_insecure      = false
 
 # NixOS installer ISO in Proxmox storage.
 # Build your own with: nix build .#packages.x86_64-linux.installer  (from nixos/)
