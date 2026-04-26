@@ -1,3 +1,4 @@
 resources:
   - release.yaml
+  - registry-mirrors-configmap.yaml
   - cluster-policy.yaml

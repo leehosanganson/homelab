@@ -7,15 +7,16 @@ metadata:
     policies.kyverno.io/category: Harbor
     policies.kyverno.io/description: >-
       Rewrites non-system container image references to pull through the
-      internal Harbor proxy cache at harbor.leehosanganson.dev.
+      internal Harbor proxy cache. Mirror target URLs are read from the
+      registry-mirrors ConfigMap in the kyverno namespace, so changing the
+      Harbor host or proxy path only requires updating that ConfigMap.
       Kubernetes (registry.k8s.io), kube-system, and Kyverno (kyverno namespace)
       images are explicitly excluded and pulled directly from upstream.
-      Mappings:
-        ghcr.io       → harbor.leehosanganson.dev/ghcr
-        gcr.io        → harbor.leehosanganson.dev/gcr
-        lscr.io       → harbor.leehosanganson.dev/lscr
-        docker.io     → harbor.leehosanganson.dev/dockerhub
-        <unqualified> → harbor.leehosanganson.dev/dockerhub
+      ConfigMap keys → target prefix:
+        ghcr   → mirror for ghcr.io images
+        gcr    → mirror for gcr.io images
+        lscr   → mirror for lscr.io images
+        docker → mirror for docker.io and unqualified images
 spec:
   background: false
   rules:
@@ -34,6 +35,11 @@ spec:
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -43,8 +49,13 @@ spec:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
           - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -54,8 +65,13 @@ spec:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -65,7 +81,7 @@ spec:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/ghcr/') }}"
+                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
 
     - name: replace-gcr-io
       match:
@@ -82,6 +98,11 @@ spec:
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -91,8 +112,13 @@ spec:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
           - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -102,8 +128,13 @@ spec:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -113,7 +144,7 @@ spec:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/gcr/') }}"
+                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
 
     - name: replace-lscr-io
       match:
@@ -130,6 +161,11 @@ spec:
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -139,8 +175,13 @@ spec:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
           - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -150,8 +191,13 @@ spec:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -161,7 +207,7 @@ spec:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/lscr/') }}"
+                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
 
     - name: replace-docker-io
       match:
@@ -178,6 +224,11 @@ spec:
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -187,8 +238,13 @@ spec:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
           - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -198,8 +254,13 @@ spec:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               any:
                 - key: "{{ element.image }}"
@@ -209,7 +270,7 @@ spec:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', 'harbor.leehosanganson.dev/dockerhub/') }}"
+                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
 
     - name: replace-unqualified-dockerhub
       match:
@@ -226,35 +287,50 @@ spec:
       mutate:
         foreach:
           - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"
+                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
           - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"
+                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
           - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|harbor\\.leehosanganson\\.dev)/', element.image) }}"
+                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
                   operator: Equals
                   value: "false"
             patchStrategicMerge:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "harbor.leehosanganson.dev/dockerhub/{{ element.image }}"
+                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
