@@ -14,9 +14,9 @@ variable "proxmox_password_file" {
 }
 
 variable "proxmox_insecure" {
-  description = "Skip TLS certificate verification (set true for self-signed certs)"
+  description = "Skip TLS certificate verification only when explicitly set to true (for example, with self-signed certs)"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "nixos_iso" {
