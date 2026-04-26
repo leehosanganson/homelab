@@ -19,9 +19,9 @@ data:
       "pinDigests": true,
       "prHourlyLimit": 0,
       "prConcurrentLimit": 0,
-      "prCreation": "approval",
+      "prCreation": "not-pending",
       "minimumReleaseAge": "7 days",
-      "dependencyDashboard": true,
+      "internalChecksFilter": "strict",
       "packageRules": [
         {
           "description": "Automatically merge non-breaking patch updates",
@@ -39,11 +39,21 @@ data:
           "matchDatasources": ["github-releases"],
           "matchPackageNames": ["fluxcd/flux2"],
           "pinDigests": false
+        },
+        {
+          "description": "Ignore Paths",
+          "matchPaths" : [
+            "kubernetes/infra/cloudnativepg/**",
+            "kubernetes/infra/synology-csi/**"
+          ],
+          "enabled": false
+        },
+        {
+          "description": "Digest Updates Schedule",
+          "matchUpdateTypes": ["digest"],
+          "schedule": ["on Sunday"],
+          "enabled":  false
         }
-      ],
-      "ignorePaths": [
-        "kubernetes/infra/cloudnativepg/**",
-        "kubernetes/infra/synology-csi/**"
       ],
       "flux": {
         "managerFilePatterns": [
