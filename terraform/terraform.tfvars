@@ -3,10 +3,7 @@ proxmox_username      = "terraform@pve"
 proxmox_password_file = "~/.config/sops-nix/secrets/pve-terraform-key"
 proxmox_insecure      = false
 
-# NixOS installer ISO in Proxmox storage.
-# Build your own with: nix build .#packages.x86_64-linux.installer  (from nixos/)
-# Then upload the resulting ISO to Proxmox and set the path below.
-nixos_iso = "local:iso/nixos-installer.iso"
+nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 
 nodes = {
   "haproxy-2" = {
