@@ -4,9 +4,9 @@ metadata:
   name: registry-mirrors
   namespace: kyverno
 data:
-  # Target mirror paths for each upstream registry.
+  # Keys are upstream registry hosts and values are mirror prefixes.
   # Update these values to point to a different Harbor instance or proxy path.
-  ghcr: harbor.leehosanganson.dev/ghcr
-  gcr: harbor.leehosanganson.dev/gcr
-  lscr: harbor.leehosanganson.dev/lscr
-  docker: harbor.leehosanganson.dev/dockerhub
+  "ghcr.io": harbor.leehosanganson.dev/ghcr
+  "gcr.io": harbor.leehosanganson.dev/gcr
+  "lscr.io": harbor.leehosanganson.dev/lscr
+  "docker.io": harbor.leehosanganson.dev/dockerhub

@@ -7,20 +7,14 @@ metadata:
     policies.kyverno.io/category: Harbor
     policies.kyverno.io/description: >-
       Rewrites non-system container image references to pull through the
-      internal Harbor proxy cache. Mirror target URLs are read from the
-      registry-mirrors ConfigMap in the kyverno namespace, so changing the
-      Harbor host or proxy path only requires updating that ConfigMap.
-      Kubernetes (registry.k8s.io), kube-system, and Kyverno (kyverno namespace)
-      images are explicitly excluded and pulled directly from upstream.
-      ConfigMap keys → target prefix:
-        ghcr   → mirror for ghcr.io images
-        gcr    → mirror for gcr.io images
-        lscr   → mirror for lscr.io images
-        docker → mirror for docker.io and unqualified images
+      internal Harbor proxy cache. Mirror targets are resolved dynamically from
+      the registry-mirrors ConfigMap in the kyverno namespace, using upstream
+      registry hosts as keys. Adding new registry mirrors only requires updating
+      that ConfigMap.
 spec:
   background: false
   rules:
-    - name: replace-ghcr-io
+    - name: replace-qualified-images
       match:
         any:
           - resources:
@@ -40,237 +34,84 @@ spec:
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^ghcr\\.io/.*"
+              all:
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
           - list: "request.object.spec.containers[]"
             context:
               - name: mirrors
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^ghcr\\.io/.*"
+              all:
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
           - list: "request.object.spec.ephemeralContainers[]"
             context:
               - name: mirrors
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^ghcr\\.io/.*"
+              all:
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('ghcr.io/', '{{ element.image }}', '{{ mirrors.data.ghcr }}/') }}"
-
-    - name: replace-gcr-io
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      exclude:
-        any:
-          - resources:
-              namespaces:
-                - kube-system
-                - kyverno
-      mutate:
-        foreach:
-          - list: "request.object.spec.initContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                initContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
-          - list: "request.object.spec.containers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                containers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
-          - list: "request.object.spec.ephemeralContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^gcr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                ephemeralContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('gcr.io/', '{{ element.image }}', '{{ mirrors.data.gcr }}/') }}"
-
-    - name: replace-lscr-io
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      exclude:
-        any:
-          - resources:
-              namespaces:
-                - kube-system
-                - kyverno
-      mutate:
-        foreach:
-          - list: "request.object.spec.initContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^lscr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                initContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
-          - list: "request.object.spec.containers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^lscr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                containers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
-          - list: "request.object.spec.ephemeralContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^lscr\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                ephemeralContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('lscr.io/', '{{ element.image }}', '{{ mirrors.data.lscr }}/') }}"
-
-    - name: replace-docker-io
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      exclude:
-        any:
-          - resources:
-              namespaces:
-                - kube-system
-                - kyverno
-      mutate:
-        foreach:
-          - list: "request.object.spec.initContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^docker\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                initContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
-          - list: "request.object.spec.containers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^docker\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                containers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
-          - list: "request.object.spec.ephemeralContainers[]"
-            context:
-              - name: mirrors
-                configMap:
-                  name: registry-mirrors
-                  namespace: kyverno
-            preconditions:
-              any:
-                - key: "{{ element.image }}"
-                  operator: Regex
-                  value: "^docker\\.io/.*"
-            patchStrategicMerge:
-              spec:
-                ephemeralContainers:
-                  - (name): "{{ element.name }}"
-                    image: "{{ regex_replace_all_literal('docker.io/', '{{ element.image }}', '{{ mirrors.data.docker }}/') }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
 
     - name: replace-unqualified-dockerhub
       match:
@@ -292,45 +133,63 @@ spec:
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
                   operator: Equals
                   value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"
           - list: "request.object.spec.containers[]"
             context:
               - name: mirrors
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
                   operator: Equals
                   value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"
           - list: "request.object.spec.ephemeralContainers[]"
             context:
               - name: mirrors
                 configMap:
                   name: registry-mirrors
                   namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
             preconditions:
               all:
-                - key: "{{ regex_match('^(ghcr\\.io|gcr\\.io|lscr\\.io|registry\\.k8s\\.io|docker\\.io|{{ mirrors.data.docker }})', element.image) }}"
+                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
                   operator: Equals
                   value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
             patchStrategicMerge:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ mirrors.data.docker }}/{{ element.image }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"
