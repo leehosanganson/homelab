@@ -9,6 +9,7 @@
   networking = {
     hostName = "haproxy-1";
     useDHCP = false;
+    usePredictableInterfaceNames = false;
     interfaces.eth0.ipv4.addresses = [
       {
         address = "192.168.1.251";
