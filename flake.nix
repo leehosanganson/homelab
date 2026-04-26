@@ -14,7 +14,7 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            terraform
+            opentofu
             kubectl
             k9s
             kubernetes-helm

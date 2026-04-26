@@ -22,7 +22,6 @@ Terraform (`terraform/`) manages the virtual hardware boundary of each VM on Pro
 
 ```bash
 cd terraform
-cp terraform.tfvars.example terraform.tfvars  # fill in your credentials
 terraform init
 terraform apply
 ```
