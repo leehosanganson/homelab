@@ -146,4 +146,4 @@ To also pull the latest secrets revision before deploying, pass the optional fla
 
 ### Secrets (sops-nix)
 
-Secrets are managed with [sops-nix](https://github.com/Mic92/sops-nix). Each host has a pre-generated SSH host key whose **public** key is registered as an age recipient in the sops-secrets repository. The corresponding **private** key is injected onto the host at provisioning time via `nixos-anywhere --extra-files` (stored locally in `nixos/scripts/keys/<hostname>/etc/ssh/`, which is gitignored). On first boot, sops-nix uses the SSH host key to derive the age private key for decrypting secrets.
+Secrets are managed with [sops-nix](https://github.com/Mic92/sops-nix). Each host expects a pre-generated SSH host key whose **public** key is registered as an age recipient in the sops-secrets repository. The corresponding **private** key is injected onto the host at provisioning time via `nixos-anywhere --extra-files` (stored locally in `./nixos/scripts/keys/<hostname>/etc/ssh/`, which is gitignored). On first boot, sops-nix uses the SSH host key to derive the age private key for decrypting secrets.
