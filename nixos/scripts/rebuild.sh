@@ -5,20 +5,35 @@
 # closure locally and activate it on the remote machine over SSH.
 #
 # Usage:
-#   ./rebuild.sh <hostname> <ip>
+#   ./rebuild.sh [--update-secrets] <hostname> <ip>
+#
+# Options:
+#   --update-secrets  Run `nix flake update sops-secrets` before deploying.
+#                     This mutates flake.lock; only use when you intentionally
+#                     want to pull the latest secrets revision.
 #
 # Example:
 #   ./rebuild.sh haproxy-1 192.168.1.251
+#   ./rebuild.sh --update-secrets haproxy-1 192.168.1.251
 
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 <hostname> <ip>"
+  echo "Usage: $0 [--update-secrets] <hostname> <ip>"
   echo ""
-  echo "  hostname  NixOS flake hostname (e.g. haproxy-1)"
-  echo "  ip        Target VM IP address (e.g. 192.168.1.251)"
+  echo "  --update-secrets  Update the sops-secrets flake input before deploying"
+  echo "  hostname          NixOS flake hostname (e.g. haproxy-1)"
+  echo "  ip                Target VM IP address (e.g. 192.168.1.251)"
   exit 1
 }
+
+UPDATE_SECRETS=false
+
+# Parse optional flag
+if [[ "${1:-}" == "--update-secrets" ]]; then
+  UPDATE_SECRETS=true
+  shift
+fi
 
 HOSTNAME="${1:-}"
 TARGET_IP="${2:-}"
@@ -29,8 +44,11 @@ TARGET_IP="${2:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_ROOT="$SCRIPT_DIR/.."
 
-echo "==> Updating sops-secrets flake input..."
-nix flake update sops-secrets --flake "$FLAKE_ROOT"
+if [[ "$UPDATE_SECRETS" == "true" ]]; then
+  echo "==> Updating sops-secrets flake input (--update-secrets requested)..."
+  echo "    WARNING: This will mutate flake.lock. Commit the result if intentional."
+  nix flake update sops-secrets --flake "$FLAKE_ROOT"
+fi
 
 echo "==> Deploying '$HOSTNAME' to $TARGET_IP..."
 nixos-rebuild switch \

@@ -52,7 +52,7 @@ if [[ -d "$KEYS_DIR/$HOSTNAME" ]]; then
   EXTRA_ARGS+=(--extra-files "$KEYS_DIR/$HOSTNAME")
 fi
 
-nix run github:nix-community/nixos-anywhere -- \
+nix run "$FLAKE_ROOT#nixos-anywhere" -- \
   --flake "$FLAKE_ROOT#$HOSTNAME" \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"} \
   "root@$TARGET_IP"
