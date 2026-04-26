@@ -33,7 +33,7 @@
             echo "🏠 Homelab Dev Shell"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "Available tools:"
-            echo "  terraform       — Infrastructure (Proxmox)"
+            echo "  tofu            — Infrastructure (Proxmox)"
             echo "  kubectl / k9s   — Kubernetes cluster interaction"
             echo "  helm            — Helm chart management"
             echo "  kustomize       — Kustomize overlay builds"

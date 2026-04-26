@@ -47,7 +47,7 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   # Boot from disk first; fall back to CDROM for the initial install
   boot_order = ["scsi0", "ide2"]
 
-  # Prevent Terraform from reverting boot order or CDROM config after the
+  # Prevent OpenTofu from reverting boot order or CDROM config after the
   # first nixos-anywhere provisioning run (when the CDROM is no longer needed)
   lifecycle {
     ignore_changes = [
