@@ -5,6 +5,5 @@
 # Local Terraform plugin cache and working directory
 .terraform/
 
-# Actual variable files with real credentials — use terraform.tfvars.example as a template
-terraform.tfvars
+# Files with real credentials — use terraform.tfvars.example as a template
 *.auto.tfvars

@@ -45,8 +45,7 @@ nix build .#packages.x86_64-linux.installer
 Boot the VM from the installer ISO (start it in Proxmox), then run:
 
 ```bash
-cd nixos
-./scripts/provision.sh haproxy-1 192.168.1.251
+./nixos/scripts/provision.sh haproxy-1 192.168.1.251
 ```
 
 This calls `nixos-anywhere --flake .#haproxy-1 root@192.168.1.251`, which uses disko to partition `/dev/sda` and installs the full NixOS configuration in one shot.
@@ -56,8 +55,7 @@ To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, plac
 #### Updating an existing host
 
 ```bash
-cd nixos
-./scripts/rebuild.sh haproxy-1 192.168.1.251
+./nixos/scripts/rebuild.sh haproxy-1 192.168.1.251
 ```
 
 This runs `nixos-rebuild switch --target-host root@192.168.1.251`, building the new closure locally and activating it on the remote host over SSH.
