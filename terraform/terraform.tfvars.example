@@ -19,4 +19,14 @@ nodes = {
     ip        = "192.168.1.251/24"
     gateway   = "192.168.1.1"
   }
+  "haproxy-2" = {
+    node      = "pve03"
+    vm_id     = 901
+    cores     = 2
+    memory    = 4096
+    disk_size = 20
+    datastore = "local-lvm"
+    ip        = "192.168.1.252/24"
+    gateway   = "192.168.1.1"
+  }
 }
