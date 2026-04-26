@@ -1,11 +1,3 @@
-locals {
-  # Extract plain IP addresses (without prefix length) for output and tagging
-  node_ips = {
-    for name, node in var.nodes :
-    name => split("/", node.ip)[0]
-  }
-}
-
 resource "proxmox_virtual_environment_vm" "nixos" {
   for_each = var.nodes
 

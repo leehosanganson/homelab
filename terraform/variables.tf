@@ -25,7 +25,7 @@ variable "nixos_iso" {
 }
 
 variable "nodes" {
-  description = "Map of NixOS VM definitions. Hardware specs only — OS config is handled by nixos-anywhere."
+  description = "Map of NixOS VM definitions. Hardware specs only — OS config (including networking) is handled by nixos-anywhere via the flake."
   type = map(object({
     node      = string # Proxmox cluster node to host the VM (e.g. pve01)
     vm_id     = number # Unique VM ID within the Proxmox cluster
@@ -33,8 +33,6 @@ variable "nodes" {
     memory    = number # RAM in MiB
     disk_size = number # Root disk size in GiB
     datastore = string # Proxmox storage pool for the disk (e.g. local-lvm)
-    ip        = string # Static IP with CIDR prefix (e.g. 192.168.1.251/24)
-    gateway   = string # Default gateway IP address
   }))
   default = {}
 }
