@@ -8,10 +8,9 @@ variable "proxmox_username" {
   type        = string
 }
 
-variable "proxmox_password" {
-  description = "Proxmox API password"
+variable "proxmox_password_file" {
+  description = "Path to a file containing the Proxmox API password (e.g. ~/.proxmox-password)"
   type        = string
-  sensitive   = true
 }
 
 variable "proxmox_insecure" {

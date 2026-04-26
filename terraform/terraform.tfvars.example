@@ -1,7 +1,7 @@
-proxmox_endpoint = "https://pve01.home.lab:8006/"
-proxmox_username = "terraform@pve"
-proxmox_password = "changeme"
-proxmox_insecure = true
+proxmox_endpoint      = "https://pve01.home.lab:8006/"
+proxmox_username      = "terraform@pve"
+proxmox_password_file = "~/.proxmox-password"
+proxmox_insecure      = true
 
 # NixOS installer ISO in Proxmox storage.
 # Build your own with: nix build .#packages.x86_64-linux.installer  (from nixos/)
