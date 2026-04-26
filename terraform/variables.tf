@@ -9,7 +9,7 @@ variable "proxmox_username" {
 }
 
 variable "proxmox_password_file" {
-  description = "Path to a file containing the Proxmox API password (e.g. ~/.proxmox-password)"
+  description = "Path to a file containing the Proxmox API password; its contents are read at plan/apply time via file() (e.g. ~/.config/sops-nix/secrets/pve-terraform-key)"
   type        = string
 }
 
