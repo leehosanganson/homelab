@@ -37,12 +37,15 @@ spec:
               - name: sourceRegistry
                 variable:
                   jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
               - name: mirrorPrefix
                 variable:
                   jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "true"
                 - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
@@ -65,12 +68,15 @@ spec:
               - name: sourceRegistry
                 variable:
                   jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
               - name: mirrorPrefix
                 variable:
                   jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "true"
                 - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
@@ -93,12 +99,15 @@ spec:
               - name: sourceRegistry
                 variable:
                   jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
               - name: mirrorPrefix
                 variable:
                   jmesPath: "lookup(mirrors.data, sourceRegistry)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "true"
                 - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
@@ -136,9 +145,12 @@ spec:
               - name: dockerMirror
                 variable:
                   jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "false"
                 - key: "{{ dockerMirror || '' }}"
@@ -158,9 +170,12 @@ spec:
               - name: dockerMirror
                 variable:
                   jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "false"
                 - key: "{{ dockerMirror || '' }}"
@@ -180,9 +195,12 @@ spec:
               - name: dockerMirror
                 variable:
                   jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
             preconditions:
               all:
-                - key: "{{ regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image) }}"
+                - key: "{{ isQualifiedImage }}"
                   operator: Equals
                   value: "false"
                 - key: "{{ dockerMirror || '' }}"
