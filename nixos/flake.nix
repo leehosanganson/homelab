@@ -55,6 +55,9 @@
 
     # Pinned nixos-anywhere — used by provision.sh via `nix run .#nixos-anywhere`
     # so the provisioning tool version is locked in flake.lock alongside everything else.
-    apps.x86_64-linux.nixos-anywhere = nixos-anywhere.apps.x86_64-linux.nixos-anywhere;
+    apps.x86_64-linux.nixos-anywhere = {
+      type = "app";
+      program = "${nixos-anywhere.packages.x86_64-linux.nixos-anywhere}/bin/nixos-anywhere";
+    };
   };
 }

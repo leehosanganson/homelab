@@ -4,7 +4,7 @@
     ../../modules/disko.nix
   ];
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   networking = {
     hostName = "haproxy-2";
@@ -20,11 +20,6 @@
   };
 
   services.qemuGuest.enable = true;
-
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/sda";
-  };
 
   environment.etc."ssh/haproxy-2" = {
     source = "${sops-secrets}/keys/haproxy-2";

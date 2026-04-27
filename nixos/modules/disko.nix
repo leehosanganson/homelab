@@ -1,4 +1,17 @@
 { ... }: {
+  boot.initrd.availableKernelModules = [
+    "virtio_scsi"   # virtio-scsi disk (scsi0 in Proxmox)
+    "virtio_pci"    # virtio PCI bus
+    "virtio_blk"    # virtio-blk fallback
+    "ahci"          # SATA fallback
+    "sd_mod"        # SCSI disk driver
+    "ext4"          # root filesystem
+  ];
+
+  boot.loader.grub = {
+    enable = true;
+  };
+
   disko.devices = {
     disk = {
       main = {

@@ -18,6 +18,8 @@
 # Usage:
 #   ./provision.sh <hostname> <ip>
 #
+#   NOTE: Only positional arguments are supported. The --hostname flag is NOT supported.
+#
 # Example:
 #   ./provision.sh haproxy-1 192.168.1.251
 
@@ -28,6 +30,8 @@ usage() {
   echo ""
   echo "  hostname  NixOS flake hostname (e.g. haproxy-1)"
   echo "  ip        Target VM IP address (e.g. 192.168.1.251)"
+  echo ""
+  echo "  NOTE: Only positional arguments are supported. The --hostname flag is NOT supported."
   exit 1
 }
 

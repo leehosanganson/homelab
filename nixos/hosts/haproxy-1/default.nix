@@ -21,12 +21,7 @@
 
   services.qemuGuest.enable = true;
 
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/sda";
-  };
-
-  environment.etc."ssh/haproxy" = {
+  environment.etc."ssh/haproxy-1" = {
     source = "${sops-secrets}/keys/haproxy";
     mode = "0600";
     user = "root";
@@ -37,7 +32,7 @@
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
-      "/etc/ssh/haproxy"
+      "/etc/ssh/haproxy-1"
     ];
 
     secrets = {
