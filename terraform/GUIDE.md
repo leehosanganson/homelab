@@ -216,16 +216,25 @@ tofu apply
 
 VMs are created but not started.
 
-### Step 3 — Boot from ISO
+### Step 3 — Start the VM and find its DHCP IP
 
-In the Proxmox web UI (or via CLI), start the VM. It will boot into the NixOS minimal installer from the attached ISO.
+Start the VM in Proxmox:
 
 ```bash
-# Via CLI (replace 901 with the vm_id, pve01 with the node name)
-ssh root@pve01 "qm start 901"
+# Replace 202 with the vm_id, pve01 with the node name
+ssh root@pve01 "qm start 202"
 ```
 
+Wait ~30 seconds for the installer to boot. Find the DHCP IP assigned to the VM:
+
+- Proxmox web UI: click the VM → Summary → IPs (requires QEMU guest agent to be running)
+- Or check your DHCP server/router for the new lease
+
+> The DHCP IP is temporary — use it only for `provision.sh`. After provisioning, the flake applies a static IP; use that for all future `rebuild.sh` calls.
+
 ### Step 4 — Install NixOS (Layer 2)
+
+> **⚠ Key directory name must match hostname exactly.** If using pre-generated SSH host keys for sops-nix, ensure the directory is named `../nixos/scripts/keys/<hostname>/etc/ssh/` and the key files are matching with the names referenced in the flake.
 
 Once the VM is booted into the installer and reachable over SSH, run `nixos-anywhere`:
 
@@ -251,6 +260,31 @@ This partitions the disk with `disko` and installs the full NixOS configuration 
 ```bash
 tofu destroy
 ```
+
+---
+
+## Gotchas & Lessons Learned
+
+### DHCP IP vs Static IP
+
+After `tofu apply`, the VM is powered off. You must **start it manually** in Proxmox first. On first boot it gets a DHCP IP — find it from the Proxmox console (VM > Summary > IPs, or check your DHCP server). Use this DHCP IP for `provision.sh`. After provisioning, the flake configures a static IP — use **that static IP** for all subsequent `rebuild.sh` calls.
+
+### Root SSH Access Required for rebuild.sh
+
+`rebuild.sh` connects as `root`. The NixOS config must include your SSH public key in `users.users.root.openssh.authorizedKeys.keys`.
+
+### Both User and Token Need ACLs (privsep=0 is not enough)
+
+Even with `privsep=0`, Proxmox requires **both** the user (`terraform@pam`) and the token (`terraform@pam!homelab`) to have explicit ACL entries. The token ACL alone is not sufficient. Always run both:
+
+```bash
+pveum aclmod / --user terraform@pam --role TerraformProv
+pveum aclmod / --token terraform@pam!homelab --role TerraformProv
+```
+
+### Use pam Realm, Not pve Realm
+
+Create the Terraform user in the `pam` realm (`terraform@pam`), not `pve` (`terraform@pve`). In Proxmox 8.4, `pve` realm token ACLs are not evaluated correctly, causing persistent 403 errors even with correct ACL entries.
 
 ---
 
