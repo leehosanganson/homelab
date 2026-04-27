@@ -3,6 +3,7 @@
 #
 # This script uses nixos-rebuild switch --target-host to build the NixOS
 # closure locally and activate it on the remote machine over SSH.
+# It connects as the 'root' user on the remote machine.
 #
 # Usage:
 #   ./rebuild.sh [--update-secrets] <hostname> <ip>
@@ -24,6 +25,8 @@ usage() {
   echo "  --update-secrets  Update the sops-secrets flake input before deploying"
   echo "  hostname          NixOS flake hostname (e.g. haproxy-1)"
   echo "  ip                Target VM IP address (e.g. 192.168.1.251)"
+  echo ""
+  echo "Connects as 'root' on the remote machine."
   exit 1
 }
 
@@ -54,7 +57,7 @@ echo "==> Deploying '$HOSTNAME' to $TARGET_IP..."
 nixos-rebuild switch \
   --flake "$FLAKE_ROOT#$HOSTNAME" \
   --target-host "root@$TARGET_IP" \
-  --build-host localhost
+  --no-reexec
 
 echo ""
 echo "==> Rebuild complete!"

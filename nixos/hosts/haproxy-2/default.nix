@@ -53,16 +53,27 @@
     ];
   };
 
+  users.users.root.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+  ];
+
   security.sudo = {
     enable = true;
     wheelNeedsPassword = false;
   };
+
+  nix.settings.trusted-users = [ "root" "ansonlee" ];
 
   # ssh
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
     settings.PermitRootLogin = "prohibit-password";
+  };
+
+  services.resolved = {
+    enable = true;
+    settings.Resolve.DNSSEC = "false";
   };
 
   # Firewall
