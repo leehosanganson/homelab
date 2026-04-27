@@ -5,11 +5,13 @@
 This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox using the [`bpg/proxmox`](https://registry.terraform.io/providers/bpg/proxmox/latest) provider (`~> 0.78`).
 
 **What it does:**
+
 - Creates VMs with defined CPU, memory, disk, and network configuration
 - Attaches a NixOS installer ISO on `ide2`
 - Leaves VMs powered off (`started = false`) — OS installation is handled by Layer 2
 
 **What it does not do:**
+
 - Configure the OS (handled by `nixos-anywhere` + `disko` in `../nixos/`)
 - Use Cloud-Init or any in-guest automation
 
@@ -27,47 +29,75 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 ## Proxmox User Setup
 
-Create a least-privilege `terraform@pve` user with a custom `Terraform` role. Run these commands on the Proxmox host (as root) or via `pvesh`.
+Create a least-privilege `terraform@pve` user with a custom `Terraform` role.
 
 ### 1. Create the role with required privileges
 
-```bash
-pveum role add Terraform -privs \
-  "VM.Allocate \
-   VM.Config.CPU \
-   VM.Config.Memory \
-   VM.Config.Disk \
-   VM.Config.CDROM \
-   VM.Config.Network \
-   VM.Config.Options \
-   VM.Config.HWType \
-   VM.GuestAgent.Unrestricted \
-   VM.Audit \
-   VM.PowerMgmt \
-   Datastore.AllocateSpace \
-   Datastore.Audit"
-```
+Log into your Proxmox GUI.
+
+Go to Datacenter > Permissions > Roles.
+
+Click Create.
+
+Name: TerraformProv
+
+Privileges: Select the following (minimum requirements for most Terraform providers):
+
+    VM/CT: VM.Allocate, VM.Config.CPU, VM.Config.Disk, VM.Config.HWType, VM.Config.Memory, VM.Config.Network, VM.Config.Options, VM.Audit, VM.PowerMgmt, VM.Console.
+
+    Storage: Datastore.AllocateSpace, Datastore.Audit.
+
+    System: Sys.Audit, Sys.Console.
+
+    Pools: Pool.Allocate.
+
+Click Create.
 
 ### 2. Create the user
 
-```bash
-pveum user add terraform@pve --comment "OpenTofu provisioning user"
-pveum passwd terraform@pve
-```
+Navigate to Datacenter > Permissions > Users.
 
-### 3. Assign the role at the root path (cluster-wide)
+Click Add.
 
-```bash
-pveum aclmod / -user terraform@pve -role Terraform
-```
+User name: terraform
 
-### 4. Store the password in a local file
+Realm: Select pve (Proxmox VE authentication server).
 
-```bash
-mkdir -p ~/.config/sops-nix/secrets
-echo -n 'your-password-here' > ~/.config/sops-nix/secrets/pve-terraform-key
-chmod 600 ~/.config/sops-nix/secrets/pve-terraform-key
-```
+Password: Set a strong password (though we will use an API token later, a password is required for creation).
+
+Click Add.
+
+### 3. Generate API Token
+
+Navigate to Datacenter > Permissions > API Tokens.
+
+Click Add.
+
+User: Select terraform-user@pve.
+
+Token ID: terraform-token.
+
+Privilege Separation: Uncheck this box (it simplifies permission management for this specific use case).
+
+Click Add.
+
+IMPORTANT: Copy the Token ID and Secret immediately. The secret will never be shown again.
+
+### 4. Assign Permissions (ACLs)
+
+Navigate to Datacenter > Permissions.
+
+Click Add > API Token Permission.
+
+Path: / (This gives Terraform access to the whole datacenter. You can restrict this to specific nodes or storage if preferred).
+
+Token: Select terraform-user@pve!terraform-token.
+
+Role: Select the TerraformProv role created in Step 1.
+
+Propagate: Ensure this is Checked.
+
+Click Add.
 
 ---
 
@@ -225,32 +255,32 @@ tofu destroy
 
 ## Variables Reference
 
-| Variable | Type | Description |
-|---|---|---|
-| `proxmox_endpoint` | `string` | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`) |
-| `proxmox_username` | `string` | Proxmox user in `user@realm` format (e.g. `terraform@pve`) |
-| `proxmox_password_file` | `string` | Path to a local file containing the Proxmox user password |
-| `proxmox_insecure` | `bool` | Skip TLS certificate verification (`true` for self-signed certs) |
-| `nixos_iso` | `string` | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
-| `nodes` | `map(object)` | Map of VM specs keyed by hostname — see below |
+| Variable                | Type          | Description                                                                    |
+| ----------------------- | ------------- | ------------------------------------------------------------------------------ |
+| `proxmox_endpoint`      | `string`      | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`)             |
+| `proxmox_username`      | `string`      | Proxmox user in `user@realm` format (e.g. `terraform@pve`)                     |
+| `proxmox_password_file` | `string`      | Path to a local file containing the Proxmox user password                      |
+| `proxmox_insecure`      | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
+| `nixos_iso`             | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
+| `nodes`                 | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
 
 ### `nodes` object attributes
 
-| Attribute | Type | Description |
-|---|---|---|
-| `node` | `string` | Proxmox node name to create the VM on (e.g. `pve01`) |
-| `vm_id` | `number` | Proxmox VM ID (must be unique cluster-wide) |
-| `cores` | `number` | Number of vCPU cores |
-| `memory` | `number` | RAM in MiB |
-| `disk_size` | `number` | Root disk size in GiB (provisioned on `scsi0`) |
-| `datastore` | `string` | Proxmox datastore for the disk (e.g. `local-lvm`) |
+| Attribute   | Type     | Description                                          |
+| ----------- | -------- | ---------------------------------------------------- |
+| `node`      | `string` | Proxmox node name to create the VM on (e.g. `pve01`) |
+| `vm_id`     | `number` | Proxmox VM ID (must be unique cluster-wide)          |
+| `cores`     | `number` | Number of vCPU cores                                 |
+| `memory`    | `number` | RAM in MiB                                           |
+| `disk_size` | `number` | Root disk size in GiB (provisioned on `scsi0`)       |
+| `datastore` | `string` | Proxmox datastore for the disk (e.g. `local-lvm`)    |
 
 ---
 
 ## Outputs
 
-| Output | Description |
-|---|---|
+| Output   | Description                                             |
+| -------- | ------------------------------------------------------- |
 | `vm_ids` | Map of hostname → Proxmox VM ID for all provisioned VMs |
 
 Retrieve after apply:
