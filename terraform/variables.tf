@@ -3,13 +3,8 @@ variable "proxmox_endpoint" {
   type        = string
 }
 
-variable "proxmox_username" {
-  description = "Proxmox API username (e.g. terraform@pve)"
-  type        = string
-}
-
-variable "proxmox_password_file" {
-  description = "Path to a file containing the Proxmox API password; its contents are read at plan/apply time via file() (e.g. ~/.config/sops-nix/secrets/pve-terraform-key)"
+variable "proxmox_api_token_file" {
+  description = "Path to a file containing the Proxmox API token string; format: user@realm!tokenid=secret (e.g. terraform@pve!terraform-token=<uuid-secret>). Contents are read at plan/apply time via file()."
   type        = string
 }
 

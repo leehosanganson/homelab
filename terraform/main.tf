@@ -29,7 +29,6 @@ resource "proxmox_virtual_environment_vm" "nixos" {
 
   # NixOS installer ISO attached for the initial boot
   cdrom {
-    enabled   = true
     file_id   = var.nixos_iso
     interface = "ide2"
   }

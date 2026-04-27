@@ -21,15 +21,15 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 - [OpenTofu](https://opentofu.org/docs/intro/install/) installed
 - Access to a Proxmox VE cluster
-- A `terraform@pve` user with the `Terraform` role (see [Proxmox User Setup](#proxmox-user-setup))
+- A `terraform@pam` user with the `TerraformProv` role and an API token (see [Proxmox User Setup](#proxmox-user-setup))
 - NixOS installer ISO uploaded to Proxmox storage (see [NixOS ISO](#nixos-iso))
-- Password for `terraform@pve` stored in a local file (e.g. `~/.config/sops-nix/secrets/pve-terraform-key`)
+- API token for `terraform@pam` stored in a local file (e.g. `~/.config/sops-nix/secrets/pve-terraform-api-token`)
 
 ---
 
 ## Proxmox User Setup
 
-Create a least-privilege `terraform@pve` user with a custom `Terraform` role.
+Create a least-privilege `terraform@pam` user with a custom `TerraformProv` role.
 
 ### 1. Create the role with required privileges
 
@@ -61,43 +61,45 @@ Click Add.
 
 User name: terraform
 
-Realm: Select pve (Proxmox VE authentication server).
-
-Password: Set a strong password (though we will use an API token later, a password is required for creation).
+Realm: Select pam (Linux PAM standard authentication).
 
 Click Add.
 
-### 3. Generate API Token
+### 3. Create an API token
 
-Navigate to Datacenter > Permissions > API Tokens.
+Run the following on the Proxmox host (or use the web UI under Datacenter > Permissions > API Tokens):
 
-Click Add.
+```bash
+pveum user token add terraform@pam homelab --privsep=0
+```
 
-User: Select terraform-user@pve.
+> **Important:** Copy the displayed secret immediately — it will never be shown again.
 
-Token ID: terraform-token.
+Save the token to a local file in the format `user@realm!tokenid=secret`:
 
-Privilege Separation: Uncheck this box (it simplifies permission management for this specific use case).
+```
+terraform@pam!homelab=<uuid-secret>
+```
 
-Click Add.
+For example:
 
-IMPORTANT: Copy the Token ID and Secret immediately. The secret will never be shown again.
+```bash
+echo "terraform@pam!homelab=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" \
+  > ~/.config/sops-nix/secrets/pve-terraform-api-token
+chmod 600 ~/.config/sops-nix/secrets/pve-terraform-api-token
+```
 
 ### 4. Assign Permissions (ACLs)
 
-Navigate to Datacenter > Permissions.
+> **Critical:** Both the **user** and the **token** must have their own ACL entries, even when `privsep=0`. With `privsep=0`, Proxmox still requires the user to have its own ACL — the token ACL alone is not sufficient.
 
-Click Add > API Token Permission.
+```bash
+# User ACL (required even with privsep=0)
+pveum aclmod / --user terraform@pam --role TerraformProv
 
-Path: / (This gives Terraform access to the whole datacenter. You can restrict this to specific nodes or storage if preferred).
-
-Token: Select terraform-user@pve!terraform-token.
-
-Role: Select the TerraformProv role created in Step 1.
-
-Propagate: Ensure this is Checked.
-
-Click Add.
+# Token ACL
+pveum aclmod / --token terraform@pam!homelab --role TerraformProv
+```
 
 ---
 
@@ -136,10 +138,9 @@ nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 Copy or edit `terraform.tfvars` with values for your environment:
 
 ```hcl
-proxmox_endpoint      = "https://pve01.home.lab:8006/"
-proxmox_username      = "terraform@pve"
-proxmox_password_file = "~/.config/sops-nix/secrets/pve-terraform-key"
-proxmox_insecure      = false
+proxmox_endpoint       = "https://pve01.home.lab:8006/"
+proxmox_api_token_file = "~/.config/sops-nix/secrets/pve-terraform-api-token"
+proxmox_insecure       = false
 
 nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 
@@ -255,14 +256,13 @@ tofu destroy
 
 ## Variables Reference
 
-| Variable                | Type          | Description                                                                    |
-| ----------------------- | ------------- | ------------------------------------------------------------------------------ |
-| `proxmox_endpoint`      | `string`      | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`)             |
-| `proxmox_username`      | `string`      | Proxmox user in `user@realm` format (e.g. `terraform@pve`)                     |
-| `proxmox_password_file` | `string`      | Path to a local file containing the Proxmox user password                      |
-| `proxmox_insecure`      | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
-| `nixos_iso`             | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
-| `nodes`                 | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
+| Variable                 | Type          | Description                                                                    |
+| ------------------------ | ------------- | ------------------------------------------------------------------------------ |
+| `proxmox_endpoint`       | `string`      | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`)             |
+| `proxmox_api_token_file` | `string`      | Path to a local file containing the API token (`user@realm!tokenid=secret`)    |
+| `proxmox_insecure`       | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
+| `nixos_iso`              | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
+| `nodes`                  | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
 
 ### `nodes` object attributes
 
