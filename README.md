@@ -12,6 +12,11 @@ I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control 
 
 My most recent addition to the cluster is a GPU node with a low-mid tier consumer graphics card (RTX5060 Ti). It allows me to schedule GPU workload such as local LLM inferencing server, or lightweight model training. With the current configuration, I can easily add more GPU nodes and scale out & up my private LLM inferencing service for AI workflows and Agentic Coding concurrently with my own resources.
 
+## Documentation
+
+- [OpenTofu Provision](terraform/GUIDE.md) — step-by-step guide for provisioning VMs on Proxmox with OpenTofu.
+- [NixOS Configuration](nixos/GUIDE.md) — step-by-step guide for building the installer ISO, provisioning new VMs, updating existing hosts, and managing sops-nix secrets.
+
 ## Services
 
 ### Applications
