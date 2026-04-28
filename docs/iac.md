@@ -1,6 +1,8 @@
-# Terraform (OpenTofu) — Layer 1: VM Provisioning
+# Infrastructure as Code (Iac)
 
-## Overview
+## Terraform (OpenTofu) Provisioning
+
+### Overview
 
 This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox using the [`bpg/proxmox`](https://registry.terraform.io/providers/bpg/proxmox/latest) provider (`~> 0.104.0`).
 
@@ -17,7 +19,7 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 ---
 
-## Prerequisites
+### Prerequisites
 
 - [OpenTofu](https://opentofu.org/docs/intro/install/) installed
 - Access to a Proxmox VE cluster
@@ -27,11 +29,11 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 ---
 
-## Proxmox User Setup
+### Proxmox User Setup
 
 Create a least-privilege `terraform@pam` user with a custom `TerraformProv` role.
 
-### 1. Create the role with required privileges
+#### 1. Create the role with required privileges
 
 Log into your Proxmox GUI.
 
@@ -53,7 +55,7 @@ Privileges: Select the following (minimum requirements for most Terraform provid
 
 Click Create.
 
-### 2. Create the user
+#### 2. Create the user
 
 Navigate to Datacenter > Permissions > Users.
 
@@ -65,7 +67,7 @@ Realm: Select pam (Linux PAM standard authentication).
 
 Click Add.
 
-### 3. Create an API token
+#### 3. Create an API token
 
 Run the following on the Proxmox host (or use the web UI under Datacenter > Permissions > API Tokens):
 
@@ -89,7 +91,7 @@ echo "terraform@pam!homelab=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" \
 chmod 600 ~/.config/sops-nix/secrets/pve-terraform-api-token
 ```
 
-### 4. Assign Permissions (ACLs)
+#### 4. Assign Permissions (ACLs)
 
 > **Critical:** Both the **user** and the **token** must have their own ACL entries, even when `privsep=0`. With `privsep=0`, Proxmox still requires the user to have its own ACL — the token ACL alone is not sufficient.
 
@@ -103,11 +105,11 @@ pveum aclmod / --token terraform@pam!homelab --role TerraformProv
 
 ---
 
-## NixOS ISO
+### ISO
 
 The installer ISO is built from the NixOS flake in this repository.
 
-### Build the ISO
+#### Build the ISO
 
 ```bash
 cd ../nixos
@@ -115,15 +117,16 @@ nix build .#packages.x86_64-linux.installer
 # Output: result/iso/nixos-minimal-*.iso
 ```
 
-### Upload to Proxmox
+#### Upload to Proxmox
 
-Upload the ISO to a Proxmox storage (e.g. `local`) via the web UI or:
+Upload the ISO to a Proxmox storage (e.g. `local`) using `./nixos/scripts/sync-iso.sh`
 
 ```bash
-scp result/iso/nixos-minimal-*.iso root@pve01:/var/lib/vz/template/iso/
+cd ../nixos
+./scripts/sync-iso.sh nixos/result/iso/nixos-*.iso pve01 pve02 pve03
 ```
 
-### Reference in tfvars
+#### Reference in tfvars
 
 Set `nixos_iso` in `terraform.tfvars` to the Proxmox storage path:
 
@@ -133,26 +136,22 @@ nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 
 ---
 
-## Configuration
+### Configuration
 
 Copy or edit `terraform.tfvars` with values for your environment:
 
 ```hcl
-proxmox_endpoint       = "https://pve01.home.lab:8006/"
-proxmox_api_token_file = "~/.config/sops-nix/secrets/pve-terraform-api-token"
-proxmox_insecure       = false
+proxmox_endpoint         = "https://pve01.home.lab:8006/"
+proxmox_api_token_file   = "~/.config/sops-nix/secrets/pve-terraform-api-token"
+proxmox_insecure         = true
 
-nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
+pve_ssh_private_key_file = "~/.ssh/id_ed25519"
+
+nixos_iso = "local:iso/nixos-minimal-*-linux.iso"
 
 nodes = {
-  "haproxy-2" = {
-    node      = "pve01"
-    vm_id     = 901
-    cores     = 2
-    memory    = 4096
-    disk_size = 20
-    datastore = "local-lvm"
-  }
+    // VM Configs here
+    ...
 }
 ```
 
@@ -160,105 +159,77 @@ Add additional entries to `nodes` for each VM to provision.
 
 ---
 
-## Usage
+### Variables Reference
 
-### Initialise
+| Variable                   | Type          | Description                                                                    |
+| -------------------------- | ------------- | ------------------------------------------------------------------------------ |
+| `proxmox_endpoint`         | `string`      | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`)             |
+| `proxmox_api_token_file`   | `string`      | Path to a local file containing the API token (`user@realm!tokenid=secret`)    |
+| `proxmox_insecure`         | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
+| `pve_ssh_private_key_file` | `string`      | SSH Key with permission ssh into the NixOS installer ISO                       |
+| `nixos_iso`                | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
+| `nodes`                    | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
 
-```bash
-tofu init
-```
-
-### Plan
-
-```bash
-tofu plan
-```
-
-### Apply
-
-```bash
-tofu apply
-```
-
-VMs are created in a powered-off state. Proceed to [Full Workflow](#full-workflow) to install NixOS.
-
-### Destroy
-
-```bash
-tofu destroy
-```
-
-> **Warning:** This permanently deletes all VMs managed by this configuration.
+| Attribute   | Type     | Description                                          |
+| ----------- | -------- | ---------------------------------------------------- |
+| `node`      | `string` | Proxmox node name to create the VM on (e.g. `pve01`) |
+| `vm_id`     | `number` | Proxmox VM ID (must be unique cluster-wide)          |
+| `cores`     | `number` | Number of vCPU cores                                 |
+| `memory`    | `number` | RAM in MiB                                           |
+| `disk_size` | `number` | Root disk size in GiB (provisioned on `scsi0`)       |
+| `datastore` | `string` | Proxmox datastore for the disk (e.g. `local-lvm`)    |
 
 ---
 
-## Full Workflow
+### Usage
 
-End-to-end steps from zero to a running NixOS VM.
-
-### Step 1 — Build and upload the installer ISO
+#### Initialise
 
 ```bash
-cd ../nixos
-nix build .#packages.x86_64-linux.installer
-scp result/iso/nixos-minimal-*.iso root@pve01:/var/lib/vz/template/iso/
-```
-
-Update `nixos_iso` in `terraform.tfvars` with the uploaded filename.
-
-### Step 2 — Provision VM hardware
-
-```bash
-cd ../terraform
 tofu init
+tofu plan
 tofu apply
 ```
 
-VMs are created but not started.
+---
 
-### Step 3 — Start the VM and find its DHCP IP
+## NixOS Configurations
 
-Start the VM in Proxmox:
+This guide covers the full operational lifecycle for NixOS VMs in this homelab, from building the installer ISO through provisioning and day-to-day updates.
+
+### Prerequisites
+
+- **Nix with flakes enabled** — the `nix` CLI must have `experimental-features = nix-command flakes` set.
+- **nixos-anywhere available** — either in your PATH or invoked via `nix run`.
+- **SSH access to the Proxmox host** — required for uploading the installer ISO and for `nixos-anywhere` to reach the target VM.
+- **sops age keys** — the age private key for decrypting secrets must be available locally; the corresponding public key must already be registered as a recipient in the sops-secrets repository.
+
+---
+
+### Usage
+
+#### 1. Provisioning as Terraform Module
+
+Terraform module should execute the `./nixos/scripts/provision.sh` according to the spec and apply the flakes onto the VM.
+
+Otherwise,
 
 ```bash
-# Replace 202 with the vm_id, pve01 with the node name
-ssh root@pve01 "qm start 202"
+./nixos/scripts/provision.sh hostname 192.168.1.x
 ```
 
-Wait ~30 seconds for the installer to boot. Find the DHCP IP assigned to the VM:
+To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, place them under `nixos/scripts/keys/<hostname>/etc/ssh/` before running `provision.sh`.
 
-- Proxmox web UI: click the VM → Summary → IPs (requires QEMU guest agent to be running)
-- Or check your DHCP server/router for the new lease
-
-> The DHCP IP is temporary — use it only for `provision.sh`. After provisioning, the flake applies a static IP; use that for all future `rebuild.sh` calls.
-
-### Step 4 — Install NixOS (Layer 2)
-
-> **⚠ Key directory name must match hostname exactly.** If using pre-generated SSH host keys for sops-nix, ensure the directory is named `../nixos/scripts/keys/<hostname>/etc/ssh/` and the key files are matching with the names referenced in the flake.
-
-Once the VM is booted into the installer and reachable over SSH, run `nixos-anywhere`:
+#### 2. Rebuilding
 
 ```bash
-../nixos/scripts/provision.sh haproxy-2 192.168.1.252
+./nixos/scripts/rebuild.sh hostname 192.168.1.x
 ```
 
-This partitions the disk with `disko` and installs the full NixOS configuration in one step. The VM will reboot into NixOS on completion.
-
-> To inject pre-generated SSH host keys for `sops-nix` Day-0 secret decryption, place them under `../nixos/scripts/keys/<hostname>/etc/ssh/` before running `provision.sh`.
-
-### Step 5 — Subsequent OS updates
+To pull the latest secrets revision before deploying, pass the optional flag:
 
 ```bash
-../nixos/scripts/rebuild.sh haproxy-2 192.168.1.252
-
-# To also pull the latest secrets revision before deploying:
-../nixos/scripts/rebuild.sh --update-secrets haproxy-2 192.168.1.252
-```
-
-### Step 6 — Tear down
-
-```bash
-tofu destroy
+./nixos/scripts/rebuild.sh --update-secrets hostname 192.168.1.x
 ```
 
 ---
@@ -287,131 +258,3 @@ pveum aclmod / --token terraform@pam!homelab --role TerraformProv
 Create the Terraform user in the `pam` realm (`terraform@pam`), not `pve` (`terraform@pve`). In Proxmox 8.4, `pve` realm token ACLs are not evaluated correctly, causing persistent 403 errors even with correct ACL entries.
 
 ---
-
-## Variables Reference
-
-| Variable                 | Type          | Description                                                                    |
-| ------------------------ | ------------- | ------------------------------------------------------------------------------ |
-| `proxmox_endpoint`       | `string`      | HTTPS URL of the Proxmox API (e.g. `https://pve01.home.lab:8006/`)             |
-| `proxmox_api_token_file` | `string`      | Path to a local file containing the API token (`user@realm!tokenid=secret`)    |
-| `proxmox_insecure`       | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
-| `nixos_iso`              | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
-| `nodes`                  | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
-
-### `nodes` object attributes
-
-| Attribute   | Type     | Description                                          |
-| ----------- | -------- | ---------------------------------------------------- |
-| `node`      | `string` | Proxmox node name to create the VM on (e.g. `pve01`) |
-| `vm_id`     | `number` | Proxmox VM ID (must be unique cluster-wide)          |
-| `cores`     | `number` | Number of vCPU cores                                 |
-| `memory`    | `number` | RAM in MiB                                           |
-| `disk_size` | `number` | Root disk size in GiB (provisioned on `scsi0`)       |
-| `datastore` | `string` | Proxmox datastore for the disk (e.g. `local-lvm`)    |
-
----
-
-## Outputs
-
-| Output   | Description                                             |
-| -------- | ------------------------------------------------------- |
-| `vm_ids` | Map of hostname → Proxmox VM ID for all provisioned VMs |
-
-Retrieve after apply:
-
-```bash
-tofu output vm_ids
-```
-
-# NixOS Operations Guide
-
-This guide covers the full operational lifecycle for NixOS VMs in this homelab, from building the installer ISO through provisioning and day-to-day updates.
-
-## Prerequisites
-
-- **Nix with flakes enabled** — the `nix` CLI must have `experimental-features = nix-command flakes` set.
-- **nixos-anywhere available** — either in your PATH or invoked via `nix run`.
-- **SSH access to the Proxmox host** — required for uploading the installer ISO and for `nixos-anywhere` to reach the target VM.
-- **sops age keys** — the age private key for decrypting secrets must be available locally; the corresponding public key must already be registered as a recipient in the sops-secrets repository.
-
-## Layer 1 — VM Lifecycle (OpenTofu)
-
-OpenTofu (`terraform/`) manages the virtual hardware boundary of each VM on Proxmox using the [bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest) provider. It defines CPU, memory, disk size, and network — but intentionally avoids Cloud-Init or any OS-level configuration.
-
-```bash
-cd terraform
-tofu init
-tofu apply
-```
-
-## Layer 2 — OS & Configuration (NixOS + nixos-anywhere + disko)
-
-Once OpenTofu creates the blank VMs, `nixos-anywhere` + `disko` remotely partitions the disk and installs NixOS from the flake in one step.
-
-### Build the Installer ISO (One-Time Setup)
-
-Build a minimal NixOS installer ISO, upload it to Proxmox storage, and reference it in `terraform.tfvars` as `nixos_iso`. OpenTofu will attach the ISO to new VMs so they boot into the installer.
-
-```bash
-cd nixos
-nix build .#packages.x86_64-linux.installer
-# result/iso/nixos-*.iso  →  upload to Proxmox
-```
-
-#### Upload ISO to Proxmox
-
-**Option A — Web UI**
-
-1. Open `https://<proxmox-host>:8006` in your browser and log in.
-2. Navigate to **Datacenter → local storage → ISO Images** in the left-hand tree.
-3. Click **Upload**.
-4. Select `nixos/result/iso/nixos-*.iso` from your local machine.
-5. Note the resulting storage path (e.g. `local:iso/nixos-<version>.iso`) and set it as `nixos_iso` in `terraform/terraform.tfvars`.
-
-**Option B — CLI**
-
-1. Identify the built ISO:
-   ```bash
-   ls nixos/result/iso/nixos-*.iso
-   ```
-2. Copy it to the Proxmox host's ISO directory:
-   ```bash
-   scp nixos/result/iso/nixos-*.iso root@<proxmox-host>:/var/lib/vz/template/iso/
-   ```
-3. Verify the upload was registered:
-   ```bash
-   pvesm list local
-   ```
-4. Set the ISO path as `nixos_iso` in `terraform/terraform.tfvars`.
-
-> **Note**: Replace `local` with your actual Proxmox storage pool name if it differs (e.g. `pve-storage`).
-
-### Initial Provisioning
-
-Boot the VM from the installer ISO (start it in Proxmox), then run:
-
-```bash
-./nixos/scripts/provision.sh haproxy-1 192.168.1.251
-```
-
-This calls `nix run .#nixos-anywhere -- --flake .#haproxy-1 root@192.168.1.251`, which uses disko to partition `/dev/sda` and installs the full NixOS configuration in one shot.
-
-To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, place them under `nixos/scripts/keys/<hostname>/etc/ssh/` before running `provision.sh`.
-
-### Updating an Existing Host
-
-```bash
-./nixos/scripts/rebuild.sh haproxy-1 192.168.1.251
-```
-
-This runs `nixos-rebuild switch --flake .#haproxy-1 --target-host root@192.168.1.251`, which builds the new closure locally (the default) and activates it on the remote host over SSH.
-
-To also pull the latest secrets revision before deploying, pass the optional flag:
-
-```bash
-./nixos/scripts/rebuild.sh --update-secrets haproxy-1 192.168.1.251
-```
-
-## Secrets (sops-nix)
-
-Secrets are managed with [sops-nix](https://github.com/Mic92/sops-nix). Each host expects a pre-generated SSH host key whose **public** key is registered as an age recipient in the sops-secrets repository. The corresponding **private** key is injected onto the host at provisioning time via `nixos-anywhere --extra-files` (stored locally in `./nixos/scripts/keys/<hostname>/etc/ssh/`, which is gitignored). On first boot, sops-nix uses the SSH host key to derive the age private key for decrypting secrets.
