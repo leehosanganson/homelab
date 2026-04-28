@@ -4,8 +4,13 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   name      = each.key
   node_name = each.value.node
   vm_id     = each.value.vm_id
+
   on_boot = true
   started = true
+
+  operating_system {
+    type = "l26"
+  }
 
   cpu {
     cores = each.value.cores
@@ -55,31 +60,35 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   }
 }
 
-# Poll each Proxmox node via SSH until the VM reaches 'running' state.
-# Retries up to 30 times with 10s sleep (5-minute total timeout).
-# If the VM never starts, the provisioner fails and apply returns an error.
-# Note: VMs are created with started = false — this provisioner is intended
-# for use after nixos-anywhere has booted the VM. Re-trigger manually with:
-#   tofu taint 'null_resource.vm_started["<hostname>"]'
-resource "null_resource" "vm_started" {
+# Wait for the Guest OS to be ready for nixos-anywhere
+resource "terraform_data" "wait_for_guest_ssh" {
   for_each = var.nodes
 
-  triggers = {
-    vm_id = each.value.vm_id
-  }
+  # Re-run if the VM ID changes
+  triggers_replace = [
+    proxmox_virtual_environment_vm.nixos[each.key].id
+  ]
 
+  # SSH into the actual Guest VM (not the Proxmox host)
   connection {
     type        = "ssh"
-    host        = each.value.node
-    user        = "root"
-    private_key = file(pathexpand(var.pve_ssh_private_key_file))
+    user        = "root" # The default user on the NixOS installer ISO
+    # Extract the first valid IPv4 address reported by the QEMU guest agent
+    host        = proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0]
+    # private_key = file(pathexpand(var.pve_ssh_private_key_file)) # Ensure this key is baked into your NixOS ISO!
+    password    = "nixos"
+    timeout     = "5m"
   }
 
+  # Confirm the VM is fully booted and ready for provisioning before running the local provisioning script
   provisioner "remote-exec" {
     inline = [
-      "for i in $(seq 1 30); do STATUS=$(qm status ${each.value.vm_id} | awk '{print $2}'); echo \"Attempt $i/30: VM ${each.value.vm_id} status = $STATUS\"; [ \"$STATUS\" = \"running\" ] && echo \"VM ${each.value.vm_id} is running.\" && exit 0; sleep 10; done; echo \"ERROR: VM ${each.value.vm_id} did not reach running state within 5 minutes.\"; exit 1"
+      "echo 'VM ${each.value.vm_id} has fully booted NixOS and is ready for provisioning!'"
     ]
   }
 
-  depends_on = [proxmox_virtual_environment_vm.nixos]
+  # Run the local provisioning script with the VM name and IP address as arguments
+  provisioner "local-exec" {
+    command = "../nixos/provision.sh ${each.key} ${try(proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0], "")}"
+  }
 }

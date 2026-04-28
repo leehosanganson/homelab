@@ -1,15 +1,7 @@
-output "vm_ids" {
-  description = "Proxmox VM IDs keyed by hostname"
-  value       = { for name, vm in proxmox_virtual_environment_vm.nixos : name => vm.vm_id }
-}
-
-output "vm_summary" {
-  description = "Summary of managed VMs: hostname → vm_id, node, and IP"
+output "nixos_installer_ips" {
+  description = "The dynamically assigned IPs of the newly booted NixOS VMs."
   value = {
-    for name, vm in proxmox_virtual_environment_vm.nixos : name => {
-      vm_id = vm.vm_id
-      node  = var.nodes[name].node
-      ip    = var.nodes[name].ip
-    }
+    for hostname, vm in proxmox_virtual_environment_vm.nixos : 
+    hostname => try(vm.ipv4_addresses[1][0], "IP pending Guest Agent...")
   }
 }

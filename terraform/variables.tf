@@ -28,9 +28,7 @@ variable "nodes" {
     memory    = number # RAM in MiB
     disk_size = number # Root disk size in GiB
     datastore = string # Proxmox storage pool for the disk (e.g. local-lvm)
-    ip        = string # Static IP address assigned to the VM by the NixOS configuration
   }))
-  default = {}
 }
 
 variable "pve_ssh_private_key_file" {

@@ -1,6 +1,7 @@
 proxmox_endpoint         = "https://pve01.home.lab:8006/"
 proxmox_api_token_file   = "~/.config/sops-nix/secrets/pve-terraform-api-token"
 proxmox_insecure         = true
+
 pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 
 nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
@@ -13,7 +14,6 @@ nodes = {
     memory    = 2048
     disk_size = 20
     datastore = "local-lvm"
-    ip        = "192.168.1.252"
   }
   "haproxy-3" = {
     node      = "pve02"
@@ -22,6 +22,5 @@ nodes = {
     memory    = 1024
     disk_size = 20
     datastore = "local-lvm"
-    ip        = "192.168.1.253"
   }
 }
