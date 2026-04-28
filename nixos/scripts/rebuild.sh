@@ -56,8 +56,7 @@ fi
 echo "==> Deploying '$HOSTNAME' to $TARGET_IP..."
 nixos-rebuild switch \
   --flake "$FLAKE_ROOT#$HOSTNAME" \
-  --target-host "root@$TARGET_IP" \
-  --no-reexec
+  --target-host "root@$TARGET_IP"
 
 echo ""
 echo "==> Rebuild complete!"

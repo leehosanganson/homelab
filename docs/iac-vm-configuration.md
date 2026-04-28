@@ -79,7 +79,7 @@ To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, plac
 ./nixos/scripts/rebuild.sh haproxy-1 192.168.1.251
 ```
 
-This runs `nixos-rebuild switch --flake .#haproxy-1 --target-host root@192.168.1.251 --build-host localhost`, building the new closure locally and activating it on the remote host over SSH.
+This runs `nixos-rebuild switch --flake .#haproxy-1 --target-host root@192.168.1.251`, which builds the new closure locally (the default) and activates it on the remote host over SSH.
 
 To also pull the latest secrets revision before deploying, pass the optional flag:
 

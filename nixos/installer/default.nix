@@ -9,9 +9,10 @@
     settings.PermitRootLogin = "yes";
   };
 
-  # Simple initial password so you can log in via Proxmox console if needed
+  # Empty password for console access during provisioning only.
+  # WARNING: Only boot this ISO on a trusted network segment.
   users.users.root = {
-    initialHashedPassword = lib.mkForce "$2b$05$C.mHot1I8WLvtfUD2UPQd.QT/UjV5BFUBkUgA4mBFH2tuQW7Ne0fK";
+    initialHashedPassword = lib.mkForce "";
   };
 
   # QEMU guest agent so Proxmox can report IP addresses and manage power state

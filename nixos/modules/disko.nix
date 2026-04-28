@@ -16,7 +16,7 @@
     disk = {
       main = {
         type   = "disk";
-        device = "/dev/sda";
+        device = "/dev/sda"; # virtio-scsi (scsi0 in terraform/main.tf) → /dev/sda
         content = {
           type = "gpt";
           partitions = {

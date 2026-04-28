@@ -22,7 +22,7 @@
   services.qemuGuest.enable = true;
 
   environment.etc."ssh/haproxy-1" = {
-    source = "${sops-secrets}/keys/haproxy";
+    source = "${sops-secrets}/keys/haproxy-1";
     mode = "0600";
     user = "root";
     group = "root";
@@ -59,6 +59,8 @@
 
   security.sudo = {
     enable = true;
+    # Intentional: passwordless sudo is required for nixos-rebuild --target-host,
+    # which connects as root over SSH. The SSH key is the sole authentication factor.
     wheelNeedsPassword = false;
   };
 

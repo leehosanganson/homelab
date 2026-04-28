@@ -4,7 +4,7 @@ variable "proxmox_endpoint" {
 }
 
 variable "proxmox_api_token_file" {
-  description = "Path to a file containing the Proxmox API token string; format: user@realm!tokenid=secret (e.g. terraform@pve!terraform-token=<uuid-secret>). Contents are read at plan/apply time via file()."
+  description = "Path to a file containing the Proxmox API token string; format: user@realm!tokenid=secret (e.g. terraform@pam!homelab=<uuid-secret>). Contents are read at plan/apply time via file()."
   type        = string
 }
 

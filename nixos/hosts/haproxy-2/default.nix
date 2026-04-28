@@ -59,6 +59,8 @@
 
   security.sudo = {
     enable = true;
+    # Intentional: passwordless sudo is required for nixos-rebuild --target-host,
+    # which connects as root over SSH. The SSH key is the sole authentication factor.
     wheelNeedsPassword = false;
   };
 
