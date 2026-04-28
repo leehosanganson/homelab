@@ -44,6 +44,16 @@
       ];
     };
 
+    nixosConfigurations.haproxy-3 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/haproxy-3
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
     # Minimal NixOS installer ISO for Proxmox VM templates.
     # Build: nix build .#packages.x86_64-linux.installer
     # Upload the resulting ISO to Proxmox, then use provision.sh to install.

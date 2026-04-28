@@ -28,6 +28,12 @@ variable "nodes" {
     memory    = number # RAM in MiB
     disk_size = number # Root disk size in GiB
     datastore = string # Proxmox storage pool for the disk (e.g. local-lvm)
+    ip        = string # Static IP address assigned to the VM by the NixOS configuration
   }))
   default = {}
+}
+
+variable "pve_ssh_private_key_file" {
+  description = "Path to the SSH private key used to connect to Proxmox nodes as root (e.g. ~/.ssh/id_ed25519). Used by the vm_started provisioner to poll qm status over SSH."
+  type        = string
 }
