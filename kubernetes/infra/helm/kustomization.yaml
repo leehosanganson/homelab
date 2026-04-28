@@ -11,6 +11,7 @@ resources:
   - coder-v2.yaml
   - immich-app.yaml
   - harbor.yaml
+  - kyverno.yaml
   - metrics-server.yaml
   - rancher-stable.yaml
   - traefik.yaml

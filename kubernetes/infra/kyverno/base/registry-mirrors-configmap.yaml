@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-mirrors
+  namespace: kyverno
+data:
+  # Keys are upstream registry hosts and values are mirror prefixes.
+  # Update these values to point to a different Harbor instance or proxy path.
+  "ghcr.io": harbor.leehosanganson.dev/ghcr
+  "gcr.io": harbor.leehosanganson.dev/gcr
+  "lscr.io": harbor.leehosanganson.dev/lscr
+  "docker.io": harbor.leehosanganson.dev/dockerhub

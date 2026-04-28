@@ -9,6 +9,7 @@ resources:
   - ../../external-secrets/overlays/default
   - ../../gpu-operator/overlays/default
   - ../../harbor/overlays/default
+  - ../../kyverno/overlays/default
   - ../../metrics-server/overlays/default
   - ../../renovate/overlays/default
 

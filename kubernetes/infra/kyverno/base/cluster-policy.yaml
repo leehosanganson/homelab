@@ -1,0 +1,213 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: replace-image-registry
+  annotations:
+    policies.kyverno.io/title: Replace Image Registry with Harbor Proxy
+    policies.kyverno.io/category: Harbor
+    policies.kyverno.io/description: >-
+      Rewrites non-system container image references to pull through the
+      internal Harbor proxy cache. Mirror targets are resolved dynamically from
+      the registry-mirrors ConfigMap in the kyverno namespace, using upstream
+      registry hosts as keys. Adding new registry mirrors only requires updating
+      that ConfigMap.
+spec:
+  background: false
+  rules:
+    - name: replace-qualified-images
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
+          - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: sourceRegistry
+                variable:
+                  jmesPath: "regex_replace_all('^([^/]+)/.*$', '{{ element.image }}', '$1')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: mirrorPrefix
+                variable:
+                  jmesPath: "lookup(mirrors.data, sourceRegistry)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "true"
+                - key: "{{ regex_match('^registry\\.k8s\\.io/.*$', element.image) }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ mirrorPrefix || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ regex_replace_all('^[^/]+/', '{{ element.image }}', '{{ mirrorPrefix }}/') }}"
+
+    - name: replace-unqualified-dockerhub
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"
+          - list: "request.object.spec.containers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"
+          - list: "request.object.spec.ephemeralContainers[]"
+            context:
+              - name: mirrors
+                configMap:
+                  name: registry-mirrors
+                  namespace: kyverno
+              - name: dockerMirror
+                variable:
+                  jmesPath: "lookup(mirrors.data, 'docker.io')"
+              - name: isQualifiedImage
+                variable:
+                  jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+            preconditions:
+              all:
+                - key: "{{ isQualifiedImage }}"
+                  operator: Equals
+                  value: "false"
+                - key: "{{ dockerMirror || '' }}"
+                  operator: NotEquals
+                  value: ""
+            patchStrategicMerge:
+              spec:
+                ephemeralContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ dockerMirror }}/{{ element.image }}"

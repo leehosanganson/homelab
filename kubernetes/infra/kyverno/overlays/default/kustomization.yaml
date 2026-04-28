@@ -1,0 +1,12 @@
+namespace: kyverno
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: kyverno-values
+    options:
+      disableNameSuffixHash: true
