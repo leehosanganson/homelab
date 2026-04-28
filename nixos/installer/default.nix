@@ -1,4 +1,4 @@
-{ lib, modulesPath, pkgs, ... }: {
+{ modulesPath, pkgs, ... }: {
   imports = [
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
   ];
@@ -6,13 +6,17 @@
   # Allow root SSH login so nixos-anywhere can connect and install
   services.openssh = {
     enable = true;
-    settings.PermitRootLogin = "yes";
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+    };
   };
 
-  # Empty password for console access during provisioning only.
-  # WARNING: Only boot this ISO on a trusted network segment.
   users.users.root = {
-    initialHashedPassword = lib.mkForce "";
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+    ];
   };
 
   # QEMU guest agent so Proxmox can report IP addresses and manage power state
