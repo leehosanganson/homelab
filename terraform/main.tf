@@ -72,11 +72,9 @@ resource "terraform_data" "wait_for_guest_ssh" {
   # SSH into the actual Guest VM (not the Proxmox host)
   connection {
     type        = "ssh"
-    user        = "root" # The default user on the NixOS installer ISO
-    # Extract the first valid IPv4 address reported by the QEMU guest agent
+    user        = "root"
     host        = proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0]
-    # private_key = file(pathexpand(var.pve_ssh_private_key_file)) # Ensure this key is baked into your NixOS ISO!
-    password    = "nixos"
+    private_key = file(pathexpand(var.pve_ssh_private_key_file))
     timeout     = "5m"
   }
 
@@ -89,6 +87,7 @@ resource "terraform_data" "wait_for_guest_ssh" {
 
   # Run the local provisioning script with the VM name and IP address as arguments
   provisioner "local-exec" {
-    command = "../nixos/provision.sh ${each.key} ${try(proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0], "")}"
+    command = "../nixos/scripts/provision.sh ${each.key} ${try(proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0], "")}"
   }
 }
+
