@@ -14,8 +14,8 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 
 ## Documentation
 
-- [OpenTofu Provision](terraform/GUIDE.md) — step-by-step guide for provisioning VMs on Proxmox with OpenTofu.
-- [NixOS Configuration](nixos/GUIDE.md) — step-by-step guide for building the installer ISO, provisioning new VMs, updating existing hosts, and managing sops-nix secrets.
+- [OpenTofu Provision](docs/iac-vm-provision.md) — step-by-step guide for provisioning VMs on Proxmox with OpenTofu.
+- [NixOS Configuration](docs/iac-vm-configuration.md) — step-by-step guide for building the installer ISO, provisioning new VMs, updating existing hosts, and managing sops-nix secrets.
 
 ## Services
 

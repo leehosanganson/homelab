@@ -76,4 +76,4 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 - **Secrets**: SSH host keys for sops-nix must be pre-generated and placed under `nixos/scripts/keys/<hostname>/etc/ssh/` (gitignored) before provisioning.
 - **Installer ISO**: The installer ISO must be built from the flake (`nix build .#packages.x86_64-linux.installer` in `nixos/`) and uploaded to Proxmox before running OpenTofu. The ISO path is referenced as `nixos_iso` in `terraform.tfvars`.
 
-> For the full step-by-step operations guide, see [terraform/GUIDE.md](terraform/GUIDE.md) and [nixos/GUIDE.md](nixos/GUIDE.md).
+> For the full step-by-step operations guide, see [docs/iac-vm-provision.md](docs/iac-vm-provision.md) and [docs/iac-vm-configuration.md](docs/iac-vm-configuration.md).
