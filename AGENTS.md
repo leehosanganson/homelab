@@ -66,3 +66,14 @@ Containers must not run as root; a `securityContext` block is required on every 
 - **`allowPrivilegeEscalation: false`**: Must be set on all containers.
 - **`capabilities.drop: ["ALL"]`**: Must be set to remove all Linux capabilities by default; add back only the minimum required via `capabilities.add`.
 - **`readOnlyRootFilesystem: true`**: Should be set where the application supports it; writable paths must be mounted explicitly via `volumeMounts`.
+
+## 4. Infrastructure as Code
+
+NixOS VMs are provisioned and configured using a fully declarative, two-layer IaC approach.
+
+- **Layer 1 — VM Lifecycle (OpenTofu)**: OpenTofu manages VM hardware boundaries only (CPU, memory, disk, network).
+- **Layer 2 — OS & Configuration (NixOS)**: NixOS configuration lives in `nixos/`. All host provisioning and updates must go through `nixos-anywhere` + `disko`; never configure the OS manually.
+- **Secrets**: SSH host keys for sops-nix must be pre-generated and placed under `nixos/scripts/keys/<hostname>/etc/ssh/` (gitignored) before provisioning.
+- **Installer ISO**: The installer ISO must be built from the flake (`nix build .#packages.x86_64-linux.installer` in `nixos/`) and uploaded to Proxmox before running OpenTofu. The ISO path is referenced as `nixos_iso` in `terraform.tfvars`.
+
+> For the full step-by-step operations guide, see [docs/iac.md](docs/iac.md).

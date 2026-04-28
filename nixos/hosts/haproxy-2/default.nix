@@ -4,15 +4,15 @@
     ../../modules/disko.nix
   ];
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   networking = {
-    hostName = "haproxy-1";
+    hostName = "haproxy-2";
     useDHCP = false;
     usePredictableInterfaceNames = false;
     interfaces.eth0.ipv4.addresses = [
       {
-        address = "192.168.1.251";
+        address = "192.168.1.252";
         prefixLength = 24;
       }
     ];
@@ -21,8 +21,8 @@
 
   services.qemuGuest.enable = true;
 
-  environment.etc."ssh/haproxy-1" = {
-    source = "${sops-secrets}/keys/haproxy-1";
+  environment.etc."ssh/haproxy-2" = {
+    source = "${sops-secrets}/keys/haproxy-2";
     mode = "0600";
     user = "root";
     group = "root";
@@ -32,7 +32,7 @@
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
-      "/etc/ssh/haproxy-1"
+      "/etc/ssh/haproxy-2"
     ];
 
     secrets = {

@@ -1,38 +1,62 @@
 #!/usr/bin/env bash
-set -e # Exit immediately if any command fails
+# Deploy an updated NixOS configuration to an existing, running host.
+#
+# This script uses nixos-rebuild switch --target-host to build the NixOS
+# closure locally and activate it on the remote machine over SSH.
+# It connects as the 'root' user on the remote machine.
+#
+# Usage:
+#   ./rebuild.sh [--update-secrets] <hostname> <ip>
+#
+# Options:
+#   --update-secrets  Run `nix flake update sops-secrets` before deploying.
+#                     This mutates flake.lock; only use when you intentionally
+#                     want to pull the latest secrets revision.
+#
+# Example:
+#   ./rebuild.sh haproxy-1 192.168.1.251
+#   ./rebuild.sh --update-secrets haproxy-1 192.168.1.251
 
-VM_ID=900
-PVE_HOST="root@pve03.home.lab"
-STORAGE="local-lvm"
+set -euo pipefail
 
-echo "--- 1. Updating Secrets and Building Image ---"
-nix flake update sops-secrets
-git add .
-nixos-rebuild build-image --flake .#haproxy-1 --image-variant proxmox
+usage() {
+  echo "Usage: $0 [--update-secrets] <hostname> <ip>"
+  echo ""
+  echo "  --update-secrets  Update the sops-secrets flake input before deploying"
+  echo "  hostname          NixOS flake hostname (e.g. haproxy-1)"
+  echo "  ip                Target VM IP address (e.g. 192.168.1.251)"
+  echo ""
+  echo "Connects as 'root' on the remote machine."
+  exit 1
+}
 
-# Dynamically find the path of the built .vma.zst file
-IMAGE_PATH=$(readlink -f ./result/*.vma.zst)
-IMAGE_NAME=$(basename "$IMAGE_PATH")
+UPDATE_SECRETS=false
 
-echo "--- 2. Uploading $IMAGE_NAME to Proxmox ---"
-scp "$IMAGE_PATH" "$PVE_HOST:/var/lib/vz/dump/"
+# Parse optional flag
+if [[ "${1:-}" == "--update-secrets" ]]; then
+  UPDATE_SECRETS=true
+  shift
+fi
 
-echo "--- 3. Remote: Recreating VM $VM_ID ---"
-# We pass the filename to the remote shell so it knows what to restore
-ssh "$PVE_HOST" "bash -s" << EOF
-  set -e
-  echo "Stopping and Destroying existing VM..."
-  qm stop $VM_ID || true
-  qm destroy $VM_ID --purge || true
+HOSTNAME="${1:-}"
+TARGET_IP="${2:-}"
 
-  echo "Restoring from /var/lib/vz/dump/$IMAGE_NAME..."
-  qmrestore "/var/lib/vz/dump/$IMAGE_NAME" $VM_ID --storage $STORAGE --unique true
-  
-  echo "Starting VM..."
-  qm start $VM_ID
-  
-  # Optional: Cleanup the uploaded image to save space on PVE
-  rm "/var/lib/vz/dump/$IMAGE_NAME"
-EOF
+[[ -z "$HOSTNAME" ]] && usage
+[[ -z "$TARGET_IP" ]] && usage
 
-echo "--- DEPLOYMENT COMPLETE ---"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_ROOT="$SCRIPT_DIR/.."
+
+if [[ "$UPDATE_SECRETS" == "true" ]]; then
+  echo "==> Updating sops-secrets flake input (--update-secrets requested)..."
+  echo "    WARNING: This will mutate flake.lock. Commit the result if intentional."
+  nix flake update sops-secrets --flake "$FLAKE_ROOT"
+fi
+
+echo "==> Deploying '$HOSTNAME' to $TARGET_IP..."
+nixos-rebuild switch \
+  --flake "$FLAKE_ROOT#$HOSTNAME" \
+  --target-host "root@$TARGET_IP"
+
+echo ""
+echo "==> Rebuild complete!"

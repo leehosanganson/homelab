@@ -4,8 +4,13 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixos-anywhere = {
+      url = "github:nix-community/nixos-anywhere";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -16,15 +21,53 @@
     };
   };
 
-  outputs = { nixpkgs, sops-nix, sops-secrets, ... }@inputs: {
+  outputs = { nixpkgs, disko, nixos-anywhere, sops-nix, sops-secrets, ... }@inputs: {
+    # NixOS host configurations — deployed via nixos-anywhere (initial) or
+    # nixos-rebuild switch --target-host (updates). See scripts/ for usage.
     nixosConfigurations.haproxy-1 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/haproxy-1
+        disko.nixosModules.disko
         sops-nix.nixosModules.sops
-        "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
       ];
+    };
+
+    nixosConfigurations.haproxy-2 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/haproxy-2
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
+    nixosConfigurations.haproxy-3 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/haproxy-3
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
+    # Minimal NixOS installer ISO for Proxmox VM templates.
+    # Build: nix build .#packages.x86_64-linux.installer
+    # Upload the resulting ISO to Proxmox, then use provision.sh to install.
+    packages.x86_64-linux.installer =
+      (nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [ ./installer ];
+      }).config.system.build.isoImage;
+
+    # Pinned nixos-anywhere — used by provision.sh via `nix run .#nixos-anywhere`
+    # so the provisioning tool version is locked in flake.lock alongside everything else.
+    apps.x86_64-linux.nixos-anywhere = {
+      type = "app";
+      program = "${nixos-anywhere.packages.x86_64-linux.nixos-anywhere}/bin/nixos-anywhere";
     };
   };
 }

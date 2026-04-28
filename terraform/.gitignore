@@ -1,0 +1,9 @@
+# Terraform/OpenTofu state files may contain sensitive data — never commit them
+*.tfstate
+*.tfstate.backup
+
+# Local OpenTofu/Terraform plugin cache and working directory
+.terraform/
+
+# Files with real credentials (auto-loaded by OpenTofu/Terraform)
+*.auto.tfvars

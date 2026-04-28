@@ -1,2 +1,4 @@
 result
 **/secrets/*
+# Pre-generated SSH host keys for nixos-anywhere Day-0 bootstrap
+scripts/keys/
