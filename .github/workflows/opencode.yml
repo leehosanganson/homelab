@@ -26,8 +26,6 @@ jobs:
           persist-credentials: false
 
       - name: Generate OpenCode Config
-        env:
-          OPENAI_API_KEY: ${{ secrets.LITELLM_KEY }}
         run: |
           cat << 'EOF' > opencode.json
           {
@@ -51,6 +49,7 @@ jobs:
 
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
+        env:
+          OPENAI_API_KEY: ${{ secrets.LITELLM_KEY }}
         with:
           model: "litellm/unsloth/qwen-3.6"
-
