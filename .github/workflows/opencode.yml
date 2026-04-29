@@ -36,8 +36,7 @@ jobs:
                 "npm": "@ai-sdk/openai-compatible",
                 "options": {
                   "baseURL": "https://litellm.leehosanganson.dev/v1",
-                  "apiKey": {env:LITELLM_KEY}
-
+                  "apiKey": "{env:LITELLM_KEY}"
                 },
                 "models": {
                   "unsloth/qwen-3.6": {
