@@ -27,8 +27,8 @@ spec:
               pip install -U huggingface_hub[hf_transfer] hf_transfer && \
               export HF_HUB_ENABLE_HF_TRANSFER=1 && \
               mkdir -p /models && \
-              hf download unsloth/gemma-4-26B-A4B-it-GGUF \
-                gemma-4-26B-A4B-it-UD-IQ2_M.gguf \
+              hf download \
+                unsloth/Qwen3.6-35B-A3B-GGUF Qwen3.6-35B-A3B-UD-IQ2_M.gguf \
                 --local-dir /models
           env:
             - name: HF_TOKEN
@@ -51,7 +51,7 @@ spec:
           image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:9f2e2b23e5b42b683801e2f0847ed5dfd68c9da3da7a46e09d49dea907c58b67
           args:
             - -m
-            - /models/gemma-4-26B-A4B-it-UD-IQ2_M.gguf
+            - /models/Qwen3.6-35B-A3B-UD-IQ2_M.GGUF
             - --host
             - 0.0.0.0
             - --port
@@ -63,13 +63,17 @@ spec:
             - -ngl
             - "99"
             - --temp
-            - "1.0"
+            - "0.7"
             - --top-p
-            - "0.95"
+            - "0.8"
             - --top-k
-            - "64"
+            - "20"
+            - --preesence_penalty
+            - "1.5"
+            - --min-p
+            - "0.00"
             - --alias
-            - "unsloth/gemma-4"
+            - "unsloth/qwen3.6"
             - --chat-template-kwargs
             - '{"enable_thinking":false}'
 
