@@ -17,8 +17,21 @@ spec:
                 name: litellm
                 port:
                   number: 4000
+    - host: litellm.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: litellm
+                port:
+                  number: 4000
 
   tls:
     - hosts:
         - litellm.homelab.leehosanganson.dev
+      secretName: litellm-homelab-tls
+    - hosts:
+        - litellm.leehosanganson.dev
       secretName: litellm-tls
