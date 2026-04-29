@@ -27,8 +27,7 @@ jobs:
 
       - name: Generate OpenCode Config
         env:
-          LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
-          GH_PAT: ${{ secrets.OPCODE_GH_PAT }}
+          OPENAI_API_KEY: ${{ secrets.LITELLM_KEY }}
         run: |
           cat << 'EOF' > opencode.json
           {
@@ -39,7 +38,6 @@ jobs:
                 "npm": "@ai-sdk/openai-compatible",
                 "options": {
                   "baseURL": "https://litellm.leehosanganson.dev/v1",
-                  "apiKey": "${LITELLM_KEY}"
                 },
                 "models": {
                   "unsloth/qwen-3.6": {
