@@ -51,7 +51,7 @@ spec:
           image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:9f2e2b23e5b42b683801e2f0847ed5dfd68c9da3da7a46e09d49dea907c58b67
           args:
             - -m
-            - /models/Qwen3.6-35B-A3B-UD-IQ2_M.GGUF
+            - /models/Qwen3.6-35B-A3B-UD-IQ2_M.gguf
             - --host
             - 0.0.0.0
             - --port
