@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-qr
+spec:
+  selector:
+    matchLabels:
+      app: mini-qr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mini-qr
+    spec:
+      containers:
+        - name: mini-qr
+          # TODO: Pin with digest before production (e.g., ghcr.io/lyqht/mini-qr:v0.28.0@sha256:<digest>)
+          image: ghcr.io/lyqht/mini-qr:v0.28.0
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
