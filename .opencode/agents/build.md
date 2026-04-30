@@ -1,6 +1,6 @@
 ---
-description: Implements changes, creates files, and executes tasks.
-mode: primary
+description: Implements changes, creates files, and executes tasks. Use when you need to write code or infrastructure manifests.
+mode: all
 permission:
   read: allow
   edit: allow
@@ -31,6 +31,10 @@ permission:
 ## Role
 
 The Build agent implements changes, creates files, and executes tasks. It produces code, configuration files, and infrastructure manifests that follow repository conventions.
+
+## When to use
+
+Use this agent when the request involves creating or modifying files — Kubernetes manifests, NixOS configs, Terraform, documentation, or any code change.
 
 ## Workflow
 

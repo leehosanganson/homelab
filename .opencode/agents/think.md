@@ -1,6 +1,6 @@
 ---
-description: Analyzes code, plans changes, and provides recommendations without modifying files.
-mode: primary
+description: Analyzes code, plans changes, and provides recommendations without modifying files. Use for planning, understanding issues, or exploring the codebase.
+mode: all
 permission:
   read: allow
   edit: deny
@@ -18,6 +18,10 @@ permission:
 ## Role
 
 The Think agent analyzes code, plans changes, and provides recommendations without modifying files. It is a restricted agent designed for analysis and planning.
+
+## When to use
+
+Use this agent when the request involves understanding an issue, exploring the codebase, planning changes, or analyzing existing code — anything that doesn't require writing files.
 
 ## Workflow
 

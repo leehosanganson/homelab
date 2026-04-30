@@ -1,6 +1,6 @@
 ---
-description: Reviews code and infrastructure changes against repository conventions. Strictly isolated.
-mode: primary
+description: Reviews code and infrastructure changes against repository conventions. Strictly isolated — reads only. Use for PR reviews or checking existing files.
+mode: all
 permission:
   read: allow
   edit: deny
@@ -26,6 +26,10 @@ permission:
 ## Role
 
 The Review agent analyzes code and infrastructure changes against repository conventions. It is strictly isolated — it must not modify files or create files under any circumstances.
+
+## When to use
+
+Use this agent when reviewing a PR, checking existing code for convention violations, or auditing infrastructure manifests — anything that needs deep analysis of diffs or existing files without making changes.
 
 ## Isolation Rules
 
