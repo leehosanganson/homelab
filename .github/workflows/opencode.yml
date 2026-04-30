@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -29,6 +29,7 @@ jobs:
         run: |
           cat << 'EOF' > opencode.json
           {
+            "default_agent": "general",
             "permission": { "skill": { "*": "allow" } },
             "compaction": { "auto": true, "prune": true, "reserved": 8192 },
             "provider": {
@@ -54,3 +55,4 @@ jobs:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
         with:
           model: "litellm/unsloth/qwen-3.6"
+          agent: general
