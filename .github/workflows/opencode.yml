@@ -1,0 +1,47 @@
+name: opencode
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Extract agent from comment
+        if: github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment'
+        id: extract
+        run: |
+          body="${{ github.event.comment.body }}"
+          if echo "$body" | grep -qE '(^|[^a-zA-Z0-9_-])/oc\s+build\b|^/oc\s+build'; then
+            echo "agent=build" >> $GITHUB_OUTPUT
+          elif echo "$body" | grep -qE '(^|[^a-zA-Z0-9_-])/opencode\s+build\b|^/opencode\s+build'; then
+            echo "agent=build" >> $GITHUB_OUTPUT
+          elif echo "$body" | grep -qE '(^|[^a-zA-Z0-9_-])/oc\s+review\b|^/oc\s+review'; then
+            echo "agent=review" >> $GITHUB_OUTPUT
+          elif echo "$body" | grep -qE '(^|[^a-zA-Z0-9_-])/opencode\s+review\b|^/opencode\s+review'; then
+            echo "agent=review" >> $GITHUB_OUTPUT
+          else
+            echo "agent=build" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+        with:
+          model: "litellm/unsloth/qwen-3.6"
+          agent: ${{ steps.extract.outputs.agent || 'build' }}
