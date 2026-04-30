@@ -37,13 +37,14 @@ jobs:
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          body="$COMMENT_BODY"
-          case "$body" in
-            *"/oc build"*|*"/opencode build"*) echo "agent=build" >> $GITHUB_OUTPUT ;;
-            *"/oc review"*|*"/opencode review"*) echo "agent=review" >> $GITHUB_OUTPUT ;;
-            *"/oc think"*|*"/opencode think"*) echo "agent=think" >> $GITHUB_OUTPUT ;;
-            *) echo "agent=build" >> $GITHUB_OUTPUT ;;
-          esac
+          body=$(echo "$COMMENT_BODY" | tr '\n\r' ' ')
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/opencode\s+build\b|^/opencode\s+build\b' && { echo "agent=build" >> $GITHUB_OUTPUT; exit 0; }
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/oc\s+build\b|^/oc\s+build\b' && { echo "agent=build" >> $GITHUB_OUTPUT; exit 0; }
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/opencode\s+review\b|^/opencode\s+review\b' && { echo "agent=review" >> $GITHUB_OUTPUT; exit 0; }
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/oc\s+review\b|^/oc\s+review\b' && { echo "agent=review" >> $GITHUB_OUTPUT; exit 0; }
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/opencode\s+think\b|^/opencode\s+think\b' && { echo "agent=think" >> $GITHUB_OUTPUT; exit 0; }
+          echo "$body" | grep -qE '(^|[[:space:]])\s*/oc\s+think\b|^/oc\s+think\b' && { echo "agent=think" >> $GITHUB_OUTPUT; exit 0; }
+          echo "agent=build" >> $GITHUB_OUTPUT
 
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
