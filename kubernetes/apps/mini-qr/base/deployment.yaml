@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-qr
+spec:
+  selector:
+    matchLabels:
+      app: mini-qr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mini-qr
+    spec:
+      containers:
+        - name: mini-qr
+          image: ghcr.io/lyqht/mini-qr:v0.28.0@sha256:0769a316ed4420a09b2d646abec4eec52eaa5b3f740d0169bb65e4b93c9486f9
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
