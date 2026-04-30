@@ -9,6 +9,10 @@ on:
   workflow_dispatch:
 jobs:
   opencode:
+    if: |
+      github.event_name == 'pull_request' && !github.event.pull_request.draft ||
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+        contains(github.event.comment.body, '/oc')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -21,6 +25,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set agent for PR events
+        if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+        id: pr_agent
+        run: echo "agent=review" >> $GITHUB_OUTPUT
+
       - name: Extract agent from comment
         if: github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment'
         id: extract
@@ -31,7 +40,8 @@ jobs:
           case "$body" in
             *"/oc build"*|*"/opencode build"*) echo "agent=build" >> $GITHUB_OUTPUT ;;
             *"/oc review"*|*"/opencode review"*) echo "agent=review" >> $GITHUB_OUTPUT ;;
-            *) echo "agent=think" >> $GITHUB_OUTPUT ;;
+            *"/oc think"*|*"/opencode think"*) echo "agent=think" >> $GITHUB_OUTPUT ;;
+            *) echo "agent=build" >> $GITHUB_OUTPUT ;;
           esac
 
       - name: Run OpenCode
@@ -40,4 +50,4 @@ jobs:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
         with:
           model: "litellm/unsloth/qwen-3.6"
-          agent: ${{ steps.extract.outputs.agent || 'review' }}
+          agent: ${{ steps.pr_agent.outputs.agent || steps.extract.outputs.agent }}
