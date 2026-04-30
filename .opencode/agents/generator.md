@@ -13,7 +13,13 @@ permission:
     "git diff": allow
     "git log*": allow
     "git status": allow
-    "*": ask
+    "git add": allow
+    "git checkout": allow
+    "git branch": allow
+    "git commit": allow
+    "git push": allow
+    "*": deny
+  glob: allow
   lsp: allow
   question: allow
   todowrite: allow

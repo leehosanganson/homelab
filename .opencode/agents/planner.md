@@ -4,11 +4,8 @@ mode: subagent
 permission:
   edit: deny
   write: deny
-  bash:
-    "*": ask
-    "grep *": allow
-    "find *": allow
-    "ls *": allow
+  bash: deny
+  glob: allow
   lsp: allow
   question: allow
   todowrite: allow

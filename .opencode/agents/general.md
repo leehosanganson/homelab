@@ -4,14 +4,8 @@ mode: all
 permission:
   task: allow
   edit: deny
-  bash:
-    "*": ask
-    "find": allow
-    "sort": allow
-    "cat": allow
-    "grep": allow
-    "xargs": allow
-    "head": allow
+  write: deny
+  bash: deny
   glob: allow
   webfetch: allow
   question: allow
