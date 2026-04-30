@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: mini-qr.leehosanganson.dev
+    - host: qr.homelab.leehosanganson.dev
       http:
         paths:
           - path: /
@@ -19,5 +19,5 @@ spec:
                   number: 8080
   tls:
     - hosts:
-        - mini-qr.leehosanganson.dev
+        - qr.homelab.leehosanganson.dev
       secretName: mini-qr-tls
