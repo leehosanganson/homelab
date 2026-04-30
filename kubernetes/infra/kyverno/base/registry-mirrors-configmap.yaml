@@ -6,6 +6,8 @@ metadata:
 data:
   # Keys are upstream registry hosts and values are mirror prefixes.
   # Update these values to point to a different Harbor instance or proxy path.
+  # Docker Hub mirror also handles unqualified images like python:3.14-slim
+  # by prepending library/ (e.g., dockerhub/library/python).
   "ghcr.io": harbor.leehosanganson.dev/ghcr
   "gcr.io": harbor.leehosanganson.dev/gcr
   "lscr.io": harbor.leehosanganson.dev/lscr

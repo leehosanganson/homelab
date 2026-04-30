@@ -148,6 +148,9 @@ spec:
               - name: isQualifiedImage
                 variable:
                   jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: imageIsUnqualifiedOfficial
+                variable:
+                  jmesPath: "contains(element.image, '/') | false"
             preconditions:
               all:
                 - key: "{{ isQualifiedImage }}"
@@ -160,7 +163,7 @@ spec:
               spec:
                 initContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ dockerMirror }}/{{ element.image }}"
+                    image: "{{ if imageIsUnqualifiedOfficial }}{{ dockerMirror }}/{{ element.image }}{{ else }}{{ dockerMirror }}/library/{{ element.image }}{{ end }}"
           - list: "request.object.spec.containers[]"
             context:
               - name: mirrors
@@ -173,6 +176,9 @@ spec:
               - name: isQualifiedImage
                 variable:
                   jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: imageIsUnqualifiedOfficial
+                variable:
+                  jmesPath: "contains(element.image, '/') | false"
             preconditions:
               all:
                 - key: "{{ isQualifiedImage }}"
@@ -185,7 +191,7 @@ spec:
               spec:
                 containers:
                   - (name): "{{ element.name }}"
-                    image: "{{ dockerMirror }}/{{ element.image }}"
+                    image: "{{ if imageIsUnqualifiedOfficial }}{{ dockerMirror }}/{{ element.image }}{{ else }}{{ dockerMirror }}/library/{{ element.image }}{{ end }}"
           - list: "request.object.spec.ephemeralContainers[]"
             context:
               - name: mirrors
@@ -198,6 +204,9 @@ spec:
               - name: isQualifiedImage
                 variable:
                   jmesPath: "regex_match('^((localhost)|([^/]*[.:][^/]*))/.*$', element.image)"
+              - name: imageIsUnqualifiedOfficial
+                variable:
+                  jmesPath: "contains(element.image, '/') | false"
             preconditions:
               all:
                 - key: "{{ isQualifiedImage }}"
@@ -210,4 +219,4 @@ spec:
               spec:
                 ephemeralContainers:
                   - (name): "{{ element.name }}"
-                    image: "{{ dockerMirror }}/{{ element.image }}"
+                    image: "{{ if imageIsUnqualifiedOfficial }}{{ dockerMirror }}/{{ element.image }}{{ else }}{{ dockerMirror }}/library/{{ element.image }}{{ end }}"
