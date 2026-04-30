@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: mini-qr
-          # TODO: Pin with digest before production (e.g., ghcr.io/lyqht/mini-qr:v0.28.0@sha256:<digest>)
-          image: ghcr.io/lyqht/mini-qr:v0.28.0
+          image: ghcr.io/lyqht/mini-qr:v0.28.0@sha256:0769a316ed4420a09b2d646abec4eec52eaa5b3f740d0169bb65e4b93c9486f9
           ports:
             - containerPort: 8080
           securityContext:
