@@ -8,10 +8,10 @@ on:
 jobs:
   opencode:
     if: |
-      contains(github.event.comment.body, ' /oc @think') ||
-      startsWith(github.event.comment.body, '/oc @think') ||
-      contains(github.event.comment.body, ' /opencode @think') ||
-      startsWith(github.event.comment.body, '/opencode @think')
+      contains(github.event.comment.body, ' /oc think') ||
+      startsWith(github.event.comment.body, '/oc think') ||
+      contains(github.event.comment.body, ' /opencode think') ||
+      startsWith(github.event.comment.body, '/opencode think')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
