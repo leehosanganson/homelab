@@ -50,6 +50,7 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          OPENCODE_CONFIG: .github/opencode.json
         with:
           model: "litellm/unsloth/qwen-3.6"
           agent: ${{ steps.pr_agent.outputs.agent || steps.extract.outputs.agent }}
