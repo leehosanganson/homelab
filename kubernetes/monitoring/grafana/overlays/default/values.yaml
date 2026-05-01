@@ -30,6 +30,13 @@ datasources:
         jsonData:
           maxLines: 2048
 
+dashboards:
+  default:
+    litellm:
+      gnetId: 24965
+      revision: 1
+      datasource: Prometheus
+
 sidecar:
   dashboards:
     enabled: true
