@@ -178,20 +178,7 @@
                     },
                     "unit": "currencyUSD"
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "7e4b0627fd32efdd2313c846325575808aadcf2839f0fde90723aab9ab73c78f"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                    "value": "Translate"
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 8,
@@ -219,7 +206,7 @@
                         "uid": "${DS_PROMETHEUS}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(increase(litellm_spend_metric_total[30d])) by (hashed_api_key)",
+                    "expr": "sum(increase(litellm_spend_metric_total[30d])) by (team)",
                     "legendFormat": "{{team}}",
                     "range": true,
                     "refId": "A"
