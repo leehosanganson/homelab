@@ -1,0 +1,16 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tempo
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: tempo-distributed
+      sourceRef:
+        kind: HelmRepository
+        name: grafana-community
+        namespace: flux-system
+  valuesFrom:
+    - kind: ConfigMap
+      name: tempo-values

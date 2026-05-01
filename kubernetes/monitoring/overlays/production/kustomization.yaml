@@ -3,5 +3,6 @@ resources:
   - ../../uptime-kuma/overlays/default
   - ../../prometheus/overlays/default
   - ../../loki/overlays/default
+  - ../../tempo/overlays/default
   - ../../alloy/overlays/default
   - ../../grafana/overlays/default
