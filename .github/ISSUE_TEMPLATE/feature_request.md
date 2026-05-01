@@ -1,8 +1,8 @@
 ---
 name: 'Feature Request'
-about: 'Suggest an idea for this project.'
+about: 'Propose a new feature (research + implementation).'
 title: ''
-labels: ''
+labels: ['enhancement']
 ---
 
 ## Problem Being Solved
@@ -13,7 +13,7 @@ labels: ''
 
 ## Proposed Solution
 
-<!-- How would you like to see this addressed? -->
+<!-- How would you like to see this addressed? Research findings, proposed approach. -->
 
 - 
 

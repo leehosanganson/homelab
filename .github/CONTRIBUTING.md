@@ -118,14 +118,26 @@ Required sections:
 - **Steps to reproduce** — Numbered steps someone else can follow
 - **Environment / Context** — OS, version, browser, etc.
 
+### Suggestion
+
+Use the template at `.github/ISSUE_TEMPLATE/suggestion.md`
+
+Required sections:
+
+- **Problem being solved** — What pain point or gap exists today
+- **Evaluation** — Feasibility, impact, complexity, trade-offs to consider
+- **Research** — Prior art, alternatives researched, docs reviewed, comparisons made
+- **Proposed implementation** — How you envision this being built
+- **Alternatives considered** — Other approaches you've weighed
+
 ### Feature Request
 
 Use the template at `.github/ISSUE_TEMPLATE/feature_request.md`
 
 Required sections:
 
-- **Problem being solved** — What pain point exists today
-- **Proposed solution** — How you'd like to see it addressed
+- **Problem being solved** — What pain point or limitation exists today
+- **Proposed solution** — Research findings, proposed approach
 - **Alternatives considered** — Other approaches you've weighed
 
 ---
