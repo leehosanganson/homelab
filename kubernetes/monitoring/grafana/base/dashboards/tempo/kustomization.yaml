@@ -1,0 +1,14 @@
+configMapGenerator:
+  - name: grafana-dashboards-tempo
+    files:
+      - tempo-operational.json
+      - tempo-reads.json
+      - tempo-writes.json
+      - tempo-resources.json
+      - tempo-tenants.json
+      - tempo-backendwork.json
+      - tempo-rollout-progress.json
+      - tempo-block-builder.json
+
+generatorOptions:
+  disableNameSuffixHash: true
