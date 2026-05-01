@@ -18,3 +18,5 @@ spec:
   dependsOn:
     - name: loki
       namespace: monitoring
+    - name: tempo
+      namespace: monitoring

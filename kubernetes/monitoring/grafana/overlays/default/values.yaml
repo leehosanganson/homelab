@@ -30,6 +30,19 @@ datasources:
         jsonData:
           maxLines: 2048
 
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        url: http://tempo-gateway.monitoring.svc.cluster.local
+        access: proxy
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+          serviceMap:
+            datasourceUid: prometheus
+          nodeGraph:
+            enabled: true
+
 sidecar:
   dashboards:
     enabled: true
