@@ -8,6 +8,9 @@ configMapGenerator:
   - name: litellm-dashboard
     files:
       - litellm-dashboard.json
+    options:
+      labels:
+        grafana_dashboard: "1"
 
 labels:
   - pairs:
