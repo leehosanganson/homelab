@@ -584,7 +584,7 @@
                 "current": {
                     "selected": false,
                     "text": "prometheus",
-                    "value": "edx8memhpd9tsa"
+                    "value": "prometheus"
                 },
                 "hide": 0,
                 "includeAll": false,
