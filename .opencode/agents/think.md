@@ -13,6 +13,7 @@ permission:
   todowrite: allow
   websearch: allow
   webfetch: allow
+  "*": deny
 ---
 
 ## Role

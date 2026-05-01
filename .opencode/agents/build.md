@@ -15,6 +15,7 @@ permission:
     "git log*": allow
     "git status": allow
     "git add": allow
+    "git add *": allow
     "git checkout": allow
     "git branch": allow
     "git commit": allow
@@ -26,6 +27,7 @@ permission:
   question: allow
   todowrite: allow
   webfetch: allow
+  "*": deny
 ---
 
 ## Role

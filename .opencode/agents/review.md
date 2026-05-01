@@ -21,6 +21,7 @@ permission:
   question: allow
   websearch: deny
   webfetch: deny
+  "*": deny
 ---
 
 ## Role
