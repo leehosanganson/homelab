@@ -4,33 +4,9 @@ This guide outlines the conventions and workflows we use to keep the repository 
 
 ---
 
-## 1. Commit Messages
+## 1. Branch Protection
 
-### Format
-
-```
-(TYPE)(scope): Description
-```
-
-- **TYPE** — One of:
-
-| Type    | Meaning                                  |
-| ------- | ---------------------------------------- |
-| `feat`  | A new feature                            |
-| `fix`   | A bug fix                                |
-| `chore` | Maintenance, tooling, dependency updates |
-
-- **scope** — Optional but recommended. Name the affected project or module (e.g., `immich`, `opencode`, `monitoring`). Omit it only when a change touches many projects or is purely global.
-
-- Each commit should represent a **single, focused change**.
-
-### Examples
-
-```
-(feat)immich: add backup cron job
-(fix)opencode: correct timeout config
-(chore): bump dependency versions
-```
+No direct commits into `main`. Every item must go through a Pull Request with squash-merge. This keeps the `main` branch history clean and forces every change through review.
 
 ---
 
@@ -44,7 +20,7 @@ This guide outlines the conventions and workflows we use to keep the repository 
 
 | Part                | Description                                                                    |
 | ------------------- | ------------------------------------------------------------------------------ |
-| `TYPE`              | Same types as commit messages: `feat`, `fix`, `chore`, `test`                  |
+| `TYPE`              | One of: `feat`, `fix`, `chore`, `test`                                         |
 | `PROJECT`           | The main project the branch impacts (e.g., `immich`, `opencode`, `monitoring`) |
 | `SHORT-DESCRIPTION` | A brief, lowercase-kebab-case description                                      |
 
@@ -58,7 +34,7 @@ chore/monitoring/update-alerts
 
 ### Bot-triggered workflows
 
-When a bot (GitHub Copilot, OpenCode, Renovate, etc.) triggers the workflow or creates changes on your behalf, prepend `bot` to the path:
+When a bot (GitHub Copilot, OpenCode, Renovate, etc.) triggers the workflow or creates changes on your behalf, include the bot name as a separate segment:
 
 ```
 <TYPE>/<BOT>/<PROJECT>/<SHORT-DESCRIPTION>
@@ -106,18 +82,6 @@ Use the template at `.github/PULL_REQUEST_TEMPLATE.md` which includes:
 
 ## 4. Issues
 
-### Bug Report
-
-Use the template at `.github/ISSUE_TEMPLATE/bug_report.md`
-
-Required sections:
-
-- **Problem description** — What went wrong
-- **Expected behavior** — What you thought would happen
-- **Actual behavior** — What actually happened
-- **Steps to reproduce** — Numbered steps someone else can follow
-- **Environment / Context** — OS, version, browser, etc.
-
 ### Suggestion
 
 Use the template at `.github/ISSUE_TEMPLATE/suggestion.md`
@@ -144,11 +108,9 @@ Required sections:
 
 ## Quick reference
 
-| Artifact     | Convention                             |
-| ------------ | -------------------------------------- |
-| Commit type  | `feat`, `fix`, `chore`                 |
-| Commit scope | Optional project name, e.g. `(immich)` |
-| Branch name  | `<TYPE>/<PROJECT>/<kebab-case-desc>`   |
-| PR title     | `(TYPE)PROJECT: Description`           |
+| Artifact    | Convention                           |
+| ----------- | ------------------------------------ |
+| Branch name | `<TYPE>/<PROJECT>/<kebab-case-desc>` |
+| PR title    | `(TYPE)PROJECT: Description` (GitHub appends `#N`) |
 
 Keep changes small, titles descriptive, and templates filled out — this makes reviews faster and history cleaner.
