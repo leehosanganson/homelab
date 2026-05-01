@@ -1,10 +1,3 @@
----
-name: 'Pull Request'
-about: 'Describe your changes and how to test them.'
-title: ''
-labels: ''
----
-
 ## What
 
 <!-- Brief description of what changed and why. What problem does this solve or what feature are you adding? -->

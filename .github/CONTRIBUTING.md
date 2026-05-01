@@ -57,12 +57,6 @@ chore/opencode/monitoring/renovate-pin
 (TYPE)PROJECT: DESCRIPTION
 ```
 
-GitHub will append the PR number automatically after creation, so the final title looks like:
-
-```
-(feat)immich: add backup cron job #123
-```
-
 ### Examples
 
 ```
@@ -111,6 +105,6 @@ Required sections:
 | Artifact    | Convention                           |
 | ----------- | ------------------------------------ |
 | Branch name | `<TYPE>/<PROJECT>/<kebab-case-desc>` |
-| PR title    | `(TYPE)PROJECT: Description` (GitHub appends `#N`) |
+| PR title    | `(TYPE)PROJECT: Description` |
 
 Keep changes small, titles descriptive, and templates filled out — this makes reviews faster and history cleaner.

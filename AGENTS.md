@@ -84,7 +84,7 @@ All branching, PR raising, and issue creation should follow the standards docume
 
 - **No direct commits to `main`** — every change goes through a PR with squash-merge.
 - **Branch names**: `<TYPE>/<PROJECT>/<kebab-case-desc>` (bot-triggered: `<TYPE>/<BOT>/<PROJECT>/<kebab-case-desc>`).
-- **PR titles**: `(TYPE)PROJECT: DESCRIPTION` — GitHub appends the PR number automatically.
+- **PR titles**: `(TYPE)PROJECT: DESCRIPTION`
 - **PR descriptions**: Fill in **What**, **How to test**, and **Impact** sections using the template at `.github/PULL_REQUEST_TEMPLATE.md`.
 - **Issues**: Use the provided templates (`suggestion`, `feature_request`) under `.github/ISSUE_TEMPLATE/`.
 
