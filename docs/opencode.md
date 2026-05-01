@@ -45,4 +45,4 @@ Given this homelab's existing Kubernetes-first operations model, container deplo
 - Create these Key Vault entries before reconciliation:
   - `opencode-server-password`
   - `opencode-github-token`
-- OpenCode workspace data is persisted in `opencode-pvc` mounted at `/home/opencode/workspace`.
+- OpenCode workspace/config data is persisted in `opencode-pvc` mounted at `/home/opencode`.
