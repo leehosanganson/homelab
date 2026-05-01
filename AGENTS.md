@@ -77,3 +77,15 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 - **Installer ISO**: The installer ISO must be built from the flake (`nix build .#packages.x86_64-linux.installer` in `nixos/`) and uploaded to Proxmox before running OpenTofu. The ISO path is referenced as `nixos_iso` in `terraform.tfvars`.
 
 > For the full step-by-step operations guide, see [docs/iac.md](docs/iac.md).
+
+## 5. Git Workflow Conventions
+
+All branching, committing, PR raising, and issue creation should follow the standards documented in `.github/CONTRIBUTING.md`. Key takeaways:
+
+- **Commit messages**: `(TYPE)(scope): Description` — types are `feat`, `fix`, `chore`, `test`.
+- **Branch names**: `<TYPE>/<PROJECT>/<kebab-case-desc>` (bot-triggered: `<TYPE>/bot/<PROJECT>/<kebab-case-desc>`).
+- **PR titles**: `(TYPE)PROJECT: DESCRIPTION` — GitHub appends the PR number automatically.
+- **PR descriptions**: Fill in **What**, **How to test**, and **Impact** sections using the template at `.github/PULL_REQUEST_TEMPLATE.md`.
+- **Issues**: Use the provided templates (`bug_report`, `feature_request`) under `.github/ISSUE_TEMPLATE/`.
+
+> Full details: [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
