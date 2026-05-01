@@ -6,5 +6,7 @@ data:
   config.yaml: |
     litellm_settings:
       cache: True
+      success_callback:
+        - prometheus
       cache_params:
         type: local

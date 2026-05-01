@@ -1,15 +1,6 @@
 resources:
   - https://github.com/dotdc/grafana-dashboards-kubernetes//?ref=master
 
-configMapGenerator:
-  - name: litellm-dashboard
-    files:
-      - litellm-dashboard.json
-    options:
-      disableNameSuffixHash: true
-      labels:
-        grafana_dashboard: "1"
-
 labels:
   - pairs:
       grafana_dashboard: "1"
