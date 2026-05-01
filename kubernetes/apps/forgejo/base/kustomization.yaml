@@ -1,4 +1,4 @@
 resources:
   - release.yaml
-  - db.yaml
+  - db
   - pvc.yaml
