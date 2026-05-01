@@ -1,6 +1,6 @@
 # OpenCode Remote Server (Container Deployment)
 
-This homelab deploys OpenCode as a Kubernetes workload (container direction), exposed internally via Traefik ingress.
+This homelab deploys OpenCode as a Kubernetes workload (container deployment), exposed internally via Traefik ingress.
 
 ## Security comparison: VM vs Container
 

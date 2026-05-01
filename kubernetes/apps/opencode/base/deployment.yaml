@@ -39,15 +39,20 @@ spec:
             capabilities:
               drop:
                 - ALL
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
             runAsGroup: 1000
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
-            - mountPath: /home/opencode/workspace
+            - mountPath: /home/opencode
               name: opencode-workspace
+            - mountPath: /tmp
+              name: tmp-volume
       volumes:
         - name: opencode-workspace
           persistentVolumeClaim:
             claimName: opencode-pvc
+        - name: tmp-volume
+          emptyDir: {}
