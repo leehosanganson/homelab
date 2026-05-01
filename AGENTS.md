@@ -82,8 +82,8 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 
 All branching, committing, PR raising, and issue creation should follow the standards documented in `.github/CONTRIBUTING.md`. Key takeaways:
 
-- **Commit messages**: `(TYPE)(scope): Description` — types are `feat`, `fix`, `chore`, `test`.
-- **Branch names**: `<TYPE>/<PROJECT>/<kebab-case-desc>` (bot-triggered: `<TYPE>/bot/<PROJECT>/<kebab-case-desc>`).
+- **Commit messages**: `(TYPE)(scope): Description` — types are `feat`, `fix`, `chore`.
+- **Branch names**: `<TYPE>/<PROJECT>/<kebab-case-desc>` (bot-triggered: `<TYPE>/<BOT>/<PROJECT>/<kebab-case-desc>`).
 - **PR titles**: `(TYPE)PROJECT: DESCRIPTION` — GitHub appends the PR number automatically.
 - **PR descriptions**: Fill in **What**, **How to test**, and **Impact** sections using the template at `.github/PULL_REQUEST_TEMPLATE.md`.
 - **Issues**: Use the provided templates (`bug_report`, `feature_request`) under `.github/ISSUE_TEMPLATE/`.
