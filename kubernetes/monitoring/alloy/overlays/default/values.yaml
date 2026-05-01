@@ -113,15 +113,12 @@ alloy:
 
       otelcol.processor.batch "default" {
         output {
-          traces = [otelcol.exporter.otlp.tempo.input]
+          traces = [otelcol.exporter.otlphttp.tempo.input]
         }
       }
 
-      otelcol.exporter.otlp "tempo" {
+      otelcol.exporter.otlphttp "tempo" {
         client {
-          endpoint = "tempo-distributor.monitoring.svc.cluster.local:4317"
-          tls {
-            insecure = true
-          }
+          endpoint = "http://tempo-gateway.monitoring.svc.cluster.local/otlp"
         }
       }

@@ -3,9 +3,6 @@ fullnameOverride: tempo
 gateway:
   enabled: true
 
-minio:
-  enabled: true
-
 traces:
   otlp:
     grpc:
