@@ -32,6 +32,7 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://raw.githubusercontent.com/louislam/uptime-kuma/023079733a2697f6544616e56225eff6de77060b/public/icon.svg" alt="Uptime Kuma" height="32"/> | [Uptime Kuma](https://github.com/louislam/uptime-kuma)                | Service monitoring and health check                         |
 |                                                                                                                                                            | [Media Services (\*arr)](https://github.com/Ravencentric/awesome-arr) | A suite of applications for my media collection management. |
 |                     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/syncthing.png" alt="Syncthing" height="32"/>                     | [Syncthing](https://syncthing.net/)                                   | Continuous file synchronization                             |
+|                              <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png" height="32"/>                               | [Forgejo](https://forgejo.org/)                                       | Self-hosted Git service                                     |
 
 ### AI
 

@@ -17,3 +17,4 @@ resources:
   - grafana.yaml
   - grafana-community.yaml
   - prometheus-community.yaml
+  - forgejo-helm.yaml
