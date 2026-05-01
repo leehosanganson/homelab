@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opencode
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: opencode
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: opencode
+          image: ghcr.io/nimbleflux/opencode-docker:latest
+          args: ["web", "--hostname", "0.0.0.0", "--port", "4096"]
+          ports:
+            - containerPort: 4096
+          envFrom:
+            - configMapRef:
+                name: opencode-config
+            - secretRef:
+                name: opencode-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /home/opencode/workspace
+              name: opencode-workspace
+      volumes:
+        - name: opencode-workspace
+          persistentVolumeClaim:
+            claimName: opencode-pvc
