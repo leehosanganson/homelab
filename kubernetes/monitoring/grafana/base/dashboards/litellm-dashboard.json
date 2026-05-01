@@ -21,7 +21,7 @@
             }
         ]
     },
-    "description": "",
+    "description": "Monitoring dashboard for LiteLLM proxy metrics including latency, spend, and request patterns.",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
@@ -357,7 +357,6 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.17",
             "targets": [
                 {
                     "datasource": {
