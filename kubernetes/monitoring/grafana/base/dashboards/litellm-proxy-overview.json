@@ -117,7 +117,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -161,7 +161,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -206,7 +206,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -250,7 +250,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -314,7 +314,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -358,7 +358,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -422,7 +422,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -466,7 +466,7 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "value"
       },
       "fieldConfig": {
         "defaults": {
@@ -510,8 +510,8 @@
           "sortSeries": true
         },
         "orientation": "horizontal",
-        "displayMode": "gradient",
-        "valueMode": "color",
+        "displayMode": "basic",
+        "valueMode": "text",
         "text": {}
       },
       "fieldConfig": {
@@ -528,7 +528,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (model) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) - sum by (model) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(sum by (model) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) - sum by (model) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range)) or on(model) (0 * sum by (model) (max_over_time(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[30d])))",
           "legendFormat": "{{model}}",
           "refId": "A",
           "format": "time_series",
@@ -558,8 +558,8 @@
           "sortSeries": true
         },
         "orientation": "horizontal",
-        "displayMode": "gradient",
-        "valueMode": "color",
+        "displayMode": "basic",
+        "valueMode": "text",
         "text": {}
       },
       "fieldConfig": {
@@ -576,7 +576,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (team_alias) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}) - sum by (team_alias) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"} offset $__range)",
+          "expr": "(sum by (team_alias) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}) - sum by (team_alias) (litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"} offset $__range)) or on(team_alias) (0 * sum by (team_alias) (max_over_time(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[30d])))",
           "legendFormat": "{{team_alias}}",
           "refId": "A",
           "format": "time_series",
@@ -606,8 +606,8 @@
           "sortSeries": true
         },
         "orientation": "horizontal",
-        "displayMode": "gradient",
-        "valueMode": "color",
+        "displayMode": "basic",
+        "valueMode": "text",
         "text": {}
       },
       "fieldConfig": {
@@ -624,7 +624,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (api_key_alias) (litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"}) - sum by (api_key_alias) (litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(sum by (api_key_alias) (litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"}) - sum by (api_key_alias) (litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)) or on(api_key_alias) (0 * sum by (api_key_alias) (max_over_time(litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"}[30d])))",
           "legendFormat": "{{api_key_alias}}",
           "refId": "A",
           "format": "time_series",
