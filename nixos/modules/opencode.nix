@@ -4,8 +4,7 @@
   # opencode: headless AI coding agent server
   #
   # Runs `opencode serve` as a systemd service. Secrets (server password,
-  # GitHub token, and AI provider keys) are supplied via sops-nix and
-  # injected as environment variables through EnvironmentFile.
+  # GitHub token) are supplied via sops-nix and injected through EnvironmentFile.
   #
   # Port 4096 is exposed on all interfaces so that Traefik (running on the
   # K3s cluster) can reverse-proxy the service.
@@ -16,7 +15,6 @@
   # reflected without re-provisioning the host.
 
   environment.systemPackages = with pkgs; [
-    # Runtime tools opencode needs to function as a coding agent
     opencode
     git
     ripgrep
@@ -39,8 +37,6 @@
   users.groups.opencode = { };
 
   # Clone/pull dotfiles repo and symlink config dirs on every activation.
-  # Symlinks (not copies) are used so that a `git pull` in the dotfiles
-  # directory instantly reflects changes — no rebuild required.
   system.activationScripts.opencodeDotfiles = {
     deps = [ "users" ];
     text = ''
@@ -89,10 +85,11 @@
       Restart = "on-failure";
       RestartSec = "5s";
 
-      # Hardening
+      # Hardening — ProtectHome=true blocks writes to /var/lib/{user} homes,
+      # so we disable it and use ReadWritePaths instead.
       NoNewPrivileges = true;
       ProtectSystem = "strict";
-      ProtectHome = true;
+      ProtectHome = no;
       ReadWritePaths = [ "/var/lib/opencode" ];
       PrivateTmp = true;
     };
