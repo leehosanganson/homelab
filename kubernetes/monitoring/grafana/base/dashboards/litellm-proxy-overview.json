@@ -6,14 +6,9 @@
   "uid": "litellm-proxy-overview",
   "title": "LiteLLM Proxy Overview",
   "description": "Comprehensive LiteLLM proxy metrics dashboard covering token usage, costs, request volumes, and model performance.",
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time": {"from": "now-24h", "to": "now"},
   "timepicker": {},
-  "annotations": {
-    "list": []
-  },
+  "annotations": {"list": []},
   "style": "dark",
   "timezone": "browser",
   "templating": {
@@ -23,815 +18,695 @@
         "type": "custom",
         "label": "Interval",
         "query": "1m,5m,15m,1h,6h",
-        "current": {
-          "selected": true,
-          "text": "5m",
-          "value": "5m"
-        },
+        "current": {"text": "5m", "value": "5m"},
+        "options": [
+          {"text": "1m", "value": "1m", "selected": false},
+          {"text": "5m", "value": "5m", "selected": true},
+          {"text": "15m", "value": "15m", "selected": false},
+          {"text": "1h", "value": "1h", "selected": false},
+          {"text": "6h", "value": "6h", "selected": false}
+        ],
         "hide": 0,
         "includeAll": false,
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "1m",
-            "value": "1m"
-          },
-          {
-            "selected": true,
-            "text": "5m",
-            "value": "5m"
-          },
-          {
-            "selected": false,
-            "text": "15m",
-            "value": "15m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          }
-        ]
+        "multi": false
       },
       {
         "name": "model",
         "type": "query",
         "query": "label_values(litellm_total_tokens_metric_total, model)",
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
-        "datasource": {
-          "uid": "prometheus"
-        },
-        "sort": 0,
-        "allValue": ".*"
+        "datasource": {"uid": "prometheus"},
+        "sort": 0
       },
       {
         "name": "team_alias",
         "type": "query",
         "query": "label_values(litellm_total_tokens_metric_total, team_alias)",
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
-        "datasource": {
-          "uid": "prometheus"
-        },
-        "sort": 0,
-        "allValue": ".*"
+        "datasource": {"uid": "prometheus"},
+        "sort": 0
       },
       {
         "name": "api_key_alias",
         "type": "query",
         "query": "label_values(litellm_proxy_total_requests_metric_total, api_key_alias)",
         "includeAll": true,
+        "allValue": ".*",
         "multi": true,
-        "datasource": {
-          "uid": "prometheus"
-        },
-        "sort": 0,
-        "allValue": ".*"
+        "datasource": {"uid": "prometheus"},
+        "sort": 0
       }
     ]
   },
   "panels": [
     {
       "id": 1,
-      "title": "Monthly Cost So Far",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD"
-        }
-      },
+      "title": "Total Tokens (Period)",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "short", "custom": {}},
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "Total Tokens",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Total Tokens",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__range]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
+      "title": "Session Cost (Period)",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "currencyUSD", "custom": {}},
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "Session Cost",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Total Requests",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
+      "title": "Monthly Cost (30d)",
+      "description": "Always shows the last 30 days regardless of the time picker selection.",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "currencyUSD", "custom": {}},
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[30d]))",
+          "legendFormat": "Monthly Cost",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Failed Requests",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
+      "title": "Request Success Rate %",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "yellow", "value": 95},
+              {"color": "green", "value": 99}
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) - sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))) / sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) * 100",
+          "legendFormat": "Success Rate %",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "In-Flight Requests",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      },
-      "targets": [
-        {
-          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
-          "format": "time_series",
-          "instant": true,
-          "range": false,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
+      "title": "Total Requests (Period)",
+      "gridPos": {"x": 0, "y": 4, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "short", "custom": {}},
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "Total Requests",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "Success Rate %",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "targets": [
-        {
-          "expr": "(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) - sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))) / sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) * 100",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent"
-        }
-      },
+      "title": "Failed Requests (Period)",
+      "gridPos": {"x": 6, "y": 4, "w": 6, "h": 4},
       "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background"
-      }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1},
+              {"color": "red", "value": 10}
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "Failed Requests",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
     },
     {
       "id": 7,
-      "title": "Requests Over Time (Success)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
+      "type": "stat",
+      "title": "Cache Hit Rate %",
+      "gridPos": {"x": 12, "y": 4, "w": 6, "h": 4},
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "percent", "custom": {}},
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\", status_code=\"200\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) / (sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])) + sum(increase(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))) * 100",
+          "legendFormat": "Cache Hit Rate %",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 8,
-      "title": "Requests Over Time (Failure)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
+      "type": "stat",
+      "title": "In-Flight Requests (Now)",
+      "gridPos": {"x": 18, "y": 4, "w": 6, "h": 4},
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "short", "custom": {}},
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(rate(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
+          "legendFormat": "In-Flight Requests",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": true,
+          "range": false
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 9,
-      "title": "Request Latency P95",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
+      "type": "bargauge",
+      "title": "Top Models by Token Usage",
+      "gridPos": {"x": 0, "y": 8, "w": 8, "h": 8},
+      "options": {
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false, "sortSeries": true},
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "palette-classic"}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_request_total_latency_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval])))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum by (model) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "{{model}}",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 10,
-      "title": "Time To First Token P95",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
+      "type": "bargauge",
+      "title": "Top Teams by Token Usage",
+      "gridPos": {"x": 8, "y": 8, "w": 8, "h": 8},
+      "options": {
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false, "sortSeries": true},
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "palette-classic"}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_llm_api_time_to_first_token_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval])))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum by (team_alias) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__range]))",
+          "legendFormat": "{{team_alias}}",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 11,
-      "title": "Total Tokens Over Time",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 24
+      "type": "bargauge",
+      "title": "Top Services by Token Usage",
+      "gridPos": {"x": 16, "y": 8, "w": 8, "h": 8},
+      "options": {
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false, "sortSeries": true},
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "text": {}
       },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
+          "color": {"mode": "palette-classic"}
         },
-        "tooltip": {
-          "mode": "multi"
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum by (api_key_alias) (increase(litellm_total_tokens_metric_total{model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
+          "legendFormat": "{{api_key_alias}}",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
         }
-      }
+      ]
     },
     {
       "id": 12,
-      "title": "Tokens Per Second Per Model",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
+      "title": "Request Success Rate Over Time",
+      "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum by (model) (rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "(sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval])) - sum(rate(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))) / sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval])) * 100",
+          "legendFormat": "Success Rate %",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 13,
-      "title": "Token Consumption by Team",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 32
+      "title": "Concurrent Requests Over Time",
+      "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
       },
-      "targets": [
-        {
-          "expr": "sum by (team_alias) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
         },
-        "tooltip": {
-          "mode": "multi"
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
+          "legendFormat": "In-Flight Requests",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
         }
-      }
+      ]
     },
     {
       "id": 14,
-      "title": "Cost Over Time by Model",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 32
+      "title": "Token Usage Over Time",
+      "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "legendFormat": "Total Tokens",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 15,
-      "title": "Deployment Success Responses",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 40
+      "title": "Token Throughput per Model",
+      "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
       },
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_deployment_success_responses_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
         },
-        "tooltip": {
-          "mode": "multi"
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum by (model) (rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "legendFormat": "{{model}}",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
         }
-      }
+      ]
     },
     {
       "id": 16,
-      "title": "Deployment Failure Responses",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 40
+      "title": "Request Latency P95",
+      "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(increase(litellm_deployment_failure_responses_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_request_total_latency_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval])))",
+          "legendFormat": "P95 End-to-End Latency",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 17,
-      "title": "Cache Hits vs Misses",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 48
+      "title": "Time to First Token P95",
+      "gridPos": {"x": 12, "y": 32, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "datasource": {"uid": "prometheus"},
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_llm_api_time_to_first_token_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval])))",
+          "legendFormat": "P95 Time to First Token",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "legendFormat": "Cache Hits",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(increase(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
-          "format": "time_series",
           "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "legendFormat": "Cache Misses",
-          "refId": "B"
+          "range": true
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
+      ]
     },
     {
       "id": 18,
-      "title": "Process Memory",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 48
+      "title": "Cache Hits vs Misses Over Time",
+      "gridPos": {"x": 0, "y": 40, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "process_resident_memory_bytes{job=~\".*litellm.*\"}",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "legendFormat": "Cache Hits",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "legendFormat": "Memory",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
+          "instant": false,
+          "range": true
         },
-        "tooltip": {
-          "mode": "multi"
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum(increase(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "legendFormat": "Cache Misses",
+          "refId": "B",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
         }
-      }
+      ]
     },
     {
       "id": 19,
-      "title": "Process CPU",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 56
+      "title": "Cost Over Time by Model",
+      "gridPos": {"x": 12, "y": 40, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "rate(process_cpu_seconds_total{job=~\".*litellm.*\"}[$interval])",
+          "datasource": {"uid": "prometheus"},
+          "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "legendFormat": "{{model}}",
+          "refId": "A",
           "format": "time_series",
-          "instant": false,
-          "range": true,
           "editorMode": "code",
-          "legendFormat": "CPU Usage",
-          "refId": "A"
+          "instant": false,
+          "range": true
         }
-      ],
+      ]
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Process Memory",
+      "gridPos": {"x": 0, "y": 48, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "process_resident_memory_bytes{job=~\".*litellm.*\"}",
+          "legendFormat": "Memory",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Process CPU",
+      "gridPos": {"x": 12, "y": 48, "w": 12, "h": 8},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
+          "custom": {"lineWidth": 2, "fillOpacity": 10}
         },
-        "tooltip": {
-          "mode": "multi"
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {"uid": "prometheus"},
+          "expr": "rate(process_cpu_seconds_total{job=~\".*litellm.*\"}[$interval])",
+          "legendFormat": "CPU Usage",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
         }
-      }
+      ]
     }
   ]
 }
