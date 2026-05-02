@@ -44,32 +44,28 @@
   system.activationScripts.opencodeDotfiles = {
     deps = [ "users" ];
     text = ''
-      DOTFILES_DIR="/var/lib/opencode/dotfiles"
       GIT="${pkgs.git}/bin/git"
+      su -s /bin/sh opencode -c "
+        DOTFILES_DIR=/var/lib/opencode/dotfiles
 
-      # Clone if not present, otherwise pull latest
-      if [ ! -d "$DOTFILES_DIR/.git" ]; then
-        $GIT clone https://github.com/leehosanganson/dotfiles "$DOTFILES_DIR"
-      else
-        $GIT -C "$DOTFILES_DIR" pull --ff-only
-      fi
+        # Clone if not present, otherwise pull latest
+        if [ ! -d \"\$DOTFILES_DIR/.git\" ]; then
+          $GIT clone https://github.com/leehosanganson/dotfiles \"\$DOTFILES_DIR\"
+        else
+          $GIT -C \"\$DOTFILES_DIR\" pull --ff-only
+        fi
 
-      # Ensure .config parent exists
-      mkdir -p /var/lib/opencode/.config
+        # Ensure .config parent exists
+        mkdir -p /var/lib/opencode/.config
 
-      # Symlink opencode config dir
-      rm -rf /var/lib/opencode/.config/opencode
-      ln -sf "$DOTFILES_DIR/opencode/.config/opencode" /var/lib/opencode/.config/opencode
+        # Symlink opencode config dir
+        rm -f /var/lib/opencode/.config/opencode
+        ln -sf \"\$DOTFILES_DIR/opencode/.config/opencode\" /var/lib/opencode/.config/opencode
 
-      # Symlink ai config dir
-      rm -rf /var/lib/opencode/.config/ai
-      ln -sf "$DOTFILES_DIR/ai/.config/ai" /var/lib/opencode/.config/ai
-
-      # Fix ownership
-      chown -R opencode:opencode /var/lib/opencode/dotfiles
-      chown opencode:opencode /var/lib/opencode/.config
-      chown -h opencode:opencode /var/lib/opencode/.config/opencode
-      chown -h opencode:opencode /var/lib/opencode/.config/ai
+        # Symlink ai config dir
+        rm -f /var/lib/opencode/.config/ai
+        ln -sf \"\$DOTFILES_DIR/ai/.config/ai\" /var/lib/opencode/.config/ai
+      "
     '';
   };
 
@@ -103,6 +99,4 @@
       PrivateTmp = true;
     };
   };
-
-  networking.firewall.allowedTCPPorts = [ 4096 ];
 }
