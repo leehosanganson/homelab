@@ -2,18 +2,11 @@
 
 <!-- Step-by-step procedures, SOPs, recurring processes, and deployment steps. See AGENTS.md for high-level conventions. -->
 
-## Recurring Processes
-- _No entries yet._
+## 🧪 Testing & Validation
 
-## Step Sequences
-- _No entries yet._
+Procedures for safely testing changes in-cluster before merging to `main`.
 
-## Procedural Conventions
-- _No entries yet._
-
-## FluxCD
-
-### Testing a PR Branch Without Merging to Main <!-- added 2026-05-02 -->
+### Test a PR Branch in-Cluster via FluxCD
 
 Use this SOP to deploy and validate changes from a PR branch in-cluster via FluxCD, without merging into `main`.
 
@@ -55,3 +48,15 @@ kubectl patch gitrepository flux-system -n flux-system \
 - This patches only the in-cluster resource — no git commits or file changes required.
 - The patch is not persistent; a Flux self-reconciliation cycle (every 10m) will NOT revert it automatically since the patch mutates the live object. You must manually revert (step 5).
 - All Kustomizations in the cluster will track the PR branch while the patch is active, not just the one under test. Keep this window short.
+
+## 🔧 Operations & Maintenance
+
+Step-by-step procedures for day-to-day operations, troubleshooting, and maintenance tasks.
+
+- _No entries yet._
+
+## 🔄 Recurring Processes
+
+Scheduled or periodic tasks that should be repeated over time.
+
+- _No entries yet._

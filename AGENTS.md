@@ -93,3 +93,7 @@ All branching, PR raising, and issue creation follow the standards documented in
 - The agent must execute git commands directly — do not leave manual steps for the user.
 - Always use `--draft` flag on `gh pr create` so reviewers can review before merging.
 - Never push or commit to `main` under any circumstances.
+
+## 6. Detailed Workflows
+
+For step-by-step procedures, SOPs, and recurring processes, refer to **[docs/workflows.md](docs/workflows.md)**. This file contains actionable workflows such as testing PR branches in-cluster via FluxCD without merging to main.
