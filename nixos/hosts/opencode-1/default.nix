@@ -48,11 +48,13 @@
 
       "litellm-api-key" = {
         owner = "opencode";
+        group = "opencode";
         path = "/var/lib/opencode/.config/sops-nix/secrets/litellm-api-key";
       };
 
       "opencode-github-pat" = {
         owner = "opencode";
+        group = "opencode";
         path = "/var/lib/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
     };
