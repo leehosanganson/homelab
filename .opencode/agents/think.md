@@ -9,7 +9,6 @@ permission:
   grep: allow
   bash: deny
   lsp: allow
-  question: allow
   webfetch: allow
   websearch: allow
 ---
@@ -31,6 +30,7 @@ Read relevant files in the repository to understand the existing code structure,
 ### Analyze
 
 Break down the request into a structured plan or analysis:
+
 - Identify what files need changes and how.
 - Reference specific file paths and directories.
 - Include expected outcomes for each change.

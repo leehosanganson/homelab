@@ -17,7 +17,8 @@ permission:
     "git log *": allow
     "git status": allow
   lsp: allow
-  question: allow
+  webfetch: allow
+  websearch: allow
 ---
 
 ## Role
