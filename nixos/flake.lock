@@ -214,11 +214,11 @@
     "sops-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1772585310,
-        "narHash": "sha256-ychKn5o2YzArPUGUl9+yjUULto+eJ6NKA3Xy9PPvj2Q=",
+        "lastModified": 1777752058,
+        "narHash": "sha256-UtWF7+QMo5aeSzzEEJoIYo6sbE6/yelMaCPSTE/wf58=",
         "ref": "main",
-        "rev": "a64d6df3230d62d2586217019d58848d55b0c957",
-        "revCount": 9,
+        "rev": "00e9f0d91ff4144f2345154c38acbbcc8ebdb2d6",
+        "revCount": 21,
         "type": "git",
         "url": "ssh://git@github.com/leehosanganson/sops.git"
       },
