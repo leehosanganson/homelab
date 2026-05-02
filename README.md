@@ -62,3 +62,10 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://avatars.githubusercontent.com/u/66682517?s=48&v=4" height="32" /> <img src="https://avatars.githubusercontent.com/u/7195757?s=48&v=4" height="32"/> <img src="https://prometheus.io/_next/static/media/prometheus-logo.7aa022e5.svg" height="32" /> | [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) | Out-of-the-box monitoring solution: Prometheus, Grafana, and Alertmanager. |
 |                                                                                   <img src="https://github.com/grafana/loki/raw/main/docs/sources/logo_and_name.png" height="32" />                                                                                   | [Loki](https://github.com/grafana/loki)                                                                             | Prometheus, but for logs                                                   |
 |                                                                    <img src="https://github.com/grafana/alloy/raw/main/docs/sources/assets/logo_alloy_light.svg#gh-dark-mode-only" height="32" />                                                                     | [Alloy](https://github.com/grafana/alloy)                                                                           | OpenTelemetry Collector                                                    |
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Infrastructure as Code](./docs/iac.md) | Provisioning NixOS VMs with OpenTofu and nixos-anywhere |
+| [Recovery Playbook](./docs/recovery.md) | Step-by-step cluster recovery: Flux bootstrap, Velero restore, CNPG database recovery |
