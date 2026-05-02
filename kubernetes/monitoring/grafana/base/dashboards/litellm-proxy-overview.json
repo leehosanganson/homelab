@@ -503,7 +503,7 @@
       "options": {
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false,
@@ -533,8 +533,8 @@
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
-          "instant": false,
-          "range": true
+          "instant": true,
+          "range": false
         }
       ]
     },
@@ -551,7 +551,7 @@
       "options": {
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false,
@@ -581,8 +581,8 @@
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
-          "instant": false,
-          "range": true
+          "instant": true,
+          "range": false
         }
       ]
     },
@@ -599,7 +599,7 @@
       "options": {
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false,
@@ -629,8 +629,8 @@
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
-          "instant": false,
-          "range": true
+          "instant": true,
+          "range": false
         }
       ]
     },
