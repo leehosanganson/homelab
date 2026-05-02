@@ -8,6 +8,7 @@ permission:
   glob: allow
   grep: allow
   bash:
+    "*": deny
     "grep *": allow
     "find *": allow
     "ls *": allow
@@ -39,6 +40,7 @@ Use this agent when reviewing a PR, checking existing code for convention violat
 Every review must check these categories:
 
 ### 1. Kubernetes Manifests
+
 - **Kustomize Pattern**: Are resources in proper `base/` and `overlays/<env>/` directories?
 - **Naming**: Resources use `lowercase-kebab-case`.
 - **ConfigMap Usage**: Environment variables are NOT inline under `env:` in Deployment specs. They use ConfigMaps referenced via `envFrom` or `env[].valueFrom.configMapKeyRef`.
@@ -46,6 +48,7 @@ Every review must check these categories:
 - **Infrastructure vs Apps**: `/kubernetes/infra/` for foundational services, `/kubernetes/apps/` for user services.
 
 ### 2. Security Context
+
 Every container spec must have:
 
 - `runAsNonRoot: true`
@@ -54,10 +57,12 @@ Every container spec must have:
 - `capabilities.drop: ["ALL"]` (add back only what's needed)
 
 ### 3. NixOS Changes
+
 - Host configs are under `nixos/hosts/<hostname>/default.nix`.
 - Reusable logic goes in `nixos/modules/`.
 
 ### 4. General
+
 - No secrets, API keys, or credentials in any file.
 - Conventional commit messages if commits are included.
 
@@ -73,19 +78,22 @@ Every container spec must have:
 ## Review: <Title/Topic>
 
 ### Overview
+
 <1-2 sentence summary of what was changed>
 
 ### Review Results
 
 #### Kubernetes Manifests ✅ / ⚠️ / ❌
-| Status | File | Issue/Note |
-|--------|------|------------|
-| ✅ Pass | ... | ... |
-| ❌ Fail | ... | ... |
+
+| Status  | File | Issue/Note |
+| ------- | ---- | ---------- |
+| ✅ Pass | ...  | ...        |
+| ❌ Fail | ...  | ...        |
 
 #### Security Context ✅ / ⚠️ / ❌
+
 | Status | File | Issue |
-|------|----|-----|
+| ------ | ---- | ----- |
 
 ### Verdict
 
