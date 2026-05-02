@@ -26,26 +26,26 @@
     group = "opencode";
     home = "/var/lib/opencode";
     createHome = true;
+    shell = pkgs.bashInteractive;
     description = "opencode service user";
   };
 
   users.groups.opencode = { };
 
-  # Service-scoped git config for opencode only.
-  environment.etc."opencode/gitconfig" = {
-    text = ''
-      [core]
-          safeDirectory = /var/lib/opencode
-      [url "ssh://git@opencode-github/"]
-          insteadOf = https://github.com/
-    '';
-    mode = "0444";
+  # Git config for opencode path/use case.
+  programs.git = {
+    enable = true;
+    config = {
+      core.safeDirectory = "/var/lib/opencode";
+      core.sshCommand = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
+      url."ssh://git@opencode-github/".insteadOf = "https://github.com/";
+    };
   };
 
   # Service-scoped SSH config for opencode git operations.
   environment.etc."opencode/ssh/config" = {
     text = ''
-      Host opencode-github
+      Host opencode-github github.com
         HostName github.com
         User git
         IdentityFile /etc/opencode/ssh/id_ed25519_github
@@ -57,7 +57,7 @@
 
   environment.etc."opencode/ssh/known_hosts" = {
     text = ''
-      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqVdJr5f4YfM5x8T2fXjzQ0nF9B8x4KJIp4rM+e5Qh
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
     '';
     mode = "0444";
   };
@@ -82,6 +82,7 @@
     "d /var/lib/opencode/.config 0750 opencode opencode -"
     "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
     "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
+    "d /var/lib/opencode/repos 0750 opencode opencode -"
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
@@ -90,10 +91,11 @@
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
+    path = [ pkgs.git ];
 
     environment = {
       HOME = "/var/lib/opencode";
-      GIT_CONFIG_GLOBAL = "/etc/opencode/gitconfig";
+      SHELL = "${pkgs.bashInteractive}/bin/bash";
       GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
     };
 
