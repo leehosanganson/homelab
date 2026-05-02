@@ -16,14 +16,8 @@ spec:
     shared_preload_libraries:
       - "vchord.so"
   bootstrap:
-    initdb:
-      database: immich
-      owner: immich
-      secret:
-        name: immich-db-credentials
-      postInitApplicationSQL:
-        - CREATE EXTENSION vchord CASCADE;
-        - CREATE EXTENSION earthdistance CASCADE;
+    recovery:
+      source: clusterBackup
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
@@ -34,5 +28,5 @@ spec:
       plugin:
         name: barman-cloud.cloudnative-pg.io
         parameters:
-          barmanObjectName: immich-backup-storage
+          barmanObjectName: commafeed-backup-storage
           serverName: immich-db-backup

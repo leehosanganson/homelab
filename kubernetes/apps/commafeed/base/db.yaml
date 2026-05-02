@@ -12,11 +12,8 @@ spec:
   monitoring:
     enablePodMonitor: true
   bootstrap:
-    initdb:
-      database: commafeed
-      owner: commafeed
-      secret:
-        name: commafeed-env
+    recovery:
+      source: clusterBackup
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

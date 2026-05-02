@@ -13,7 +13,7 @@ Phase 2: Reconcile Infrastructure (External Secrets → Storage → Velero → C
      ↓
 Phase 3: Velero Restore (stateful app namespaces)
      ↓
-Phase 4: CNPG Database Recovery (patch bootstrap → recovery)
+Phase 4: CNPG Database Recovery (automatic via recovery bootstrap)
      ↓
 Phase 5: Reconcile Monitoring
      ↓
@@ -101,14 +101,21 @@ The `default` backup storage location should show `Available`. If it shows `Unav
 
 The Velero schedule (`kubernetes/infra/velero/overlays/default/backup-schedule.yaml`) runs daily at 07:00 UTC and backs up the following namespaces:
 
-| Namespace | Contents |
-|-----------|----------|
-| `actual-budget` | Deployment, PVC, PV |
-| `home-assistant` | Deployment, PVC, PV |
-| `karakeep` | Deployment, PVC, PV |
-| `media` | Deployments, PVCs, PVs |
-| `n8n` | Deployment, PVC, PV (note: database is backed up separately via CNPG barman) |
-| `paperless` | Deployment, PVC, PV (note: database is backed up separately via CNPG barman) |
+| Namespace | App | Contents |
+|-----------|-----|----------|
+| `actual-budget` | Actual Budget | Deployment, PVC |
+| `grimmory` | Grimmory | Deployment, MariaDB PVC, data PVCs |
+| `home-assistant` | Home Assistant | Deployment, PVC |
+| `immich` | Immich | Deployment, NFS photo library PV/PVC |
+| `karakeep` | Karakeep | Deployment, PVCs |
+| `llm` | Open WebUI | Deployment, PVC |
+| `media` | Media stack (*arr) | Deployments, PVCs |
+| `minecraft` | Minecraft | Deployment, 50Gi game data PVC |
+| `n8n` | n8n | Deployment, PVC (database backed up separately via CNPG) |
+| `navidrome` | Navidrome | Deployment, config PVC, NFS music PV/PVC |
+| `paperless` | Paperless-ngx | Deployment, PVCs (database backed up separately via CNPG) |
+| `syncthing` | Syncthing | Deployment, config PVC, NFS data PV/PVC |
+| `zotero` | Zotero WebDAV | Deployment, PVC |
 
 The backup includes the Kubernetes object manifests for `deployments`, `pods`, `persistentvolumes`, `persistentvolumeclaims`, and `namespaces`.
 
@@ -147,7 +154,7 @@ Wait until all restores show `Completed` before moving to Phase 4. PVCs must be 
 
 ## Phase 4: CNPG Database Recovery
 
-CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. Each cluster has a corresponding `ObjectStore` resource and a scheduled base backup.
+CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. Each cluster has a corresponding `ObjectStore` resource and a scheduled base backup. All cluster manifests use `bootstrap.recovery` so that Flux automatically recovers each database from the latest barman backup when the cluster is first created on the new cluster.
 
 ### Cluster Inventory
 
@@ -161,79 +168,42 @@ CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-clou
 | `coder-db` | `coder` | `coder-backup-storage` | `lhshomelabbackup/coder` |
 | `life-in-the-uk-quiz-db` | `life-in-the-uk-quiz` | `life-in-the-uk-quiz-backup-storage` | `lhshomelabbackup/life-in-the-uk-quiz` |
 
-### Known Gap: Manifests Use `initdb` Bootstrap
-
-The base `db.yaml` manifests for every cluster use `bootstrap.initdb`, which creates an **empty** database. To recover from a barman backup, the bootstrap must be switched to `recovery`. This change must be made **before** the cluster is first created on the new cluster, otherwise the `initdb` bootstrap will run and overwrite the recovery target.
-
-Each cluster already has an `externalClusters` entry named `clusterBackup` pointing to its barman object store, so the only change needed is swapping the `bootstrap` section.
-
 ### Recovery Procedure (per cluster)
 
-1. **Suspend the Flux kustomization** for the app to prevent Flux from reverting your patch:
+When Flux reconciles the `apps-production` kustomization, each CNPG cluster is created with `bootstrap.recovery.source: clusterBackup`. CNPG will automatically recover from the latest barman backup in the configured `ObjectStore`.
 
-   ```bash
-   flux suspend kustomization apps-production
-   ```
+**Prerequisites before Flux creates the cluster:**
 
-2. **Wait for the namespace and secrets** to exist. Flux should have created them during `apps-production` reconciliation. If not, apply the namespace manually:
-
-   ```bash
-   kubectl apply -f kubernetes/apps/<app>/overlays/default/
-   ```
-
-3. **Wait for the `ObjectStore` resource** to be ready (it is deployed as part of the app kustomization and must exist before the Cluster is created):
+1. **The `ObjectStore` resource and its secret must exist** in the namespace (Flux deploys these as part of the app kustomization before creating the Cluster). Verify:
 
    ```bash
    kubectl get objectstore -n <namespace>
+   kubectl get secret -n <namespace> | grep backup
    ```
 
-4. **Apply a patched cluster spec** with recovery bootstrap. Create a temporary patch file:
-
-   ```yaml
-   # /tmp/<app>-recovery-patch.yaml
-   apiVersion: postgresql.cnpg.io/v1
-   kind: Cluster
-   metadata:
-     name: <cluster-name>
-     namespace: <namespace>
-   spec:
-     bootstrap:
-       recovery:
-         source: clusterBackup
-   ```
-
-   Then apply it (creating the cluster for the first time, or after deleting it):
-
-   ```bash
-   # If the cluster was already created with initdb, delete it and its PVCs first
-   kubectl delete cluster <cluster-name> -n <namespace>
-   kubectl delete pvc -l cnpg.io/cluster=<cluster-name> -n <namespace>
-
-   # Apply the full cluster manifest merged with the recovery patch
-   kubectl apply -f kubernetes/apps/<app>/base/db.yaml
-   kubectl patch cluster <cluster-name> -n <namespace> \
-     --type=merge \
-     -p '{"spec":{"bootstrap":{"recovery":{"source":"clusterBackup"}}}}'
-   ```
-
-   > **Important:** The `bootstrap` field is only evaluated at cluster creation time. If the cluster
-   > already exists (even with `initdb`), patching bootstrap has no effect — you must delete and
-   > recreate the cluster.
-
-5. **Monitor recovery progress:**
+2. **Watch recovery progress** once the cluster is created:
 
    ```bash
    kubectl get cluster <cluster-name> -n <namespace> -w
    kubectl describe cluster <cluster-name> -n <namespace>
    ```
 
-   The cluster will enter a `Recovering` phase while it restores the base backup and then replays WAL segments. Once the cluster shows `Cluster in healthy state`, the database is ready.
+   The cluster will enter a `Recovering` phase while it restores the base backup and replays WAL segments. Once the cluster shows `Cluster in healthy state`, the database is ready.
 
-6. **Resume the Flux kustomization** once all clusters in that namespace are healthy:
+**If the cluster was accidentally created before backups were available (e.g. during a new cluster bootstrap with no existing backups):**
 
-   ```bash
-   flux resume kustomization apps-production
-   ```
+```bash
+# Delete the cluster and its PVCs to force a recreate
+kubectl delete cluster <cluster-name> -n <namespace>
+kubectl delete pvc -l cnpg.io/cluster=<cluster-name> -n <namespace>
+
+# Flux will recreate the cluster on next reconcile
+flux reconcile kustomization apps-production
+```
+
+> **Note for fresh cluster with no prior backups:** `bootstrap.recovery` will fail if no barman backup
+> exists. In that case, temporarily patch the cluster manifest to use `bootstrap.initdb`, apply it,
+> let the cluster initialise, then revert the manifest once WAL archiving has produced a base backup.
 
 ### Verify Data After Recovery
 
