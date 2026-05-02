@@ -1,6 +1,5 @@
 resources:
   - cronjob.yaml
-  - config.yaml
   - secret.yaml
 
 labels:

@@ -2,3 +2,10 @@ namespace: renovate
 resources:
   - namespace.yaml
   - ../../base
+
+configMapGenerator:
+  - files:
+      - config.json
+    name: renovate-config
+    options:
+      disableNameSuffixHash: true
