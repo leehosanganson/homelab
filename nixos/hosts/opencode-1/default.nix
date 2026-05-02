@@ -29,6 +29,20 @@
     group = "root";
   };
 
+  environment.etc."opencode/ssh/id_ed25519_github" = {
+    source = "${sops-secrets}/keys/opencode-user";
+    mode = "0400";
+    user = "opencode";
+    group = "opencode";
+  };
+
+  environment.etc."opencode/ssh/id_ed25519_github.pub" = {
+    source = "${sops-secrets}/keys/opencode-user.pub";
+    mode = "0444";
+    user = "opencode";
+    group = "opencode";
+  };
+
   # Secrets — sops-nix decrypts at boot using the host SSH key.
   # The opencode-env secret must contain all env vars for the service:
   #   OPENCODE_SERVER_PASSWORD=...

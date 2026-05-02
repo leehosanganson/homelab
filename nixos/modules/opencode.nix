@@ -4,15 +4,10 @@
   # opencode: headless AI coding agent server
   #
   # Runs `opencode serve` as a systemd service. Secrets (server password,
-  # GitHub token) are supplied via sops-nix and injected through EnvironmentFile.
+  # GitHub token, SSH key) are supplied via sops-nix.
   #
   # Port 4096 is exposed on all interfaces so that Traefik (running on the
   # K3s cluster) can reverse-proxy the service.
-  #
-  # Config files (~/.config/opencode and ~/.config/ai) are sourced from
-  # https://github.com/leehosanganson/dotfiles, cloned/pulled on every
-  # nixos-rebuild switch so changes to the dotfiles repo are immediately
-  # reflected without re-provisioning the host.
 
   environment.systemPackages = with pkgs; [
     opencode
@@ -36,39 +31,60 @@
 
   users.groups.opencode = { };
 
-  # Clone/pull dotfiles repo and symlink config dirs on every activation.
-  system.activationScripts.opencodeDotfiles = {
-    deps = [ "users" ];
+  # Service-scoped git config for opencode only.
+  environment.etc."opencode/gitconfig" = {
     text = ''
-      DOTFILES_DIR=/var/lib/opencode/dotfiles
-      GIT="${pkgs.git}/bin/git"
-
-      # Clone if not present, otherwise pull latest (run as root)
-      if [ ! -d "$DOTFILES_DIR/.git" ]; then
-        $GIT clone https://github.com/leehosanganson/dotfiles "$DOTFILES_DIR"
-      else
-        $GIT -C "$DOTFILES_DIR" pull --ff-only
-      fi
-
-      # Ensure .config parent exists
-      mkdir -p /var/lib/opencode/.config
-
-      # Symlink opencode config dir
-      rm -f /var/lib/opencode/.config/opencode
-      ln -sf "$DOTFILES_DIR/opencode/.config/opencode" /var/lib/opencode/.config/opencode
-
-      # Symlink ai config dir
-      rm -f /var/lib/opencode/.config/ai
-      ln -sf "$DOTFILES_DIR/ai/.config/ai" /var/lib/opencode/.config/ai
-
-      # Fix ownership — the activation script runs as root, but the service
-      # user 'opencode' needs read+write access to the cloned repo and symlinks.
-      chown -R opencode:opencode /var/lib/opencode/dotfiles
-      chown opencode:opencode /var/lib/opencode/.config
-      chown -h opencode:opencode /var/lib/opencode/.config/opencode
-      chown -h opencode:opencode /var/lib/opencode/.config/ai
+      [core]
+          safeDirectory = /var/lib/opencode
+      [url "ssh://git@opencode-github/"]
+          insteadOf = https://github.com/
     '';
+    mode = "0444";
   };
+
+  # Service-scoped SSH config for opencode git operations.
+  environment.etc."opencode/ssh/config" = {
+    text = ''
+      Host opencode-github
+        HostName github.com
+        User git
+        IdentityFile /etc/opencode/ssh/id_ed25519_github
+        IdentitiesOnly yes
+        UserKnownHostsFile /etc/opencode/ssh/known_hosts
+    '';
+    mode = "0444";
+  };
+
+  environment.etc."opencode/ssh/known_hosts" = {
+    text = ''
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqVdJr5f4YfM5x8T2fXjzQ0nF9B8x4KJIp4rM+e5Qh
+    '';
+    mode = "0444";
+  };
+
+  # Declarative bootstrap for service config directories that were previously
+  # populated out-of-band from dotfiles.
+  environment.etc."opencode/bootstrap/opencode-config.json" = {
+    text = ''
+      {}
+    '';
+    mode = "0444";
+  };
+
+  environment.etc."opencode/bootstrap/ai-config.json" = {
+    text = ''
+      {}
+    '';
+    mode = "0444";
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /var/lib/opencode/.config 0750 opencode opencode -"
+    "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
+    "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
+    "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
+    "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
+  ];
 
   systemd.services.opencode = {
     description = "opencode headless server";
@@ -77,6 +93,8 @@
 
     environment = {
       HOME = "/var/lib/opencode";
+      GIT_CONFIG_GLOBAL = "/etc/opencode/gitconfig";
+      GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
     };
 
     serviceConfig = {
@@ -90,10 +108,10 @@
       Restart = "on-failure";
       RestartSec = "5s";
 
-      # Hardening — ProtectHome=false so Bun can write under /var/lib/opencode.
+      # Hardening
       NoNewPrivileges = true;
       ProtectSystem = "strict";
-      ProtectHome = false;
+      ProtectHome = "tmpfs";
       ReadWritePaths = [ "/var/lib/opencode" ];
       PrivateTmp = true;
     };
