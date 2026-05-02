@@ -4,7 +4,7 @@ mode: all
 permission:
   "*": deny
   read: allow
-  edit: deny
+  edit: allow
   glob: allow
   grep: allow
   bash:
