@@ -30,7 +30,6 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode.json
           OPENCODE_PERMISSION: |
             {
