@@ -40,28 +40,33 @@
   system.activationScripts.opencodeDotfiles = {
     deps = [ "users" ];
     text = ''
+      DOTFILES_DIR=/var/lib/opencode/dotfiles
       GIT="${pkgs.git}/bin/git"
-      su -s /bin/sh opencode -c "
-        DOTFILES_DIR=/var/lib/opencode/dotfiles
 
-        # Clone if not present, otherwise pull latest
-        if [ ! -d \"\$DOTFILES_DIR/.git\" ]; then
-          $GIT clone https://github.com/leehosanganson/dotfiles \"\$DOTFILES_DIR\"
-        else
-          $GIT -C \"\$DOTFILES_DIR\" pull --ff-only
-        fi
+      # Clone if not present, otherwise pull latest (run as root)
+      if [ ! -d "$DOTFILES_DIR/.git" ]; then
+        $GIT clone https://github.com/leehosanganson/dotfiles "$DOTFILES_DIR"
+      else
+        $GIT -C "$DOTFILES_DIR" pull --ff-only
+      fi
 
-        # Ensure .config parent exists
-        mkdir -p /var/lib/opencode/.config
+      # Ensure .config parent exists
+      mkdir -p /var/lib/opencode/.config
 
-        # Symlink opencode config dir
-        rm -f /var/lib/opencode/.config/opencode
-        ln -sf \"\$DOTFILES_DIR/opencode/.config/opencode\" /var/lib/opencode/.config/opencode
+      # Symlink opencode config dir
+      rm -f /var/lib/opencode/.config/opencode
+      ln -sf "$DOTFILES_DIR/opencode/.config/opencode" /var/lib/opencode/.config/opencode
 
-        # Symlink ai config dir
-        rm -f /var/lib/opencode/.config/ai
-        ln -sf \"\$DOTFILES_DIR/ai/.config/ai\" /var/lib/opencode/.config/ai
-      "
+      # Symlink ai config dir
+      rm -f /var/lib/opencode/.config/ai
+      ln -sf "$DOTFILES_DIR/ai/.config/ai" /var/lib/opencode/.config/ai
+
+      # Fix ownership — the activation script runs as root, but the service
+      # user 'opencode' needs read+write access to the cloned repo and symlinks.
+      chown -R opencode:opencode /var/lib/opencode/dotfiles
+      chown opencode:opencode /var/lib/opencode/.config
+      chown -h opencode:opencode /var/lib/opencode/.config/opencode
+      chown -h opencode:opencode /var/lib/opencode/.config/ai
     '';
   };
 
@@ -85,8 +90,7 @@
       Restart = "on-failure";
       RestartSec = "5s";
 
-      # Hardening — ProtectHome=true blocks writes to /var/lib/{user} homes,
-      # so we disable it and use ReadWritePaths instead.
+      # Hardening — ProtectHome=false so Bun can write under /var/lib/opencode.
       NoNewPrivileges = true;
       ProtectSystem = "strict";
       ProtectHome = false;
