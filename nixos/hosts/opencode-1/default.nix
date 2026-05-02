@@ -45,6 +45,16 @@
         owner = "opencode";
         group = "opencode";
       };
+
+      "litellm-api-key" = {
+        owner = "opencode";
+        path = "/var/lib/opencode/.config/sops-nix/secrets/litellm-api-key";
+      };
+
+      "opencode-github-pat" = {
+        owner = "opencode";
+        path = "/var/lib/opencode/.config/sops-nix/secrets/opencode-github-pat";
+      };
     };
   };
 
