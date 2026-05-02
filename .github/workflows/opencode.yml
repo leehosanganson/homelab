@@ -10,12 +10,13 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       (
-        contains(fromJson('["OWNER","MEMBER"]'), (github.event.issue.author_association || github.event.pull_request.author_association)) &&
+        contains(fromJson('["OWNER","MEMBER"]'), github.event.comment.author_association) &&
         (contains(github.event.comment.body, '/opencode') || contains(github.event.comment.body, '/oc'))
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
+      id-token: write
       contents: write
       pull-requests: write
       issues: write
