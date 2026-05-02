@@ -68,7 +68,8 @@
         "datasource": {
           "uid": "prometheus"
         },
-        "sort": 0
+        "sort": 0,
+        "allValue": ".*"
       },
       {
         "name": "team_alias",
@@ -79,7 +80,8 @@
         "datasource": {
           "uid": "prometheus"
         },
-        "sort": 0
+        "sort": 0,
+        "allValue": ".*"
       },
       {
         "name": "api_key_alias",
@@ -90,7 +92,8 @@
         "datasource": {
           "uid": "prometheus"
         },
-        "sort": 0
+        "sort": 0,
+        "allValue": ".*"
       }
     ]
   },
