@@ -1,5 +1,0 @@
-namespace: opencode
-resources:
-  - ../../base
-  - config.yaml
-  - secrets.yaml
