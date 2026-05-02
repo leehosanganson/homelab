@@ -18,8 +18,9 @@
     ];
     defaultGateway = "192.168.1.1";
     nameservers = [ "192.168.1.132" ];
+    firewall.enable = true;
+    firewall.allowedTCPPorts = [ 22 4096 ];
   };
-
 
   environment.etc."ssh/opencode-1" = {
     source = "${sops-secrets}/keys/opencode-1";
@@ -32,7 +33,6 @@
   # The opencode-env secret must contain all env vars for the service:
   #   OPENCODE_SERVER_PASSWORD=...
   #   GITHUB_TOKEN=...
-  #   (and any AI provider API keys, e.g. ANTHROPIC_API_KEY=...)
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
     age.sshKeyPaths = [
@@ -79,22 +79,16 @@
 
   nix.settings.trusted-users = [ "root" "ansonlee" ];
 
-  services = {
-    qemuGuest.enable = true;
+  services.openssh = {
+    enable = true;
+    settings.PasswordAuthentication = false;
+    settings.PermitRootLogin = "prohibit-password";
+  };
 
-    openssh = {
-      enable = true;
-      settings.PasswordAuthentication = false;
-      settings.PermitRootLogin = "prohibit-password";
-    };
+  services.qemuGuest.enable = true;
 
-    resolved = {
-      enable = true;
-      settings.Resolve.DNSSEC = "false";
-    };
-
-    # Firewall: SSH + opencode server port
-    networking.firewall.enable = true;
-    networking.firewall.allowedTCPPorts = [ 22 4096 ];
+  services.resolved = {
+    enable = true;
+    settings.Resolve.DNSSEC = "false";
   };
 }
