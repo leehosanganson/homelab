@@ -34,5 +34,6 @@ jobs:
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
           OPENCODE_CONFIG: .github/opencode.json
+          OPENCODE_PERMISSION: '{"bash": "deny"}'
         with:
           model: "litellm/unsloth/qwen-3.6"
