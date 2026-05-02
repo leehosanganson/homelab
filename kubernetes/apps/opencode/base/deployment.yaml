@@ -16,9 +16,19 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+      initContainers:
+        - name: volume-permissions
+          image: busybox:1.37@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
+          command: ["sh", "-c", "chown 1000:1000 /home/opencode"]
+          volumeMounts:
+            - name: opencode-workspace
+              mountPath: /home/opencode
       containers:
         - name: opencode
+          # TODO: Pin to specific tag with SHA-256 digest (e.g., ghcr.io/nimbleflux/opencode-docker:<tag>@sha256:<digest>)
+          # Current image uses :latest tag - update before production deployment
           image: ghcr.io/nimbleflux/opencode-docker:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 4096
           envFrom:
