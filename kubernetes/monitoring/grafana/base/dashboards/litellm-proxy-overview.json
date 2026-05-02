@@ -281,7 +281,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "((sum(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range))) or vector(0)",
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Monthly Cost",
           "refId": "A",
           "format": "time_series",
