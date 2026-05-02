@@ -80,12 +80,16 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 
 ## 5. Git Workflow Conventions
 
-All branching, PR raising, and issue creation should follow the standards documented in `.github/CONTRIBUTING.md`. Key takeaways:
+All branching, PR raising, and issue creation follow the standards documented in `.github/CONTRIBUTING.md`. Every change goes through a Pull Request with squash-merge — **never commit directly to `main`**. There is one unified workflow regardless of context:
 
-- **No direct commits to `main`** — every change goes through a PR with squash-merge.
-- **Branch names**: `<TYPE>/<PROJECT>/<kebab-case-desc>` (bot-triggered: `<TYPE>/<BOT>/<PROJECT>/<kebab-case-desc>`).
-- **PR titles**: `(TYPE)PROJECT: DESCRIPTION`
-- **PR descriptions**: Fill in **What**, **How to test**, and **Impact** sections using the template at `.github/PULL_REQUEST_TEMPLATE.md`.
-- **Issues**: Use the provided templates (`suggestion`, `feature_request`) under `.github/ISSUE_TEMPLATE/`.
+1. **Create branch** — Branch off `main` using a name matching `<TYPE>/<PROJECT>/<kebab-case-desc>` (e.g., `feat/immich/add-backups`). Auto-detect the `TYPE` from the request (`feat`, `fix`, `chore`) and identify the `PROJECT` from context. For bot-triggered workflows, use `<TYPE>/<BOT>/<PROJECT>/<kebab-case-desc>`.
+2. **Make changes** — Implement the requested modifications on the branch.
+3. **Commit** — Create a commit with a descriptive message (e.g., `feat(immich): add backup cron job`).
+4. **Push** — Push the branch to the remote repository.
+5. **Open draft PR** — Run `gh pr create --draft` using the template at `.github/PULL_REQUEST_TEMPLATE.md`, filling in the **What**, **How to Test**, and **Impact** sections. The PR title should follow `(TYPE)PROJECT: DESCRIPTION`.
 
-> Full details: [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
+### Rules for all workflows
+
+- The agent must execute git commands directly — do not leave manual steps for the user.
+- Always use `--draft` flag on `gh pr create` so reviewers can review before merging.
+- Never push or commit to `main` under any circumstances.
