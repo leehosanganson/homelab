@@ -8,18 +8,13 @@ on:
 jobs:
   opencode:
     if: |
-      !endsWith(github.actor, '[bot]') &&
-      (
-        github.event_name == 'workflow_dispatch' ||
-        (
-          (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && 
-          (contains(github.event.comment.body, '/opencode') || contains(github.event.comment.body, '/oc'))
-        )
-      )
+      github.event_name == 'workflow_dispatch' ||
+      contains(fromJson('["OWNER","MEMBER"]'), github.event.pull_request.author_association) &&
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && 
+      (contains(github.event.comment.body, '/opencode') || contains(github.event.comment.body, '/oc'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
       issues: write
@@ -33,7 +28,16 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode.json
-          OPENCODE_PERMISSION: '{"bash": "deny"}'
+          OPENCODE_PERMISSION: |
+            {
+              "*": "allow",
+              "bash": {
+                "*": "deny",
+                "gh pr *": "allow",
+                "gh search *": "allow"
+              }
+            }
         with:
           model: "litellm/unsloth/qwen-3.6"
