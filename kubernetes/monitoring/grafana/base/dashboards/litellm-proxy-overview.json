@@ -617,56 +617,6 @@
       "title": "Requests Over Time by Model",
       "gridPos": {
         "x": 0,
-        "y": 8,
-        "w": 24,
-        "h": 8
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "barAlignment": 0,
-            "lineWidth": 0,
-            "fillOpacity": 100,
-            "stacking": {
-              "mode": "normal",
-              "group": "A"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "sum by (requested_model) (increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$interval]))",
-          "legendFormat": "{{requested_model}}",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": false,
-          "range": true
-        }
-      ]
-    },
-    {
-      "id": 10,
-      "type": "timeseries",
-      "title": "Token Consumption Over Time by Model",
-      "gridPos": {
-        "x": 0,
         "y": 48,
         "w": 24,
         "h": 8
@@ -701,7 +651,57 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (model) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", model=~\"$model\"}[$interval]))",
+          "expr": "sum by (requested_model) (increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
+          "legendFormat": "{{requested_model}}",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Token Consumption Over Time by Model",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 8
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "lineWidth": 0,
+            "fillOpacity": 100,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "sum by (model) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", model=~\"$model\"}[$__rate_interval]))",
           "legendFormat": "{{model}}",
           "refId": "A",
           "format": "time_series",
