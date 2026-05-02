@@ -11,12 +11,14 @@ spec:
     includedNamespaces:
       - actual-budget
       - grimmory
+      - harbor
       - home-assistant
       - immich
       - karakeep
       - llm
       - media
       - minecraft
+      - monitoring
       - n8n
       - navidrome
       - paperless
