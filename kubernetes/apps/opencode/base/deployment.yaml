@@ -50,9 +50,13 @@ spec:
               name: opencode-workspace
             - mountPath: /tmp
               name: tmp-volume
+            - mountPath: /
+              name: writable-root
       volumes:
         - name: opencode-workspace
           persistentVolumeClaim:
             claimName: opencode-pvc
         - name: tmp-volume
+          emptyDir: {}
+        - name: writable-root
           emptyDir: {}
