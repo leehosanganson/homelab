@@ -23,4 +23,12 @@ nodes = {
     disk_size = 20
     datastore = "local-lvm"
   }
+  "opencode-1" = {
+    node      = "pve01"
+    vm_id     = 301
+    cores     = 2
+    memory    = 4096
+    disk_size = 40
+    datastore = "local-lvm"
+  }
 }

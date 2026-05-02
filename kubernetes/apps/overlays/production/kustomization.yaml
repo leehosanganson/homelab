@@ -12,6 +12,7 @@ resources:
   - ../../media/overlays/default
   - ../../n8n/overlays/default
   - ../../openwebui/overlays/default
+  - ../../opencode/overlays/default
   - ../../paperless-ngx/overlays/default
   - ../../llama.cpp/overlays/default
   - ../../whoami/overlays/default
