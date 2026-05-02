@@ -57,10 +57,11 @@
       "panels": []
     },
     {
-      "title": "Cost So Far",
+      "title": "Monthly Cost So Far",
       "id": 1,
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 0, "y": 4},
+      "timeFrom": "now/M",
       "targets": [
         {
           "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
@@ -73,7 +74,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "usd"
+          "unit": "currencyUSD"
         }
       }
     },
@@ -229,7 +230,7 @@
       "panels": []
     },
     {
-      "title": "Request Volume Over Time",
+      "title": "Request Success/Failure Rate",
       "id": 9,
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
@@ -241,6 +242,7 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
+          "legendFormat": "Success Rate",
           "refId": "A"
         },
         {
@@ -249,9 +251,17 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
+          "legendFormat": "Failure Rate",
           "refId": "B"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      }
     },
     {
       "title": "Request Latency P95",
@@ -339,6 +349,7 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
+          "legendFormat": "Memory (bytes)",
           "refId": "A"
         },
         {
@@ -347,6 +358,7 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
+          "legendFormat": "CPU Usage",
           "refId": "B"
         },
         {
@@ -355,53 +367,51 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
+          "legendFormat": "Open FDs",
           "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "max": 100,
-          "min": 0,
           "custom": {
-            "showLegend": true
-          },
-          "thresholds": {
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 50},
-              {"color": "red", "value": 80}
-            ]
+            "showLegend": true,
+            "lineWidth": 2,
+            "fillOpacity": 0
           }
         },
         "overrides": [
           {
-            "match": "A",
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
             "properties": [
               {"id": "unit", "value": "bytes"},
-              {"id": "max", "value": null},
-              {"id": "min", "value": null},
-              {"id": "custom.lineWidth", "value": 2},
-              {"id": "custom.fillOpacity", "value": 0}
+              {"id": "custom.axisPlacement", "value": "left"},
+              {"id": "custom.axisSoftMin", "value": 0}
             ]
           },
           {
-            "match": "B",
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
             "properties": [
-              {"id": "unit", "value": "percent"},
-              {"id": "max", "value": 100},
+              {"id": "unit", "value": "percentunit"},
+              {"id": "custom.axisPlacement", "value": "right"},
               {"id": "min", "value": 0},
-              {"id": "custom.lineWidth", "value": 2},
-              {"id": "custom.fillOpacity", "value": 0}
+              {"id": "max", "value": 1}
             ]
           },
           {
-            "match": "C",
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
             "properties": [
               {"id": "unit", "value": "short"},
-              {"id": "max", "value": null},
-              {"id": "min", "value": null},
-              {"id": "custom.lineWidth", "value": 2},
-              {"id": "custom.fillOpacity", "value": 0}
+              {"id": "custom.axisPlacement", "value": "right"},
+              {"id": "custom.axisSoftMin", "value": 0}
             ]
           }
         ]
