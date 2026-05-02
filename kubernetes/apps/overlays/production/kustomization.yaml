@@ -24,6 +24,7 @@ resources:
   - ../../termix/overlays/default
   - ../../syncthing/overlays/default
   - ../../portfolio/overlays/default
+  - ../../mini-qr/overlays/default
 
 labels:
   - includeSelectors: false

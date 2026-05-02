@@ -1,6 +1,13 @@
 resources:
   - https://github.com/dotdc/grafana-dashboards-kubernetes//?ref=master
 
+configMapGenerator:
+  - name: litellm-proxy-overview
+    files:
+      - litellm-proxy-overview.json
+    options:
+      disableNameSuffixHash: true
+
 labels:
   - pairs:
       grafana_dashboard: "1"

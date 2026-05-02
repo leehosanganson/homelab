@@ -1,11 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "think",
-  "permission": {
-    "skill": {
-      "*": "allow"
-    }
-  },
+  "instructions": ["../AGENTS.md"],
   "compaction": {
     "auto": true,
     "prune": true,
