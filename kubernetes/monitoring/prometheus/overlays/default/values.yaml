@@ -9,3 +9,10 @@ server:
     accessModes:
       - ReadWriteOnce
     size: 150Gi
+
+extraScrapeConfigs: |
+  - job_name: litellm
+    metrics_path: /metrics/
+    static_configs:
+      - targets:
+          - litellm.llm.svc.cluster.local:4000
