@@ -518,7 +518,7 @@
         "defaults": {
           "unit": "short",
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           }
         },
         "overrides": []
@@ -566,7 +566,7 @@
         "defaults": {
           "unit": "short",
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           }
         },
         "overrides": []
@@ -614,7 +614,7 @@
         "defaults": {
           "unit": "short",
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           }
         },
         "overrides": []
