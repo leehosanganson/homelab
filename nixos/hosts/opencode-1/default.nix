@@ -20,7 +20,6 @@
     nameservers = [ "192.168.1.132" ];
   };
 
-  services.qemuGuest.enable = true;
 
   environment.etc."ssh/opencode-1" = {
     source = "${sops-secrets}/keys/opencode-1";
@@ -80,18 +79,22 @@
 
   nix.settings.trusted-users = [ "root" "ansonlee" ];
 
-  services.openssh = {
-    enable = true;
-    settings.PasswordAuthentication = false;
-    settings.PermitRootLogin = "prohibit-password";
-  };
+  services = {
+    qemuGuest.enable = true;
 
-  services.resolved = {
-    enable = true;
-    settings.Resolve.DNSSEC = "false";
-  };
+    openssh = {
+      enable = true;
+      settings.PasswordAuthentication = false;
+      settings.PermitRootLogin = "prohibit-password";
+    };
 
-  # Firewall: SSH + opencode server port
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 4096 ];
+    resolved = {
+      enable = true;
+      settings.Resolve.DNSSEC = "false";
+    };
+
+    # Firewall: SSH + opencode server port
+    networking.firewall.enable = true;
+    networking.firewall.allowedTCPPorts = [ 22 4096 ];
+  };
 }

@@ -36,7 +36,7 @@
     description = "opencode service user";
   };
 
-  users.groups.opencode = {};
+  users.groups.opencode = { };
 
   # Clone/pull dotfiles repo and symlink config dirs on every activation.
   # Symlinks (not copies) are used so that a `git pull` in the dotfiles
@@ -84,10 +84,8 @@
       Group = "opencode";
       WorkingDirectory = "/var/lib/opencode";
 
-      # Inject secrets: OPENCODE_SERVER_PASSWORD, GITHUB_TOKEN, and AI provider keys
       EnvironmentFile = config.sops.secrets."opencode-env".path;
 
-      # Restart policy
       Restart = "on-failure";
       RestartSec = "5s";
 
