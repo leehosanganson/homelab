@@ -617,7 +617,7 @@
       "title": "Requests Over Time by Model",
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 16,
         "w": 24,
         "h": 8
       },
@@ -717,7 +717,7 @@
       "title": "Request Success Rate Over Time",
       "gridPos": {
         "x": 0,
-        "y": 16,
+        "y": 24,
         "w": 12,
         "h": 8
       },
@@ -761,7 +761,7 @@
       "title": "Concurrent Requests Over Time",
       "gridPos": {
         "x": 12,
-        "y": 16,
+        "y": 24,
         "w": 12,
         "h": 8
       },
@@ -805,7 +805,7 @@
       "title": "Token Throughput Over Time (tokens/sec)",
       "gridPos": {
         "x": 0,
-        "y": 24,
+        "y": 32,
         "w": 12,
         "h": 8
       },
@@ -849,7 +849,7 @@
       "title": "Token Throughput per Model",
       "gridPos": {
         "x": 12,
-        "y": 24,
+        "y": 32,
         "w": 12,
         "h": 8
       },
@@ -893,7 +893,7 @@
       "title": "Request Latency P95",
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 40,
         "w": 12,
         "h": 8
       },
@@ -937,7 +937,7 @@
       "title": "Time to First Token P95",
       "gridPos": {
         "x": 12,
-        "y": 32,
+        "y": 40,
         "w": 12,
         "h": 8
       },
@@ -981,7 +981,7 @@
       "title": "Cache Hit Rate Over Time",
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 48,
         "w": 12,
         "h": 8
       },
@@ -1027,7 +1027,7 @@
       "title": "Cost Rate by Model ($/sec)",
       "gridPos": {
         "x": 12,
-        "y": 40,
+        "y": 48,
         "w": 12,
         "h": 8
       },
