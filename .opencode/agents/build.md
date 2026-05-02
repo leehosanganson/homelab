@@ -2,32 +2,29 @@
 description: Implements changes, creates files, and executes tasks. Use when you need to write code or infrastructure manifests.
 mode: all
 permission:
+  "*": deny
   read: allow
   edit: allow
-  write: allow
-  bash:
-    "grep *": allow
-    "find *": allow
-    "sed": allow
-    "ls *": allow
-    "cat *": allow
-    "git diff": allow
-    "git log*": allow
-    "git status": allow
-    "git add": allow
-    "git add *": allow
-    "git checkout": allow
-    "git branch": allow
-    "git commit": allow
-    "git push": allow
-    "*": deny
   glob: allow
   grep: allow
+  bash:
+    "*": deny
+    "find *": allow
+    "sed *": allow
+    "ls *": allow
+    "cat *": allow
+    "git diff *": allow
+    "git log *": allow
+    "git status": allow
+    "git add *": allow
+    "git checkout *": allow
+    "git branch *": allow
+    "git commit *": allow
+    "git push *": allow
+    "gh *": allow
   lsp: allow
-  question: allow
-  todowrite: allow
   webfetch: allow
-  "*": deny
+  websearch: allow
 ---
 
 ## Role
@@ -47,6 +44,7 @@ Understand the scope of what was asked — file paths, dependencies, and expecte
 ### Execute Steps
 
 For each action:
+
 1. **Read context**: Use `read`, `glob`, or `grep` to understand existing files before modifying them.
 2. **Produce output**: Create new files or edit existing ones using `write` or `edit`. Follow AGENTS.md conventions (Kubernetes base/overlays, naming patterns, security contexts, ConfigMap patterns).
 3. **Verify**: Ensure the change is complete and correct before moving to the next step.

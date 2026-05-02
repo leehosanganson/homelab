@@ -2,18 +2,15 @@
 description: Analyzes code, plans changes, and provides recommendations without modifying files. Use for planning, understanding issues, or exploring the codebase.
 mode: all
 permission:
+  "*": deny
   read: allow
-  edit: deny
-  write: deny
-  bash: deny
+  edit: allow
   glob: allow
   grep: allow
+  bash: deny
   lsp: allow
-  question: allow
-  todowrite: allow
-  websearch: allow
   webfetch: allow
-  "*": deny
+  websearch: allow
 ---
 
 ## Role
@@ -33,6 +30,7 @@ Read relevant files in the repository to understand the existing code structure,
 ### Analyze
 
 Break down the request into a structured plan or analysis:
+
 - Identify what files need changes and how.
 - Reference specific file paths and directories.
 - Include expected outcomes for each change.
