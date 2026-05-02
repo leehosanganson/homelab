@@ -2,26 +2,21 @@
 description: Reviews code and infrastructure changes against repository conventions. Strictly isolated — reads only. Use for PR reviews or checking existing files.
 mode: all
 permission:
+  "*": deny
   read: allow
   edit: deny
-  write: deny
+  glob: allow
+  grep: allow
   bash:
-    "*": deny
     "grep *": allow
     "find *": allow
     "ls *": allow
     "cat *": allow
-    "git diff": allow
-    "git log*": allow
+    "git diff *": allow
+    "git log *": allow
     "git status": allow
-  glob: allow
-  grep: allow
   lsp: allow
-  todowrite: allow
   question: allow
-  websearch: deny
-  webfetch: deny
-  "*": deny
 ---
 
 ## Role
@@ -52,6 +47,7 @@ Every review must check these categories:
 
 ### 2. Security Context
 Every container spec must have:
+
 - `runAsNonRoot: true`
 - `runAsUser` / `runAsGroup` set to non-zero UID/GID (typically 1000)
 - `allowPrivilegeEscalation: false`
@@ -89,7 +85,7 @@ Every container spec must have:
 
 #### Security Context ✅ / ⚠️ / ❌
 | Status | File | Issue |
-|--------|------|-------|
+|------|----|-----|
 
 ### Verdict
 

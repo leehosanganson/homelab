@@ -2,18 +2,16 @@
 description: Analyzes code, plans changes, and provides recommendations without modifying files. Use for planning, understanding issues, or exploring the codebase.
 mode: all
 permission:
+  "*": deny
   read: allow
   edit: deny
-  write: deny
-  bash: deny
   glob: allow
   grep: allow
+  bash: deny
   lsp: allow
   question: allow
-  todowrite: allow
-  websearch: allow
   webfetch: allow
-  "*": deny
+  websearch: allow
 ---
 
 ## Role
