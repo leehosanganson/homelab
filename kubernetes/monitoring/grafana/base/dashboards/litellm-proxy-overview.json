@@ -11,8 +11,34 @@
     "to": "now"
   },
   "timepicker": {},
+  "annotations": {
+    "list": []
+  },
+  "style": "dark",
+  "timezone": "browser",
   "templating": {
     "list": [
+      {
+        "name": "interval",
+        "type": "custom",
+        "label": "Interval",
+        "query": "1m,5m,15m,1h,6h",
+        "current": {
+          "selected": true,
+          "text": "5m",
+          "value": "5m"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": [
+          {"selected": false, "text": "1m", "value": "1m"},
+          {"selected": true,  "text": "5m", "value": "5m"},
+          {"selected": false, "text": "15m", "value": "15m"},
+          {"selected": false, "text": "1h", "value": "1h"},
+          {"selected": false, "text": "6h", "value": "6h"}
+        ]
+      },
       {
         "name": "model",
         "type": "query",
@@ -50,18 +76,10 @@
   },
   "panels": [
     {
-      "type": "row",
-      "title": "Overview",
-      "collapsed": true,
-      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
-      "panels": []
-    },
-    {
-      "title": "Monthly Cost So Far",
       "id": 1,
+      "title": "Monthly Cost So Far",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 4},
-      "timeFrom": "now/M",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
       "targets": [
         {
           "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
@@ -76,32 +94,50 @@
         "defaults": {
           "unit": "currencyUSD"
         }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["sum"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
       }
     },
     {
-      "title": "In-Flight Requests",
       "id": 2,
+      "title": "Total Tokens",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 4},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
       "targets": [
         {
-          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
+          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__range]))",
           "format": "time_series",
-          "instant": true,
-          "range": false,
+          "instant": false,
+          "range": true,
           "editorMode": "code",
           "refId": "A"
         }
       ],
       "fieldConfig": {
-        "defaults": {}
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["sum"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
       }
     },
     {
-      "title": "Total Requests",
       "id": 3,
+      "title": "Total Requests",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 4},
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
       "targets": [
         {
           "expr": "sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range]))",
@@ -113,14 +149,24 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {}
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["sum"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
       }
     },
     {
-      "title": "Failed Requests",
       "id": 4,
+      "title": "Failed Requests",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 4},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
       "targets": [
         {
           "expr": "sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range]))",
@@ -132,83 +178,323 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {}
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["sum"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
       }
     },
     {
-      "type": "row",
-      "title": "Token Usage",
-      "collapsed": true,
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
-      "panels": []
+      "id": 5,
+      "title": "In-Flight Requests",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 12, "x": 0, "y": 4},
+      "targets": [
+        {
+          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
+          "format": "time_series",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      }
     },
     {
-      "title": "Total Tokens Consumed Over Time",
-      "id": 5,
+      "id": 6,
+      "title": "Success Rate %",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 12, "x": 12, "y": 4},
+      "targets": [
+        {
+          "expr": "(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range])) - sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range]))) / sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range])) * 100",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Requests Over Time (Success)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", status_code=\"200\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Requests Over Time (Failure)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(rate(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Request Latency P95",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
-      "minStep": "30s",
       "targets": [
         {
-          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__rate_interval]))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_request_total_latency_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval])))",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "refId": "A"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
-      "title": "Tokens Per Second Per Model",
-      "id": 6,
+      "id": 10,
+      "title": "Time To First Token P95",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
-      "minStep": "30s",
       "targets": [
         {
-          "expr": "sum by (model) (rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__rate_interval]))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_llm_api_time_to_first_token_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval])))",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "refId": "A"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
-      "type": "row",
-      "title": "Cost & Team Analysis",
-      "collapsed": true,
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
-      "panels": []
+      "id": 11,
+      "title": "Total Tokens Over Time",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "targets": [
+        {
+          "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
+      "id": 12,
+      "title": "Tokens Per Second Per Model",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "targets": [
+        {
+          "expr": "sum by (model) (rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 13,
       "title": "Token Consumption by Team",
-      "id": 7,
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
-      "minStep": "30s",
       "targets": [
         {
-          "expr": "sum by (team_alias) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__rate_interval]))",
+          "expr": "sum by (team_alias) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$interval]))",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "refId": "A"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
-      "title": "Cost Over Time",
-      "id": 8,
+      "id": 14,
+      "title": "Cost Over Time by Model",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
-      "minStep": "30s",
       "targets": [
         {
-          "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__rate_interval]))",
+          "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$interval]))",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -218,130 +504,140 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "usd"
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
         }
       }
     },
     {
-      "type": "row",
-      "title": "Request Volume & Performance",
-      "collapsed": true,
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40},
-      "panels": []
+      "id": 15,
+      "title": "Deployment Success Responses",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+      "targets": [
+        {
+          "expr": "sum(increase(litellm_deployment_success_responses_total{api_key_alias=~\"$api_key_alias\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
-      "title": "Request Success/Failure Rate",
-      "id": 9,
+      "id": 16,
+      "title": "Deployment Failure Responses",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+      "targets": [
+        {
+          "expr": "sum(increase(litellm_deployment_failure_responses_total{api_key_alias=~\"$api_key_alias\"}[$interval]))",
+          "format": "time_series",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 17,
+      "title": "Cache Hits vs Misses",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
-      "minStep": "30s",
       "targets": [
         {
-          "expr": "(sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", status_code=\"200\"}[$__rate_interval])) / on() (sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))))",
+          "expr": "sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\"}[$interval]))",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
-          "legendFormat": "Success Rate",
+          "legendFormat": "Cache Hits",
           "refId": "A"
         },
         {
-          "expr": "(sum(rate(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval])) / on() (sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))))",
+          "expr": "sum(increase(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\"}[$interval]))",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
-          "legendFormat": "Failure Rate",
+          "legendFormat": "Cache Misses",
           "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
         }
       }
     },
     {
-      "title": "Request Latency P95",
-      "id": 10,
+      "id": 18,
+      "title": "Process Memory",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
-      "minStep": "30s",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_request_total_latency_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__rate_interval])))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "TTFT & Deployment Health",
-      "collapsed": true,
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 56},
-      "panels": []
-    },
-    {
-      "title": "Time To First Token P95",
-      "id": 11,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 64},
-      "minStep": "30s",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(litellm_llm_api_time_to_first_token_metric_bucket{api_key_alias=~\"$api_key_alias\", model=~\"$model\"}[$__rate_interval])))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "title": "Deployment Success/Failure",
-      "id": 12,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 64},
-      "minStep": "30s",
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_deployment_success_responses_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(increase(litellm_deployment_failure_responses_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "System Health",
-      "collapsed": true,
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 72},
-      "panels": []
-    },
-    {
-      "title": "Process Metrics",
-      "id": 13,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 80},
-      "minStep": "30s",
       "targets": [
         {
           "expr": "process_resident_memory_bytes{job=~\".*litellm.*\"}",
@@ -349,103 +645,63 @@
           "instant": false,
           "range": true,
           "editorMode": "code",
-          "legendFormat": "Memory (bytes)",
+          "legendFormat": "Memory",
           "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
         },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "title": "Process CPU",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56},
+      "targets": [
         {
-          "expr": "rate(process_cpu_seconds_total{job=~\".*litellm.*\"}[$__rate_interval])",
+          "expr": "rate(process_cpu_seconds_total{job=~\".*litellm.*\"}[$interval])",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "legendFormat": "CPU Usage",
-          "refId": "B"
-        },
-        {
-          "expr": "process_open_fds{job=~\".*litellm.*\"}",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "legendFormat": "Open FDs",
-          "refId": "C"
+          "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
+          "unit": "percentunit",
           "custom": {
-            "showLegend": true,
             "lineWidth": 2,
-            "fillOpacity": 0
+            "fillOpacity": 10
           }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "A"
-            },
-            "properties": [
-              {"id": "unit", "value": "bytes"},
-              {"id": "custom.axisPlacement", "value": "left"},
-              {"id": "custom.axisSoftMin", "value": 0}
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "B"
-            },
-            "properties": [
-              {"id": "unit", "value": "percentunit"},
-              {"id": "custom.axisPlacement", "value": "right"},
-              {"id": "min", "value": 0},
-              {"id": "max", "value": 1}
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "C"
-            },
-            "properties": [
-              {"id": "unit", "value": "short"},
-              {"id": "custom.axisPlacement", "value": "right"},
-              {"id": "custom.axisSoftMin", "value": 0}
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "title": "Cache Performance",
-      "id": 14,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 80},
-      "minStep": "30s",
-      "targets": [
-        {
-          "expr": "sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(increase(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))",
-          "format": "time_series",
-          "instant": false,
-          "range": true,
-          "editorMode": "code",
-          "refId": "B"
         }
-      ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     }
-  ],
-  "annotations": {
-    "list": []
-  },
-  "style": "dark",
-  "timezone": "browser"
+  ]
 }
