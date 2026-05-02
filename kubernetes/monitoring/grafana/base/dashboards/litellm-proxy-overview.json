@@ -57,13 +57,13 @@
       "panels": []
     },
     {
-      "title": "Monthly Cost So Far",
+      "title": "Cost So Far",
       "id": 1,
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 0, "y": 4},
       "targets": [
         {
-          "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\"}[$__range]))",
+          "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", model=~\"$model\", team_alias=~\"$team_alias\"}[$__range]))",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -86,8 +86,8 @@
         {
           "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
           "format": "time_series",
-          "instant": false,
-          "range": true,
+          "instant": true,
+          "range": false,
           "editorMode": "code",
           "refId": "A"
         }
@@ -236,7 +236,7 @@
       "minStep": "30s",
       "targets": [
         {
-          "expr": "sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", status_code=\"200\"}[$__rate_interval]))",
+          "expr": "(sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", status_code=\"200\"}[$__rate_interval])) / on() (sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))))",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -244,7 +244,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))",
+          "expr": "(sum(rate(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval])) / on() (sum(rate(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\"}[$__rate_interval]))))",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -334,7 +334,7 @@
       "minStep": "30s",
       "targets": [
         {
-          "expr": "process_resident_memory_bytes",
+          "expr": "process_resident_memory_bytes{job=~\".*litellm.*\"}",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -342,7 +342,7 @@
           "refId": "A"
         },
         {
-          "expr": "rate(process_cpu_seconds_total[$__rate_interval])",
+          "expr": "rate(process_cpu_seconds_total{job=~\".*litellm.*\"}[$__rate_interval])",
           "format": "time_series",
           "instant": false,
           "range": true,
@@ -350,14 +350,62 @@
           "refId": "B"
         },
         {
-          "expr": "process_open_fds",
+          "expr": "process_open_fds{job=~\".*litellm.*\"}",
           "format": "time_series",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "refId": "C"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "max": 100,
+          "min": 0,
+          "custom": {
+            "showLegend": true
+          },
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 50},
+              {"color": "red", "value": 80}
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "match": "A",
+            "properties": [
+              {"id": "unit", "value": "bytes"},
+              {"id": "max", "value": null},
+              {"id": "min", "value": null},
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "match": "B",
+            "properties": [
+              {"id": "unit", "value": "percent"},
+              {"id": "max", "value": 100},
+              {"id": "min", "value": 0},
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "match": "C",
+            "properties": [
+              {"id": "unit", "value": "short"},
+              {"id": "max", "value": null},
+              {"id": "min", "value": null},
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          }
+        ]
+      }
     },
     {
       "title": "Cache Performance",
