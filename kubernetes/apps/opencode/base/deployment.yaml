@@ -18,7 +18,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: opencode
-          image: ghcr.io/nimbleflux/opencode-docker:latest@sha256:978b065bd7d887a00a240d11423e3c48d9513094b7e5b97c7177b7c71fd7dff4
+          image: ghcr.io/anomalyco/opencode:1.14.31@sha256:fc868f6adf9364ff99a9fee4662cddd54f23161bb0d9a1030c6a2373b20d3750
           imagePullPolicy: Always
           ports:
             - containerPort: 4096
