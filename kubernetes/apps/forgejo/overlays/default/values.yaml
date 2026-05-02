@@ -1,0 +1,47 @@
+postgresql:
+  enabled: false
+postgresql-ha:
+  enabled: false
+redis-cluster:
+  enabled: false
+
+gitea:
+  additionalConfigFromEnvs:
+    - name: FORGEJO__DATABASE__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-credentials
+          key: password
+    - name: FORGEJO__DATABASE__USER
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-credentials
+          key: username
+  config:
+    database:
+      DB_TYPE: postgres
+      HOST: forgejo-db-rw:5432
+      NAME: forgejo
+    server:
+      ROOT_URL: https://forgejo.homelab.leehosanganson.dev
+      DOMAIN: forgejo.homelab.leehosanganson.dev
+      SSH_DOMAIN: forgejo.homelab.leehosanganson.dev
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+  hosts:
+    - host: forgejo.homelab.leehosanganson.dev
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: forgejo-tls
+      hosts:
+        - forgejo.homelab.leehosanganson.dev
+
+persistence:
+  enabled: true
+  existingClaim: forgejo-pvc

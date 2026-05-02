@@ -17,3 +17,4 @@ resources:
   - life-in-the-uk-quiz.yaml
   - syncthing.yaml
   - immich.yaml
+  - forgejo.yaml
