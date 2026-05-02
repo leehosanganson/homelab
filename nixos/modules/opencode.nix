@@ -89,7 +89,7 @@
       # so we disable it and use ReadWritePaths instead.
       NoNewPrivileges = true;
       ProtectSystem = "strict";
-      ProtectHome = no;
+      ProtectHome = false;
       ReadWritePaths = [ "/var/lib/opencode" ];
       PrivateTmp = true;
     };
