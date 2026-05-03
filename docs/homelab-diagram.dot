@@ -1,156 +1,133 @@
-digraph Homelab {
-    // Global Graph Settings
+digraph Homelab_Pro {
+    // Global Settings for a "System Blueprint" Aesthetic
     graph [
-        rankdir=LR, 
+        rankdir=TB, 
         compound=true, 
-        splines=polyline, 
+        splines=ortho, 
         pad=0.5,            
-        nodesep=0.5,        // Slightly increased to let nodes breathe
-        ranksep=1.5,        // Pulls the left and right columns closer together
+        nodesep=0.4,        
+        ranksep=1.2,        
         fontname="Inter, Helvetica, sans-serif", 
         fontsize=16,        
-        bgcolor="#1E1E1E"
+        bgcolor="#09090B"
     ];
 
-    // Global Node Defaults (Made slightly "chunkier" to fill space)
+    // Global Node Defaults 
     node [
         shape=box, 
         style="rounded,filled", 
-        fillcolor="#333333", 
-        color="#555555", 
-        fontcolor="#FFFFFF", 
+        fillcolor="#18181B",
+        color="#3F3F46",
+        fontcolor="#FAFAFA", 
         fontname="Inter, Helvetica, sans-serif", 
-        fontsize=12,        
-        margin="0.3,0.25"   // Increased margin to make buttons look fuller
+        fontsize=11,        
+        margin="0.2,0.15",
+        penwidth=1.5
     ];
     
     // Global Edge Defaults
     edge [
-        color="#888888", 
-        fontcolor="#AAAAAA", 
+        color="#52525B", 
+        fontcolor="#A1A1AA", 
         fontname="Inter, Helvetica, sans-serif", 
-        fontsize=11,        
-        penwidth=1.5, 
+        fontsize=10,        
+        penwidth=1.2, 
         arrowsize=0.8
     ];
 
-    // ==========================================
-    // CLUSTER 1: GitOps & IaC
-    // ==========================================
+
     subgraph cluster_gitops {
-        label="GitOps & IaC (Two-Layer)";
-        style="rounded,filled"; fillcolor="#2A2A2A"; color="#444444"; fontcolor="#E0E0E0"; 
-        fontsize=14; 
-        margin=20; // Increased to fill out the box
-        node [fillcolor="#44337A", color="#553C9A"]; 
+        label="GITOPS & IaC";
+        style="rounded,filled"; fillcolor="#111111"; color="#7C3AED"; fontcolor="#A78BFA"; 
+        fontsize=13; margin=15; 
+        node [color="#7C3AED"]; 
 
-        github [label="GitHub Repo\nBase/Overlays"];
-        nixos [label="NixOS + sops-nix\nOS Config & Secrets"];
-        opentofu [label="OpenTofu\nVM Provisioning"];
-        fluxcd [label="FluxCD\nContinuous Recon."];
-
-        {rank=same; github; nixos;}
-        {rank=same; opentofu; fluxcd;}
-        github -> opentofu [style=invis];
+        github [label="GitHub Repo\nFlux + Tofu Sources"];
+        nixos  [label="NixOS\nOS Config"];
+        tofu   [label="OpenTofu\nVM Provisioning"];
+        flux   [label="FluxCD\nK8s Reconciliation"];
     }
 
-    // ==========================================
-    // CLUSTER 2: External Resources (Moved to Left Side)
-    // ==========================================
     subgraph cluster_external {
-        label="External Resources";
-        style="rounded,filled"; fillcolor="#2A2A2A"; color="#444444"; fontcolor="#E0E0E0"; 
-        fontsize=14; 
-        margin=20;
+        label="EXTERNAL RESOURCES";
+        style="rounded,filled"; fillcolor="#111111"; color="#0EA5E9"; fontcolor="#7DD3FC"; 
+        fontsize=13; margin=15;
+        node [color="#0EA5E9"];
         
-        {rank=same; azure_kv; synology_nas;} // Put them side-by-side to match the width of other clusters
-        
-        node [fillcolor="#005A9E", color="#004578"]; 
-        azure_kv [label="Azure Key Vault\nSecrets Backend"];
-        
-        node [fillcolor="#4A5568", color="#2D3748"]; 
-        synology_nas [label="Synology NAS\nNFS Volumes"];
+        azure_kv [label="Azure Key Vault\nSecrets"];
+        syn_nas  [label="Synology NAS\nNFS Volumes"];
     }
 
-    // ==========================================
-    // CLUSTER 3: Network Entry & Routing
-    // ==========================================
     subgraph cluster_network {
-        label="Network Entry & Routing";
-        style="rounded,filled"; fillcolor="#2A2A2A"; color="#444444"; fontcolor="#E0E0E0"; 
-        fontsize=14; 
-        margin=20; 
-        node [fillcolor="#1A365D", color="#2A4365"]; 
+        label="NETWORK ENTRY";
+        style="rounded,filled"; fillcolor="#111111"; color="#3B82F6"; fontcolor="#93C5FD"; 
+        fontsize=13; margin=15;
+        node [color="#3B82F6"];
 
-        public_users [label="Public Users"];
-        lan_users [label="LAN Users"];
-        tailnet_users [label="Tailnet Users"];
+        users    [label="Users\nPublic/LAN/VPN"];
+        ingress  [label="Traefik Ingress\nController", fillcolor="#1E3A8A"];
         
-        cloudflare [label="Cloudflare\n(DNS + Zero Trust)"];
-        haproxy [label="HAProxy (3 VMs)\nL4 LB + SSL"];
-        traefik [label="Traefik\nIngress Controller"];
-
-        public_users -> cloudflare [xlabel=" HTTPS"];
-        lan_users -> haproxy [xlabel=" Local LAN"];
-        tailnet_users -> haproxy [xlabel=" Tailscale"];
-        cloudflare -> traefik [xlabel=" Tunnel"];
-        haproxy -> traefik [xlabel=" Internal"];
+        {rank=same; users; ingress;}
+        users -> ingress;
     }
 
-    // ==========================================
-    // CLUSTER 4: Infrastructure & Platform
-    // ==========================================
     subgraph cluster_infra {
-        label="Infrastructure & Platform";
-        style="rounded,filled"; fillcolor="#2A2A2A"; color="#444444"; fontcolor="#E0E0E0"; 
-        fontsize=14; 
-        margin=20;
-        node [fillcolor="#22543D", color="#276749"]; 
+        label="INFRASTRUCTURE & PLATFORM";
+        style="rounded,filled"; fillcolor="#111111"; color="#10B981"; fontcolor="#6EE7B7"; 
+        fontsize=13; margin=15;
+        node [color="#10B981"];
 
-        proxmox [label="Proxmox VE\n2 Mini PCs, 1 GPU PC"];
-        k3s [label="K3s Kubernetes\nControl Planes + GPU Worker"];
-        
-        platform_svcs [label="Core Platform\nCert Manager, Harbor, Rancher"];
-        data_storage [label="Data & Storage\nCloudNativePG, Synology CSI"];
-        observability [label="Observability\nPrometheus, Grafana, Loki, Velero"];
-        
-        {rank=same; proxmox; k3s;}
-        {rank=same; platform_svcs; data_storage; observability;}
-        proxmox -> platform_svcs [style=invis]; 
+        proxmox [label="Proxmox VE Cluster\n3 Nodes (2 Mini, 1 GPU)"];
+        k3s     [label="K3s Cluster\nControl + GPU Nodes"];
+        platform [label="Core Services\nCert-Manager, Harbor"];
+        storage  [label="Data & Storage\nCloudNativePG, CSI"];
+        obs      [label="Observability\nProm, Grafana, Loki"];
+
+        {rank=same; proxmox; k3s; storage;}
+        proxmox -> k3s;
+        {rank=same; platform; obs;}
     }
 
-    // ==========================================
-    // CLUSTER 5: Production Workloads
-    // ==========================================
     subgraph cluster_workloads {
-        label="Production Workloads";
-        style="rounded,filled"; fillcolor="#2A2A2A"; color="#444444"; fontcolor="#E0E0E0"; 
-        fontsize=14; 
-        margin=20;
-        node [fillcolor="#742A2A", color="#9B2C2C"]; 
+        label="PRODUCTION WORKLOADS";
+        style="rounded,filled"; fillcolor="#111111"; color="#EF4444"; fontcolor="#FCA5A1"; 
+        fontsize=13; margin=15;
+        node [color="#EF4444"];
 
-        ai_apps [label="AI & LLM Stack\nvLLM, LiteLLM, Open WebUI"];
-        media_apps [label="Media & Docs\nJellyfin, *arr, Immich, Paperless"];
-        auto_apps [label="Dev & Auto\nn8n, OpenCode, Coder"];
-        utility_apps [label="Utility & Home\nHomepage, Home Assistant"];
+        ai_apps   [label="AI: LiteLLM, Open WebUI", color="#EF4444"];
+        media     [label="Media: Jellyfin, *arr", color="#EF4444"];
+        docs      [label="Docs: Paperless, Karakeep", color="#EF4444"];
+        utility   [label="Util: Homepage, Budget", color="#EF4444"];
+        dev       [label="Dev: n8n, Coder", color="#EF4444"];
+        home      [label="Home: Assistant, MC", color="#EF4444"];
+
+        {rank=same; ai_apps; media; docs;}
+        {rank=same; utility; dev; home;}
     }
 
     // ==========================================
-    // SYSTEM RELATIONSHIPS & FLOW
+    // SYSTEM WIRING (Horizontal "Blueprints")
     // ==========================================
     
-    // Provisioning & Config Flow
-    opentofu -> proxmox [label=" Provisions VMs", style="dashed", color="#A0AEC0"];
-    fluxcd -> k3s [label=" Reconciles K8s", style="dashed", color="#A0AEC0"];
-    nixos -> k3s [label=" OS Config", style="dashed", color="#A0AEC0"];
+    // Provisioning
+    tofu -> proxmox [xlabel=" Provisions ", style=dashed, color="#A1A1AA"];
+    flux -> k3s     [xlabel=" Reconciles ", style=dashed, color="#A1A1AA"];
     
-    // External Integrations (Now flowing left-to-right perfectly)
-    azure_kv -> platform_svcs [label=" Secrets Provider", style="dashed", color="#63B3ED", fontcolor="#63B3ED"];
-    synology_nas -> data_storage [label=" Mounts PVs", style="dashed", color="#63B3ED", fontcolor="#63B3ED"];
+    // Data & Secrets
+    azure_kv -> platform [xlabel=" Secrets ", style=dashed, color="#0EA5E9"];
+    syn_nas -> storage   [xlabel=" Mounts ", style=dashed, color="#0EA5E9"];
 
-    // Application Traffic Flow
-    traefik -> ai_apps [lhead="cluster_workloads", label=" Routes App Traffic", color="#F6AD55", fontcolor="#F6AD55"];
-    
-    // Structural Anchor (Hidden) - Pulls top and bottom halves together
-    k3s -> ai_apps [style=invis];
+    // Traffic Flow
+    ingress -> ai_apps [lhead=cluster_workloads, color="#F59E0B", penwidth=2, xlabel=" Routes Traffic "];
+
+    // ==========================================
+    // HIDDEN ANCHORS (The secret to a 4:3 fit)
+    // ==========================================
+    // edge [style=invis];
+    // Centering
+    tofu -> proxmox -> k3s -> docs;
+
+    // Left
+    github -> azure_kv -> ingress -> ai_apps;
+
 }
