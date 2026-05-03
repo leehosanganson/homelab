@@ -90,7 +90,7 @@
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
 
-  environment.etc."profile.d/kubeconfig.sh" = {
+  environment.etc."bash_completion.d/opencode-kubeconfig" = {
     text = ''
       # Set KUBECONFIG for opencode user's interactive shells
       if [ "$USER" = "opencode" ]; then
