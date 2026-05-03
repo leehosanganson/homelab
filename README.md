@@ -6,175 +6,75 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
 
 ## Overview
 
+### Network Architecture
+
+Infrastructure topology from external → Proxmox → K3s cluster → Kubernetes services.
+
 ```mermaid
 flowchart TD
-    %% ============================================
-    %% 0. EXTERNAL / INTERNET
-    %% ============================================
-    subgraph External["🌐 External / Internet"]
-        PublicUsers["Public Users"]:::external
-        CF_DNS["Cloudflare DNS\n*.infra.leehosanganson.dev"]:::external
-        CF_TUNNEL["Cloudflare Tunnel\nZero Trust Gateway"]:::external
+    %% EXTERNAL LAYER
+    subgraph External["External / Internet"]
+        USER["👤 Users"]:::ext
+        CF_DNS["Cloudflare DNS\n*.infra.leehosanganson.dev"]:::ext
+        CF_TUNNEL["Cloudflare Tunnel\nZero Trust"]:::ext
     end
 
-    %% ============================================
-    %% 1. PHYSICAL LAYER - Proxmox Cluster
-    %% ============================================
-    subgraph Physical["🖥️ Proxmox VE Cluster (Physical Layer)"]
+    %% PHYSICAL LAYER - Proxmox Cluster
+    subgraph Physical["Proxmox VE Cluster"]
+        LAN["LAN 192.168.1.0/24"]:::phy
         PVE01["pve01\nMini PC"]:::vm
         PVE02["pve02\nMini PC"]:::vm
         PVE03["pve03\nGaming PC"]:::vm
-        LAN["LAN 192.168.1.0/24\nvmbr0 Bridge"]:::physical
-        ROUTER["Router / Gateway\n192.168.1.1"]:::external
     end
 
-    %% ============================================
-    %% 2. PROXMOX VMs (Infrastructure Services)
-    %% ============================================
-    subgraph ProxmoxVMs["📦 Proxmox VMs (Infrastructure Services)"]
-        HAP1["haproxy-1\n192.168.1.251\npve01"]:::vm
-        HAP2["haproxy-2\n192.168.1.252\npve02"]:::vm
-        HAP3["haproxy-3\n192.168.1.253\npve03"]:::vm
-        OPN1["opencode-1\n192.168.1.161\npve01\nOpenCode AI Agent :4096"]:::vm
+    %% PROXMOX VMs - Infrastructure Services
+    subgraph InfraVMs["Infrastructure VMs"]
+        HAP1["haproxy-1\n.251"]:::svc
+        HAP2["haproxy-2\n.252"]:::svc
+        HAP3["haproxy-3\n.253"]:::svc
+        OPN1["opencode-1\n.161"]:::svc
     end
 
-    %% ============================================
-    %% 3. K3S CLUSTER - Host Nodes
-    %% ============================================
-    subgraph K3sCluster["⚓ K3s Kubernetes Cluster (Host Nodes)"]
-        CTRL01["k3s ctrl-01\n192.168.1.151"]:::vm
-        CTRL02["k3s ctrl-02\n192.168.1.152"]:::vm
-        CTRL03["k3s ctrl-03\n192.168.1.153"]:::vm
-        GPU_WORKER["k3s worker-gpu\nRTX 5060 Ti"]:::vm
+    %% K3S CLUSTER - Host Nodes
+    subgraph K3sNodes["K3s Cluster Nodes"]
+        CTRL01["ctrl-01\n.151"]:::vm
+        CTRL02["ctrl-02\n.152"]:::vm
+        CTRL03["ctrl-03\n.153"]:::vm
+        GWORKER["worker-gpu\nRTX 5060 Ti"]:::vm
     end
 
-    %% ============================================
-    %% 4. K8s INFRASTRUCTURE
-    %% ============================================
-    subgraph K8sInfra["🔧 Kubernetes Infrastructure (kubernetes/infra/)"]
-        subgraph IngressCert["Ingress & Certificates"]
-            TRAFIK["Traefik\nIngress Controller"]:::k8s
-            CERTMGR["Cert Manager\nTLS Automation"]:::k8s
-        end
-
-        subgraph CloudTunnelK8s["Cloud Tunnel (K8s-side)"]
-            CFT_K8S["Cloudflare Tunnel\ncloudflared"]:::k8s
-        end
-
-        subgraph GPUStack["GPU & AI Runtime"]
-            GPUOP["GPU Operator\nNVIDIA Runtime"]:::k8s
-        end
-
-        subgraph SecretsStorage["Secrets & Storage"]
-            ESO["External Secrets Op.\nAzure Key Vault Sync"]:::k8s
-            SYNCSI["Synology CSI Driver\nPV Provisioning"]:::k8s
-        end
-
-        subgraph DBOperators["Database Operators"]
-            CNPG["CloudNativePG\nPostgreSQL Operator"]:::k8s
-        end
-
-        subgraph RegistryMgmt["Registry & Management"]
-            HARBOR["Harbor\nContainer Registry"]:::k8s
-            RANCHER["Rancher\nK8s Management"]:::k8s
-        end
-
-        subgraph BackupMetrics["Backup & Metrics"]
-            VELERO["Velero\nBackup/Restore + Azure"]:::k8s
-            METRICS_SVR["Metrics Server\nK8s Resource Metrics"]:::k8s
-        end
+    %% K8s INFRASTRUCTURE SERVICES
+    subgraph K8sInfra["Kubernetes Infrastructure (kubernetes/infra/)"]
+        INF1["Traefik\nIngress"]:::svc
+        INF2["Cert Manager\nTLS"]:::svc
+        INF3["GPU Operator\nNVIDIA"]:::svc
+        INF4["External Secrets\nAzure KV"]:::svc
+        INF5["CloudNativePG\nPostgreSQL"]:::svc
+        INF6["Synology CSI\nPV Provisioner"]:::svc
+        INF7["Harbor\nRegistry"]:::svc
+        INF8["Rancher\nManagement"]:::svc
+        INF9["Velero\nBackup"]:::svc
+        INF10["Metrics Server\nResource Metrics"]:::svc
     end
 
-    %% ============================================
-    %% 5. K8s APPLICATIONS
-    %% ============================================
-    subgraph K8sApps["📦 Kubernetes Applications (kubernetes/apps/)"]
-        subgraph Productivity["Productivity & Dev Tools"]
-            AB["Actual Budget\nPersonal Finance"]:::k8s
-            CHROME["Chrome\nInternal Browser"]:::k8s
-            ITTOOL["IT-Tools\nDeveloper Collection"]:::k8s
-            TERMIX["Termix\nTerminal/SSH Mobile"]:::k8s
-            WHOAMI["Whoami\nDebug HTTP Service"]:::k8s
-            PORTFOLIO["Portfolio\nPersonal Website"]:::k8s
-        end
-
-        subgraph DashboardBrowsing["Dashboard & Browsing"]
-            HOMEPAGE["Homepage\nHome Page / Dashboard"]:::k8s
-            CFED["Commafeed\nRSS Reader"]:::k8s
-        end
-
-        subgraph PhotoDoc["Photo & Document Management"]
-            IMMICH["Immich\nPhoto/Video Mgmt + Redis"]:::k8s
-            PAPERLESS["Paperless-ngx\nDocument Mgmt + Redis"]:::k8s
-        end
-
-        subgraph MediaSuite["Media Suite"]
-            JELLYFIN["Jellyfin\nMedia Server & Player"]:::k8s
-            JELLYSEERR["Jellyseerr\nMedia Discovery/Requests"]:::k8s
-            NAV["Navidrome\nMusic Streaming"]:::k8s
-        end
-
-        subgraph MediaArr["*arr Suite (Media Management)"]
-            PROWLARR["Prowlarr\nIndexer"]:::k8s
-            QBT["qBittorrent\nDownload Client"]:::k8s
-            RAD["Radarr\nMovie Management"]:::k8s
-            SON["Sonarr\nTV Show Management"]:::k8s
-            LID["Lidarr\nMusic Management"]:::k8s
-            BAZ["Bazarr\nSubtitles"]:::k8s
-        end
-
-        subgraph AIStack["AI Services (on GPU Worker)"]
-            VL["vLLM\nLLM Inference Serving"]:::k8s
-            LLAMA_CPP["llama.cpp\nC/C++ LLM Inference"]:::k8s
-            LITELLM["LiteLLM\nLLM Gateway"]:::k8s
-            OWEBUI["OpenWebUI\nChat UI → LiteLLM"]:::k8s
-        end
-
-        subgraph OtherApps["Other Applications"]
-            HA["Home Assistant\nHome Automation"]:::k8s
-            N8N["n8n\nWorkflow Automation"]:::k8s
-            SYNCT["Syncthing\nFile Sync"]:::k8s
-            GRIM["Grimmory\nDigital Library Mgmt"]:::k8s
-            MINIQR["Mini QR\nQR Code Generator"]:::k8s
-            LUKQ["Life in the UK Quiz\nCustom Quiz App"]:::k8s
-        end
-
-        subgraph MonitoringStack["Monitoring & Observability"]
-            PROM["Prometheus + Grafana\nkube-prometheus-stack"]:::k8s
-            LOKI["Loki\nLog Aggregation"]:::k8s
-            ALLOY["Alloy\nOpenTelemetry Collector"]:::k8s
-        end
-
-        subgraph OtherServices["Other Services"]
-            MINECRAFT["Minecraft Server"]:::k8s
-            ZOTERO["Zotero WebDAV"]:::k8s
-            KARA["Karakeep\nDigital Collection"]:::k8s
-        end
+    %% EXTERNAL SERVICES (non-managed)
+    subgraph ExtServices["External Services"]
+        SYN["Synology NAS\n.197"]:::ext
+        PIH1["Pi-hole 1\n.132"]:::ext
+        PIH2["Pi-hole 2\n.133"]:::ext
     end
 
-    %% ============================================
-    %% 6. EXTERNAL SERVICES (Non-managed)
-    %% ============================================
-    subgraph ExternalInfra["🗄️ External Infrastructure (Not managed by this repo)"]
-        SYN["Synology NAS\n192.168.1.197\nFile Server & CSI PV Provisioner"]:::external
-        PIH1["Pi-hole 1\n192.168.1.132"]:::external
-        PIH2["Pi-hole 2\n192.168.1.133"]:::external
-    end
-
-    %% ============================================
-    %% CONNECTIONS - Data Flow
-    %% ============================================
-    PublicUsers -->|"HTTPS"\| CF_DNS
-    CF_DNS --> CFT_TUNNEL
-    CFT_TUNNEL -->|"Zero Trust"\| HAP1
-    PublicUsers -->|"direct"\| HAP1
+    %% CONNECTIONS
+    USER -->|"HTTPS"\| CF_DNS
+    CF_DNS --> CF_TUNNEL
+    CF_TUNNEL --> HAP1
+    USER --> HAP1
 
     HAP1 -->|"k3s VIP"\| CTRL01
     HAP1 -->|"k3s VIP"\| CTRL02
     HAP1 -->|"k3s VIP"\| CTRL03
     HAP1 -->|"nas-1"\| SYN
-    HAP1 -->|"pihole-1"\| PIH1
-    HAP1 -->|"pihole-2"\| PIH2
+    HAP1 -->|"pihole"\| PIH1
 
     LAN --- PVE01
     LAN --- PVE02
@@ -184,12 +84,106 @@ flowchart TD
     PVE02 -.-> HAP2
     PVE03 -.-> HAP3
 
-    CTRL01 <-->|"etcd + API"\| CTRL02
-    CTRL02 <-->|"etcd + API"\| CTRL03
-    CTRL01 -->|"scheduler"\| GPU_WORKER
+    CTRL01 <-->|"etcd"\| CTRL02
+    CTRL02 <-->|"etcd"\| CTRL03
+    CTRL01 -->|"scheduler"\| GWORKER
 
-    HAP1 -->|"traefik internal"\| TRAFIK
+    HAP1 -->|"traefik"\| INF1
+    INF6 --> SYN
+    GWORKER -.-> INF3
 
+    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+    classDef svc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
+    classDef ext fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
+    classDef phy fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238;
+```
+
+### Application Data Flow
+
+Kubernetes application services and their data dependencies.
+
+```mermaid
+flowchart TD
+    %% K8s INFRASTRUCTURE (anchor)
+    subgraph Infra["Kubernetes Infrastructure"]
+        TRAFIK["Traefik\nIngress Controller"]:::svc
+        CNPG["CloudNativePG\nPostgreSQL"]:::db
+        REDIS_I["Redis\nImmich"]:::db
+        REDIS_P["Redis\nPaperless"]:::db
+    end
+
+    %% PRODUCTIVITY & DEV TOOLS
+    subgraph Productivity["Productivity & Dev Tools"]
+        AB["Actual Budget"]:::svc
+        CHROME["Chrome"]:::svc
+        ITTOOL["IT-Tools"]:::svc
+        TERMIX["Termix"]:::svc
+        WHOAMI["Whoami"]:::svc
+        PORTFOLIO["Portfolio"]:::svc
+    end
+
+    %% DASHBOARD & BROWSING
+    subgraph Dashboard["Dashboard & Browsing"]
+        HOMEPAGE["Homepage"]:::svc
+        CFED["Commafeed\nRSS Reader"]:::svc
+    end
+
+    %% PHOTO & DOCUMENT MANAGEMENT
+    subgraph PhotoDoc["Photo & Document Mgmt"]
+        IMMICH["Immich\nPhoto/Video"]:::svc
+        PAPERLESS["Paperless-ngx\nDocuments"]:::svc
+    end
+
+    %% MEDIA SUITE
+    subgraph Media["Media Suite"]
+        JELLYFIN["Jellyfin\nServer & Player"]:::svc
+        JELLYSEERR["Jellyseerr\nDiscovery"]:::svc
+        NAV["Navidrome\nMusic Streaming"]:::svc
+    end
+
+    %% *ARR SUITE
+    subgraph ArrSuite["*arr Suite (Media Management)"]
+        PROWLARR["Prowlarr\nIndexer"]:::svc
+        QBT["qBittorrent\nDownloader"]:::svc
+        RAD["Radarr\nMovies"]:::svc
+        SON["Sonarr\nTV Shows"]:::svc
+        LID["Lidarr\nMusic"]:::svc
+        BAZ["Bazarr\nSubtitles"]:::svc
+    end
+
+    %% AI STACK (on GPU Worker)
+    subgraph AIStack["AI Services (GPU Worker)"]
+        VL["vLLM\nInference"]:::svc
+        LLAMA_CPP["llama.cpp\nLLM Inference"]:::svc
+        LITELLM["LiteLLM\nGateway"]:::svc
+        OWEBUI["OpenWebUI\nChat UI"]:::svc
+    end
+
+    %% OTHER APPLICATIONS
+    subgraph OtherApps["Other Applications"]
+        HA["Home Assistant"]:::svc
+        N8N["n8n\nWorkflow"]:::svc
+        SYNCT["Syncthing\nFile Sync"]:::svc
+        GRIM["Grimmory\nLibrary Mgmt"]:::svc
+        MINIQR["Mini QR\nGenerator"]:::svc
+        LUKQ["Life in the UK Quiz"]:::svc
+    end
+
+    %% MONITORING & OBSERVABILITY
+    subgraph Monitoring["Monitoring & Observability"]
+        PROM["Prometheus + Grafana"]:::svc
+        LOKI["Loki\nLogs"]:::svc
+        ALLOY["Alloy\nOTEL Collector"]:::svc
+    end
+
+    %% OTHER SERVICES
+    subgraph OtherSvc["Other Services"]
+        MINECRAFT["Minecraft Server"]:::svc
+        ZOTERO["Zotero WebDAV"]:::svc
+        KARA["Karakeep\nCollection"]:::svc
+    end
+
+    %% CONNECTIONS - Application Data Flow
     TRAFIK --> AB
     TRAFIK --> CHROME
     TRAFIK --> ITTOOL
@@ -212,14 +206,12 @@ flowchart TD
     TRAFIK --> OWEBUI
     TRAFIK --> MINECRAFT
 
+    %% AI flow
     OWEBUI -->|"LLM API"\| LITELLM
-    LITELLM -->|"route to"\| VL
-    LITELLM -->|"route to"\| LLAMA_CPP
+    LITELLM --> VL
+    LITELLM --> LLAMA_CPP
 
-    GPU_WORKER -.-> VL
-    GPU_WORKER -.-> LLAMA_CPP
-    GPU_WORKER -.-> LITELLM
-
+    %% *arr suite
     PROWLARR <-->|"indexer"\| QBT
     RAD <-->|"API"\| QBT
     SON <-->|"API"\| QBT
@@ -228,27 +220,19 @@ flowchart TD
     SON --> JELLYFIN
     NAV --> JELLYFIN
 
+    %% Database connections
     IMMICH -->|"PostgreSQL"\| CNPG
     PAPERLESS -->|"PostgreSQL"\| CNPG
     N8N -->|"PostgreSQL"\| CNPG
+    IMMICH -->|"Redis"\| REDIS_I
+    PAPERLESS -->|"Redis"\| REDIS_P
 
-    REDIS_IMM["Redis\n(Immich)"]:::db
-    REDIS_PPL["Redis\n(Paperless)"]:::db
-    IMMICH -->|"Redis"\| REDIS_IMM
-    PAPERLESS -->|"Redis"\| REDIS_PPL
-
-    SYNCSI --> SYN
-
-    PROM --> CTRL01
-    PROM --> GPU_WORKER
-    ALLOY -->|"OTEL data"\| PROM
+    %% Monitoring
+    ALLOY -->|"OTEL"\| PROM
     LOKI -->|"logs"\| PROM
 
-    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
-    classDef k8s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
-    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
+    classDef svc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
     classDef db fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
-    classDef physical fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238;
 ```
 
 I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control nodes, and 1 Ubuntu VM GPU Worker Node. All VMs are provisioned from my Proxmox Cluster with currently 2 Mini PCs and 1 old gaming PC. I chose k3s as it is a lightweight Kubernetes distribution and I can spin up more VMs for node replacement easily from my PVE cluster if it needs more resources.
