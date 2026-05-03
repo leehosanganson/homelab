@@ -1,5 +1,6 @@
-digraph Homelab_Pro {
+digraph homelab {
     graph [
+        // newrank=true,
         rankdir=TB, 
         compound=true, 
         splines=ortho, 
@@ -34,7 +35,6 @@ digraph Homelab_Pro {
         arrowsize=0.8
     ];
 
-
     subgraph cluster_gitops {
         label="GITOPS & IaC";
         style="rounded,filled"; fillcolor="#111111"; color="#7C3AED"; fontcolor="#A78BFA"; 
@@ -45,16 +45,8 @@ digraph Homelab_Pro {
         nixos  [label="NixOS\nOS Config"];
         tofu   [label="OpenTofu\nVM Provisioning"];
         flux   [label="FluxCD\nK8s Reconciliation"];
-    }
 
-    subgraph cluster_external {
-        label="EXTERNAL";
-        style="rounded,filled"; fillcolor="#111111"; color="#0EA5E9"; fontcolor="#7DD3FC"; 
-        fontsize=13; margin=15;
-        node [color="#0EA5E9"];
-        
-        azure_kv [label="Azure Key Vault"];
-        cloudflare  [label="Cloudflare\nDNS & Proxy"];
+        {rank=same; github; nixos; tofu; flux;}
     }
 
     subgraph cluster_network {
@@ -69,18 +61,32 @@ digraph Homelab_Pro {
         {rank=same; public; private}
     }
 
-    subgraph cluster_infra {
-        label="INFRASTRUCTURE";
+    subgraph cluster_external {
+        label="EXTERNAL";
+        style="rounded,filled"; fillcolor="#111111"; color="#0EA5E9"; fontcolor="#7DD3FC"; 
+        fontsize=13; margin=15;
+        node [color="#0EA5E9"];
+        
+        azure_kv [label="Azure Key Vault"];
+        cloudflare  [label="Cloudflare\nDNS & Proxy"];
+
+        {rank=same; azure_kv; cloudflare;}
+    }
+
+    subgraph cluster_hardware {
+        label="HARDWARE";
         style="rounded,filled"; fillcolor="#111111"; color="#10B981"; fontcolor="#6EE7B7"; 
         fontsize=13; margin=15;
         node [color="#10B981"];
 
         proxmox     [label="Proxmox VE Cluster\n3 Nodes"];
         syn_nas  [label="Synology NAS\nNFS Volumes & LUN"];
+
+        {rank=same; proxmox; syn_nas;}
     }
 
     subgraph cluster_vm {
-      label="PROXMOX VM";
+      label="VIRTUAL MACHINES";
       style="rounded,filled"; fillcolor="#111111"; color="#EF4444";
       fontcolor="#FCA5A1"; fontsize=13; margin=15;
       node [color="#EF4444"];
@@ -92,8 +98,8 @@ digraph Homelab_Pro {
       {rank=same; haproxy; pihole; opencode;}
     }
 
-    subgraph cluster_kubernetes {
-        label="KUBERNETES";
+    subgraph cluster_infra {
+        label="KUBERNETES INFRASTRUCTURE";
         style="rounded,filled"; fillcolor="#111111"; color="#EF4444"; fontcolor="#FCA5A1";
         fontsize=13; margin=15;
         node [color="#EF4444"];
@@ -102,6 +108,8 @@ digraph Homelab_Pro {
         platform    [label="Core Services\nCert-Manager, Harbor"];
         ingress     [label="Traefik Ingress\nController"];
         obs         [label="Observability\nPrometheus, Grafana, Loki"];
+
+        {rank=same; storage; platform; ingress; obs;}
     }
 
     subgraph cluster_workloads {
@@ -116,6 +124,8 @@ digraph Homelab_Pro {
         utility   [label="Util: Homepage, Budget", color="#EF4444"];
         dev       [label="Dev: n8n, Coder", color="#EF4444"];
         home      [label="Home: Assistant, MC", color="#EF4444"];
+
+        {rank=same; ai_apps; media; docs; utility; dev; home;}
     }
 
     // ==========================================
@@ -123,24 +133,30 @@ digraph Homelab_Pro {
     // ==========================================
     
     // Provisioning
-    tofu -> proxmox       [rhead=cluster_infra, xlabel=" Provisions ", style=dashed, color="#A1A1AA"];
+    tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#A1A1AA"];
     nixos -> opencode       [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#A1A1AA"];
     proxmox -> pihole      [rhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#A1A1AA"];
-    flux -> storage    [lhead=cluster_kubernetes, xlabel=" Reconciles ", style=dashed, color="#A1A1AA"];
+    flux -> storage    [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#A1A1AA"];
     
     // Data & Secrets
     azure_kv -> platform [xlabel=" Secrets ", style=dashed, color="#0EA5E9"];
-    syn_nas -> storage   [lhead=cluster_kubernetes, xlabel=" Mounts ", style=dashed, color="#0EA5E9"];
+    syn_nas -> storage   [lhead=cluster_infra, xlabel=" Mounts ", style=dashed, color="#0EA5E9"];
 
     // Traffic Flow
-    public -> cloudflare -> ingress [lhead=cluster_network, color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
-    private -> pihole -> haproxy -> ingress [lhead=cluster_network, color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
-    ingress -> ai_apps [lhead=cluster_workloads, color="#F59E0B", penwidth=2, xlabel=" Routes Traffic "];
+    public -> cloudflare -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
+    private -> pihole -> haproxy -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
+    ingress -> docs [lhead=cluster_workloads, color="#F59E0B", penwidth=2, xlabel=" Routes Traffic "];
 
     // ==========================================
     // HIDDEN ANCHORS
     // ==========================================
-    // edge [style=invis];
-    github -> syn_nas -> docs;
-    azure_kv -> platform -> dev;
+    // Layer 1: GITOPS & IaC + NETWORK ENTRY
+    // Layer 2: EXTERNAL + HARDWARE
+    // Layer 3: VIRTUAL MACHINES
+    // Layer 4: KUBERNETES INFRASTRUCTURE
+    edge [style=invis];
+    edge [weight=100];
+    proxmox -> haproxy -> storage -> docs;
+    public -> cloudflare -> pihole -> home;
+    private -> syn_nas;
 }
