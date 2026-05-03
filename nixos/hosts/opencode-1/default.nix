@@ -74,7 +74,8 @@
       "kube-config" = {
         owner = "opencode";
         group = "opencode";
-        path = "/etc/kube-config";
+        path = "/var/lib/opencode/.kube/config";
+        mode = "0400";
       };
     };
   };

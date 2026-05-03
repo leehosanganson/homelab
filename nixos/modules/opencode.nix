@@ -81,31 +81,30 @@
     mode = "0444";
   };
 
- systemd.tmpfiles.rules = [
+  systemd.tmpfiles.rules = [
     "d /var/lib/opencode/.config 0750 opencode opencode -"
     "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
     "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
+    "d /var/lib/opencode/.kube 0700 opencode opencode -"
     "d /var/lib/opencode/repos 0750 opencode opencode -"
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
-    # Set KUBECONFIG for opencode user's shells (bash, login, su)
-    "f /var/lib/opencode/.bashrc 0644 opencode opencode - "# Set KUBECONFIG for opencode shell
-
-export KUBECONFIG=/etc/kube-config
-"
   ];
 
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    path = [ pkgs.git ];
+    path = [
+      pkgs.git
+      pkgs.kubectl
+      pkgs.coreutils
+    ];
 
     environment = {
       HOME = "/var/lib/opencode";
       SHELL = "${pkgs.bashInteractive}/bin/bash";
       GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
-      KUBECONFIG = "/etc/kube-config";
     };
 
     serviceConfig = {
