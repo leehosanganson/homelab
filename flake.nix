@@ -26,6 +26,7 @@
             jq
             yq-go
             kubectl-neat
+            mermaid-cli
           ];
 
           shellHook = ''
