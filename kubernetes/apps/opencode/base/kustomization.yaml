@@ -1,4 +1,4 @@
 resources:
   - service.yaml
-  - endpoints.yaml
+  - endpointslice.yaml
   - ingress.yaml
