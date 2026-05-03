@@ -107,8 +107,7 @@
       ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
       User = "opencode";
       Group = "opencode";
-      SupplementaryGroups = [ "kubernetes" ];
-      WorkingDirectory = "/var/lib/opencode";
+       WorkingDirectory = "/var/lib/opencode";
 
       EnvironmentFile = config.sops.secrets."opencode-env".path;
 

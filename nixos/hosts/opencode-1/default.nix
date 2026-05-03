@@ -72,17 +72,14 @@
       };
 
       "kube-config" = {
-        owner = "root";
-        group = "kubernetes";
+        owner = "opencode";
+        group = "opencode";
         path = "/etc/kube-config";
-        mode = "0640";
       };
     };
   };
 
   # user
-  users.groups.kubernetes = { };
-
   users.users.ansonlee = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -92,7 +89,7 @@
   };
 
   users.users.root = {
-    extraGroups = [ "wheel" "kubernetes" ];
+    extraGroups = [ "wheel" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
     ];
