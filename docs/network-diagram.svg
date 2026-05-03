@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" font-family="system-ui, -apple-system, sans-serif">
+
+  <!-- Background -->
+  <rect width="960" height="720" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="480" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#1a1a1a">Homelab Network Architecture</text>
+
+  <!-- ============================================ -->
+  <!-- LAYER: External / Internet (row 1, y=55)     -->
+  <!-- ============================================ -->
+
+  <!-- Cloudflare Tunnel (centered) -->
+  <rect x="360" y="75" width="240" height="48" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="480" y="95" text-anchor="middle" font-size="13" font-weight="500" fill="#bf360c">Cloudflare Tunnel</text>
+  <text x="480" y="112" text-anchor="middle" font-size="11" fill="#795548">Zero Trust Gateway</text>
+
+  <!-- Users (left) -->
+  <rect x="60" y="75" width="130" height="48" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="125" y="95" text-anchor="middle" font-size="13" font-weight="500" fill="#bf360c">Users</text>
+  <text x="125" y="112" text-anchor="middle" font-size="11" fill="#795548">HTTPS</text>
+
+  <!-- Cloudflare DNS (right) -->
+  <rect x="770" y="75" width="130" height="48" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="835" y="95" text-anchor="middle" font-size="13" font-weight="500" fill="#bf360c">Cloudflare DNS</text>
+  <text x="835" y="112" text-anchor="middle" font-size="11" fill="#795548">*.infra.*.dev</text>
+
+  <!-- Arrows: Users → Tunnel, DNS → Tunnel -->
+  <line x1="190" y1="99" x2="360" y2="99" stroke="#e65100" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="360,99 350,94 350,104" fill="#e65100"/>
+  <line x1="770" y1="99" x2="600" y2="99" stroke="#e65100" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="600,99 610,94 610,104" fill="#e65100"/>
+
+
+  <!-- ============================================ -->
+  <!-- LAYER: Proxmox Cluster (row 2, y=160)        -->
+  <!-- ============================================ -->
+
+  <!-- Proxmox Cluster label bar -->
+  <rect x="30" y="148" width="900" height="24" rx="4" fill="#eceff1"/>
+  <text x="480" y="165" text-anchor="middle" font-size="12" font-weight="600" fill="#455a64">Proxmox VE Cluster</text>
+
+  <!-- pve01, pve02, pve03 nodes -->
+  <rect x="160" y="180" width="170" height="40" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="245" y="197" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">pve01</text>
+  <text x="245" y="213" text-anchor="middle" font-size="10" fill="#1565c0">Mini PC</text>
+
+  <rect x="395" y="180" width="170" height="40" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="480" y="197" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">pve02</text>
+  <text x="480" y="213" text-anchor="middle" font-size="10" fill="#1565c0">Mini PC</text>
+
+  <rect x="630" y="180" width="170" height="40" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="715" y="197" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">pve03</text>
+  <text x="715" y="213" text-anchor="middle" font-size="10" fill="#1565c0">Gaming PC</text>
+
+  <!-- LAN bar -->
+  <rect x="240" y="238" width="480" height="20" rx="4" fill="#eceff1" stroke="#455a64" stroke-width="0.5"/>
+  <text x="480" y="252" text-anchor="middle" font-size="10" font-weight="500" fill="#455a64">LAN 192.168.1.0/24 (vmbr0)</text>
+
+  <!-- Arrows: LAN → nodes -->
+  <line x1="340" y1="258" x2="245" y2="220" stroke="#455a64" stroke-width="0.75" stroke-dasharray="3,3"/>
+  <line x1="480" y1="258" x2="480" y2="220" stroke="#455a64" stroke-width="0.75" stroke-dasharray="3,3"/>
+  <line x1="620" y1="258" x2="715" y2="220" stroke="#455a64" stroke-width="0.75" stroke-dasharray="3,3"/>
+
+
+  <!-- ============================================ -->
+  <!-- LAYER: Infrastructure VMs (row 3, y=310)     -->
+  <!-- ============================================ -->
+
+  <!-- HAProxy trio -->
+  <text x="245" y="285" text-anchor="middle" font-size="11" font-weight="600" fill="#666">HAProxy Trio</text>
+  <rect x="160" y="298" width="170" height="38" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="245" y="315" text-anchor="middle" font-size="12" font-weight="500" fill="#1b5e20">haproxy-1</text>
+  <text x="245" y="330" text-anchor="middle" font-size="10" fill="#2e7d32">.251 · pve01</text>
+
+  <rect x="395" y="298" width="170" height="38" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="480" y="315" text-anchor="middle" font-size="12" font-weight="500" fill="#1b5e20">haproxy-2</text>
+  <text x="480" y="330" text-anchor="middle" font-size="10" fill="#2e7d32">.252 · pve02</text>
+
+  <rect x="630" y="298" width="170" height="38" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="315" text-anchor="middle" font-size="12" font-weight="500" fill="#1b5e20">haproxy-3</text>
+  <text x="715" y="330" text-anchor="middle" font-size="10" fill="#2e7d32">.253 · pve03</text>
+
+  <!-- OpenCode -->
+  <text x="245" y="380" text-anchor="middle" font-size="11" font-weight="600" fill="#666">Other VMs</text>
+  <rect x="160" y="393" width="170" height="38" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="245" y="410" text-anchor="middle" font-size="12" font-weight="500" fill="#1b5e20">opencode-1</text>
+  <text x="245" y="425" text-anchor="middle" font-size="10" fill="#2e7d32">.161 · pve01</text>
+
+  <!-- Arrows -->
+  <line x1="480" y1="123" x2="245" y2="298" stroke="#2e7d32" stroke-width="1.5"/>
+  <polygon points="245,298 238,308 252,308" fill="#2e7d32"/>
+
+  <line x1="810" y1="99" x2="480" y2="298" stroke="#e65100" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+
+
+  <!-- ============================================ -->
+  <!-- LAYER: K3s Cluster Nodes (row 4, y=470)      -->
+  <!-- ============================================ -->
+
+  <rect x="30" y="448" width="900" height="22" rx="4" fill="#eceff1"/>
+  <text x="480" y="464" text-anchor="middle" font-size="12" font-weight="600" fill="#455a64">K3s Kubernetes Cluster</text>
+
+  <!-- Control nodes + GPU worker side by side -->
+  <rect x="100" y="480" width="140" height="38" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="170" y="497" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">ctrl-01</text>
+  <text x="170" y="512" text-anchor="middle" font-size="10" fill="#1565c0">.151</text>
+
+  <rect x="265" y="480" width="140" height="38" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="335" y="497" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">ctrl-02</text>
+  <text x="335" y="512" text-anchor="middle" font-size="10" fill="#1565c0">.152</text>
+
+  <rect x="430" y="480" width="140" height="38" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="500" y="497" text-anchor="middle" font-size="12" font-weight="500" fill="#0d47a1">ctrl-03</text>
+  <text x="500" y="512" text-anchor="middle" font-size="10" fill="#1565c0">.153</text>
+
+  <!-- GPU Worker (right, highlighted) -->
+  <rect x="670" y="480" width="190" height="38" rx="6" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1.5"/>
+  <text x="765" y="497" text-anchor="middle" font-size="12" font-weight="600" fill="#4a148c">worker-gpu</text>
+  <text x="765" y="512" text-anchor="middle" font-size="10" fill="#7b1fa2">RTX 5060 Ti</text>
+
+  <!-- Control plane arrows -->
+  <line x1="240" y1="499" x2="265" y2="499" stroke="#1565c0" stroke-width="1"/>
+  <polygon points="265,499 258,494 258,504" fill="#1565c0"/>
+  <line x1="400" y1="499" x2="430" y2="499" stroke="#1565c0" stroke-width="1"/>
+  <polygon points="430,499 423,494 423,504" fill="#1565c0"/>
+
+  <!-- Arrows -->
+  <line x1="245" y1="336" x2="170" y2="480" stroke="#2e7d32" stroke-width="1.5"/>
+  <polygon points="170,480 178,470 162,470" fill="#2e7d32"/>
+
+
+  <!-- ============================================ -->
+  <!-- LAYER: K8s Infrastructure (row 5, y=570)     -->
+  <!-- ============================================ -->
+
+  <rect x="30" y="552" width="900" height="22" rx="4" fill="#eceff1"/>
+  <text x="480" y="568" text-anchor="middle" font-size="12" font-weight="600" fill="#455a64">Kubernetes Infrastructure (kubernetes/infra/)</text>
+
+  <!-- Service pills in a row -->
+  <rect x="70" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="117" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">Traefik</text>
+
+  <rect x="175" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="222" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">Cert Manager</text>
+
+  <rect x="280" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="327" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">GPU Operator</text>
+
+  <rect x="385" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="432" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">External Secrets</text>
+
+  <rect x="490" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="537" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">CloudNativePG</text>
+
+  <rect x="595" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="642" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">Synology CSI</text>
+
+  <rect x="700" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="747" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">Harbor</text>
+
+  <rect x="805" y="585" width="95" height="30" rx="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.75"/>
+  <text x="852" y="604" text-anchor="middle" font-size="10" fill="#1b5e20">Velero + Metrics</text>
+
+
+  <!-- ============================================ -->
+  <!-- LAYER: External Services (row 6, y=650)      -->
+  <!-- ============================================ -->
+
+  <text x="340" y="645" text-anchor="middle" font-size="11" font-weight="600" fill="#666">External Services</text>
+
+  <rect x="240" y="658" width="170" height="35" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+  <text x="325" y="675" text-anchor="middle" font-size="11" font-weight="500" fill="#bf360c">Synology NAS</text>
+  <text x="325" y="689" text-anchor="middle" font-size="9" fill="#795548">.197 · CSI PV Provisioner</text>
+
+  <rect x="450" y="658" width="100" height="35" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+  <text x="500" y="675" text-anchor="middle" font-size="11" font-weight="500" fill="#bf360c">Pi-hole 1</text>
+  <text x="500" y="689" text-anchor="middle" font-size="9" fill="#795548">.132</text>
+
+  <rect x="560" y="658" width="100" height="35" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+  <text x="610" y="675" text-anchor="middle" font-size="11" font-weight="500" fill="#bf360c">Pi-hole 2</text>
+  <text x="610" y="689" text-anchor="middle" font-size="9" fill="#795548">.133</text>
+
+</svg>

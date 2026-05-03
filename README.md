@@ -10,230 +10,23 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
 
 Infrastructure topology from external → Proxmox → K3s cluster → Kubernetes services.
 
-```mermaid
-flowchart TD
-    %% EXTERNAL LAYER
-    subgraph External["External / Internet"]
-        USER["👤 Users"]:::ext
-        CF_DNS["Cloudflare DNS\n*.infra.leehosanganson.dev"]:::ext
-        CF_TUNNEL["Cloudflare Tunnel\nZero Trust"]:::ext
-    end
+<details>
+<summary>Click to expand diagram</summary>
 
-    %% PHYSICAL LAYER - Proxmox Cluster
-    subgraph Physical["Proxmox VE Cluster"]
-        LAN["LAN 192.168.1.0/24"]:::phy
-        PVE01["pve01\nMini PC"]:::vm
-        PVE02["pve02\nMini PC"]:::vm
-        PVE03["pve03\nGaming PC"]:::vm
-    end
+![Homelab Network Architecture](./docs/network-diagram.svg)
 
-    %% PROXMOX VMs - Infrastructure Services
-    subgraph InfraVMs["Infrastructure VMs"]
-        HAP1["haproxy-1\n.251"]:::svc
-        HAP2["haproxy-2\n.252"]:::svc
-        HAP3["haproxy-3\n.253"]:::svc
-        OPN1["opencode-1\n.161"]:::svc
-    end
-
-    %% K3S CLUSTER - Host Nodes
-    subgraph K3sNodes["K3s Cluster Nodes"]
-        CTRL01["ctrl-01\n.151"]:::vm
-        CTRL02["ctrl-02\n.152"]:::vm
-        CTRL03["ctrl-03\n.153"]:::vm
-        GWORKER["worker-gpu\nRTX 5060 Ti"]:::vm
-    end
-
-    %% K8s INFRASTRUCTURE SERVICES
-    subgraph K8sInfra["Kubernetes Infrastructure (kubernetes/infra/)"]
-        INF1["Traefik\nIngress"]:::svc
-        INF2["Cert Manager\nTLS"]:::svc
-        INF3["GPU Operator\nNVIDIA"]:::svc
-        INF4["External Secrets\nAzure KV"]:::svc
-        INF5["CloudNativePG\nPostgreSQL"]:::svc
-        INF6["Synology CSI\nPV Provisioner"]:::svc
-        INF7["Harbor\nRegistry"]:::svc
-        INF8["Rancher\nManagement"]:::svc
-        INF9["Velero\nBackup"]:::svc
-        INF10["Metrics Server\nResource Metrics"]:::svc
-    end
-
-    %% EXTERNAL SERVICES (non-managed)
-    subgraph ExtServices["External Services"]
-        SYN["Synology NAS\n.197"]:::ext
-        PIH1["Pi-hole 1\n.132"]:::ext
-        PIH2["Pi-hole 2\n.133"]:::ext
-    end
-
-    %% CONNECTIONS
-    USER -->|"HTTPS"\| CF_DNS
-    CF_DNS --> CF_TUNNEL
-    CF_TUNNEL --> HAP1
-    USER --> HAP1
-
-    HAP1 -->|"k3s VIP"\| CTRL01
-    HAP1 -->|"k3s VIP"\| CTRL02
-    HAP1 -->|"k3s VIP"\| CTRL03
-    HAP1 -->|"nas-1"\| SYN
-    HAP1 -->|"pihole"\| PIH1
-
-    LAN --- PVE01
-    LAN --- PVE02
-    LAN --- PVE03
-    PVE01 -.-> HAP1
-    PVE01 -.-> OPN1
-    PVE02 -.-> HAP2
-    PVE03 -.-> HAP3
-
-    CTRL01 <-->|"etcd"\| CTRL02
-    CTRL02 <-->|"etcd"\| CTRL03
-    CTRL01 -->|"scheduler"\| GWORKER
-
-    HAP1 -->|"traefik"\| INF1
-    INF6 --> SYN
-    GWORKER -.-> INF3
-
-    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
-    classDef svc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
-    classDef ext fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
-    classDef phy fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238;
-```
+</details>
 
 ### Application Data Flow
 
 Kubernetes application services and their data dependencies.
 
-```mermaid
-flowchart TD
-    %% K8s INFRASTRUCTURE (anchor)
-    subgraph Infra["Kubernetes Infrastructure"]
-        TRAFIK["Traefik\nIngress Controller"]:::svc
-        CNPG["CloudNativePG\nPostgreSQL"]:::db
-        REDIS_I["Redis\nImmich"]:::db
-        REDIS_P["Redis\nPaperless"]:::db
-    end
+<details>
+<summary>Click to expand diagram</summary>
 
-    %% PRODUCTIVITY & DEV TOOLS
-    subgraph Productivity["Productivity & Dev Tools"]
-        AB["Actual Budget"]:::svc
-        CHROME["Chrome"]:::svc
-        ITTOOL["IT-Tools"]:::svc
-        TERMIX["Termix"]:::svc
-        WHOAMI["Whoami"]:::svc
-        PORTFOLIO["Portfolio"]:::svc
-    end
+![Application Data Flow](./docs/app-diagram.svg)
 
-    %% DASHBOARD & BROWSING
-    subgraph Dashboard["Dashboard & Browsing"]
-        HOMEPAGE["Homepage"]:::svc
-        CFED["Commafeed\nRSS Reader"]:::svc
-    end
-
-    %% PHOTO & DOCUMENT MANAGEMENT
-    subgraph PhotoDoc["Photo & Document Mgmt"]
-        IMMICH["Immich\nPhoto/Video"]:::svc
-        PAPERLESS["Paperless-ngx\nDocuments"]:::svc
-    end
-
-    %% MEDIA SUITE
-    subgraph Media["Media Suite"]
-        JELLYFIN["Jellyfin\nServer & Player"]:::svc
-        JELLYSEERR["Jellyseerr\nDiscovery"]:::svc
-        NAV["Navidrome\nMusic Streaming"]:::svc
-    end
-
-    %% *ARR SUITE
-    subgraph ArrSuite["*arr Suite (Media Management)"]
-        PROWLARR["Prowlarr\nIndexer"]:::svc
-        QBT["qBittorrent\nDownloader"]:::svc
-        RAD["Radarr\nMovies"]:::svc
-        SON["Sonarr\nTV Shows"]:::svc
-        LID["Lidarr\nMusic"]:::svc
-        BAZ["Bazarr\nSubtitles"]:::svc
-    end
-
-    %% AI STACK (on GPU Worker)
-    subgraph AIStack["AI Services (GPU Worker)"]
-        VL["vLLM\nInference"]:::svc
-        LLAMA_CPP["llama.cpp\nLLM Inference"]:::svc
-        LITELLM["LiteLLM\nGateway"]:::svc
-        OWEBUI["OpenWebUI\nChat UI"]:::svc
-    end
-
-    %% OTHER APPLICATIONS
-    subgraph OtherApps["Other Applications"]
-        HA["Home Assistant"]:::svc
-        N8N["n8n\nWorkflow"]:::svc
-        SYNCT["Syncthing\nFile Sync"]:::svc
-        GRIM["Grimmory\nLibrary Mgmt"]:::svc
-        MINIQR["Mini QR\nGenerator"]:::svc
-        LUKQ["Life in the UK Quiz"]:::svc
-    end
-
-    %% MONITORING & OBSERVABILITY
-    subgraph Monitoring["Monitoring & Observability"]
-        PROM["Prometheus + Grafana"]:::svc
-        LOKI["Loki\nLogs"]:::svc
-        ALLOY["Alloy\nOTEL Collector"]:::svc
-    end
-
-    %% OTHER SERVICES
-    subgraph OtherSvc["Other Services"]
-        MINECRAFT["Minecraft Server"]:::svc
-        ZOTERO["Zotero WebDAV"]:::svc
-        KARA["Karakeep\nCollection"]:::svc
-    end
-
-    %% CONNECTIONS - Application Data Flow
-    TRAFIK --> AB
-    TRAFIK --> CHROME
-    TRAFIK --> ITTOOL
-    TRAFIK --> TERMIX
-    TRAFIK --> WHOAMI
-    TRAFIK --> PORTFOLIO
-    TRAFIK --> HOMEPAGE
-    TRAFIK --> CFED
-    TRAFIK --> HA
-    TRAFIK --> N8N
-    TRAFIK --> SYNCT
-    TRAFIK --> GRIM
-    TRAFIK --> MINIQR
-    TRAFIK --> LUKQ
-    TRAFIK --> IMMICH
-    TRAFIK --> PAPERLESS
-    TRAFIK --> JELLYFIN
-    TRAFIK --> JELLYSEERR
-    TRAFIK --> NAV
-    TRAFIK --> OWEBUI
-    TRAFIK --> MINECRAFT
-
-    %% AI flow
-    OWEBUI -->|"LLM API"\| LITELLM
-    LITELLM --> VL
-    LITELLM --> LLAMA_CPP
-
-    %% *arr suite
-    PROWLARR <-->|"indexer"\| QBT
-    RAD <-->|"API"\| QBT
-    SON <-->|"API"\| QBT
-    LID <-->|"API"\| QBT
-    RAD --> JELLYFIN
-    SON --> JELLYFIN
-    NAV --> JELLYFIN
-
-    %% Database connections
-    IMMICH -->|"PostgreSQL"\| CNPG
-    PAPERLESS -->|"PostgreSQL"\| CNPG
-    N8N -->|"PostgreSQL"\| CNPG
-    IMMICH -->|"Redis"\| REDIS_I
-    PAPERLESS -->|"Redis"\| REDIS_P
-
-    %% Monitoring
-    ALLOY -->|"OTEL"\| PROM
-    LOKI -->|"logs"\| PROM
-
-    classDef svc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
-    classDef db fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
-```
+</details>
 
 I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control nodes, and 1 Ubuntu VM GPU Worker Node. All VMs are provisioned from my Proxmox Cluster with currently 2 Mini PCs and 1 old gaming PC. I chose k3s as it is a lightweight Kubernetes distribution and I can spin up more VMs for node replacement easily from my PVE cluster if it needs more resources.
 
