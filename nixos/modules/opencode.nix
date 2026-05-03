@@ -88,17 +88,12 @@
     "d /var/lib/opencode/repos 0750 opencode opencode -"
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
-  ];
+    # Set KUBECONFIG for opencode user's shells (bash, login, su)
+    "f /var/lib/opencode/.bashrc 0644 opencode opencode - "# Set KUBECONFIG for opencode shell
 
-  environment.etc."bash_completion.d/opencode-kubeconfig" = {
-    text = ''
-      # Set KUBECONFIG for opencode user's interactive shells
-      if [ "$USER" = "opencode" ]; then
-        export KUBECONFIG="/etc/kube-config"
-      fi
-    '';
-    mode = "0555";
-  };
+export KUBECONFIG=/etc/kube-config
+"
+  ];
 
   systemd.services.opencode = {
     description = "opencode headless server";
