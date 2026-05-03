@@ -4,9 +4,6 @@ description: "Application services, data flows, and dependencies"
 ---
 
 flowchart TD
-    %% ============================================
-    %% K8s INFRASTRUCTURE (anchor)
-    %% ============================================
     subgraph Infra["Kubernetes Infrastructure"]
         TRAFIK["Traefik\nIngress Controller"]:::svc
         CNPG["CloudNativePG\nPostgreSQL"]:::db
@@ -14,9 +11,6 @@ flowchart TD
         REDIS_P["Redis\nPaperless"]:::db
     end
 
-    %% ============================================
-    %% PRODUCTIVITY & DEV TOOLS
-    %% ============================================
     subgraph Productivity["Productivity & Dev Tools"]
         AB["Actual Budget"]:::svc
         CHROME["Chrome"]:::svc
@@ -26,34 +20,22 @@ flowchart TD
         PORTFOLIO["Portfolio"]:::svc
     end
 
-    %% ============================================
-    %% DASHBOARD & BROWSING
-    %% ============================================
     subgraph Dashboard["Dashboard & Browsing"]
         HOMEPAGE["Homepage"]:::svc
         CFED["Commafeed\nRSS Reader"]:::svc
     end
 
-    %% ============================================
-    %% PHOTO & DOCUMENT MANAGEMENT
-    %% ============================================
     subgraph PhotoDoc["Photo & Document Mgmt"]
         IMMICH["Immich\nPhoto/Video"]:::svc
         PAPERLESS["Paperless-ngx\nDocuments"]:::svc
     end
 
-    %% ============================================
-    %% MEDIA SUITE
-    %% ============================================
     subgraph Media["Media Suite"]
         JELLYFIN["Jellyfin\nServer & Player"]:::svc
         JELLYSEERR["Jellyseerr\nDiscovery"]:::svc
         NAV["Navidrome\nMusic Streaming"]:::svc
     end
 
-    %% ============================================
-    %% *ARR SUITE
-    %% ============================================
     subgraph ArrSuite["*arr Suite (Media Management)"]
         PROWLARR["Prowlarr\nIndexer"]:::svc
         QBT["qBittorrent\nDownloader"]:::svc
@@ -63,9 +45,6 @@ flowchart TD
         BAZ["Bazarr\nSubtitles"]:::svc
     end
 
-    %% ============================================
-    %% AI STACK (on GPU Worker)
-    %% ============================================
     subgraph AIStack["AI Services (GPU Worker)"]
         VL["vLLM\nInference"]:::svc
         LLAMA_CPP["llama.cpp\nLLM Inference"]:::svc
@@ -73,9 +52,6 @@ flowchart TD
         OWEBUI["OpenWebUI\nChat UI"]:::svc
     end
 
-    %% ============================================
-    %% OTHER APPLICATIONS
-    %% ============================================
     subgraph OtherApps["Other Applications"]
         HA["Home Assistant"]:::svc
         N8N["n8n\nWorkflow"]:::svc
@@ -85,27 +61,18 @@ flowchart TD
         LUKQ["Life in the UK Quiz"]:::svc
     end
 
-    %% ============================================
-    %% MONITORING & OBSERVABILITY
-    %% ============================================
     subgraph Monitoring["Monitoring & Observability"]
         PROM["Prometheus + Grafana"]:::svc
         LOKI["Loki\nLogs"]:::svc
         ALLOY["Alloy\nOTEL Collector"]:::svc
     end
 
-    %% ============================================
-    %% OTHER SERVICES
-    %% ============================================
     subgraph OtherSvc["Other Services"]
         MINECRAFT["Minecraft Server"]:::svc
         ZOTERO["Zotero WebDAV"]:::svc
         KARA["Karakeep\nCollection"]:::svc
     end
 
-    %% ============================================
-    %% CONNECTIONS - Application Data Flow
-    %% ============================================
     TRAFIK --> AB
     TRAFIK --> CHROME
     TRAFIK --> ITTOOL
@@ -128,33 +95,26 @@ flowchart TD
     TRAFIK --> OWEBUI
     TRAFIK --> MINECRAFT
 
-    %% AI flow
-    OWEBUI -->|"LLM API"\| LITELLM
+    OWEBUI -->|"LLM API"| LITELLM
     LITELLM --> VL
     LITELLM --> LLAMA_CPP
 
-    %% *arr suite
-    PROWLARR <-->|"indexer"\| QBT
-    RAD <-->|"API"\| QBT
-    SON <-->|"API"\| QBT
-    LID <-->|"API"\| QBT
+    PROWLARR <-->|"indexer"| QBT
+    RAD <-->|"API"| QBT
+    SON <-->|"API"| QBT
+    LID <-->|"API"| QBT
     RAD --> JELLYFIN
     SON --> JELLYFIN
     NAV --> JELLYFIN
 
-    %% Database connections
-    IMMICH -->|"PostgreSQL"\| CNPG
-    PAPERLESS -->|"PostgreSQL"\| CNPG
-    N8N -->|"PostgreSQL"\| CNPG
-    IMMICH -->|"Redis"\| REDIS_I
-    PAPERLESS -->|"Redis"\| REDIS_P
+    IMMICH -->|"PostgreSQL"| CNPG
+    PAPERLESS -->|"PostgreSQL"| CNPG
+    N8N -->|"PostgreSQL"| CNPG
+    IMMICH -->|"Redis"| REDIS_I
+    PAPERLESS -->|"Redis"| REDIS_P
 
-    %% Monitoring
-    ALLOY -->|"OTEL"\| PROM
-    LOKI -->|"logs"\| PROM
+    ALLOY -->|"OTEL"| PROM
+    LOKI -->|"logs"| PROM
 
-    %% ============================================
-    %% STYLES
-    %% ============================================
     classDef svc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
     classDef db fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
