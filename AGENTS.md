@@ -76,7 +76,7 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 - **Secrets**: SSH host keys for sops-nix must be pre-generated and placed under `nixos/scripts/keys/<hostname>/etc/ssh/` (gitignored) before provisioning.
 - **Installer ISO**: The installer ISO must be built from the flake (`nix build .#packages.x86_64-linux.installer` in `nixos/`) and uploaded to Proxmox before running OpenTofu. The ISO path is referenced as `nixos_iso` in `terraform.tfvars`.
 
-> For the full step-by-step operations guide, see [docs/iac.md](docs/iac.md).
+> For the full step-by-step operations guide, see [docs/runbooks/README.md](docs/runbooks/README.md).
 
 ## 5. Git Workflow Conventions
 
@@ -96,4 +96,4 @@ All branching, PR raising, and issue creation follow the standards documented in
 
 ## 6. Detailed Workflows
 
-For step-by-step procedures, SOPs, and recurring processes, refer to **[docs/workflows.md](docs/workflows.md)**. This file contains actionable workflows such as testing PR branches in-cluster via FluxCD without merging to main.
+For step-by-step procedures, SOPs, and recurring processes, refer to **[docs/runbooks/README.md](docs/runbooks/README.md)**. This index includes actionable workflows such as testing PR branches in-cluster via FluxCD without merging to main.

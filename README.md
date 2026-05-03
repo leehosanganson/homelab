@@ -3,7 +3,7 @@
 This repository documents the configuration and deployment of my Kubernetes-native homelab.
 
 <p align="center">
-  <img src="./docs/server-rack.jpg" alt="Server Rack" width="80%" />
+  <img src="./docs/homelab-architecture/server-rack.jpg" alt="Server Rack" width="80%" />
 </p>
 
 As a Machine Learning Engineer, I built this space to learn Cloud Native technologies and state-of-the-art AI models by putting myself under real pressure - running them for real instead of just tinkering in isolation. To keep things interesting, I started self-hosting all sorts of apps for my family, so now I'm the one responsible for keeping everything running 24/7. This repo is my way of documenting that journey as I try to maintain a homelab that's secure, scalable, and actually useful.
@@ -21,7 +21,7 @@ I'm also a [Kubestronaut](https://www.cncf.io/training/kubestronaut/), recognize
 ### Architecture
 
 <p align="center">
-  <img src="./docs/homelab-diagram.svg" alt="Homelab Architecture" width="100%" />
+  <img src="./docs/homelab-architecture/homelab-diagram.svg" alt="Homelab Architecture" width="100%" />
 </p>
 
 I run a 3-node HA Kubernetes cluster using k3s, with Ubuntu VMs handling the control plane and one GPU-enabled worker node doing the heavy lifting. Everything runs out of my Proxmox cluster, currently 2 Mini PCs and an old gaming PC. I picked k3s because it's lightweight enough that I can spin up replacement nodes from Proxmox whenever a machine needs more resources or gets swapped out.
