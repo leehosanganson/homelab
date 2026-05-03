@@ -2,11 +2,19 @@
 
 This repository documents the configuration and deployment of my Kubernetes-native homelab.
 
-As a Machine Learning Engineer, I built this space to learn Cloud Native technologies and state-of-the-art AI models by putting myself under real pressure - running them for real instead of just tinkering in isolation. To keep things interesting, I started self-hosting all sorts of apps for my family, so now I'm the one responsible for keeping everything running 24/7. This repo is my way of documenting that journey as I try to maintain a homelab that's secure, scalable, and actually useful.
-
 <p align="center">
   <img src="./docs/server-rack.jpg" alt="Server Rack" width="80%" />
 </p>
+
+As a Machine Learning Engineer, I built this space to learn Cloud Native technologies and state-of-the-art AI models by putting myself under real pressure - running them for real instead of just tinkering in isolation. To keep things interesting, I started self-hosting all sorts of apps for my family, so now I'm the one responsible for keeping everything running 24/7. This repo is my way of documenting that journey as I try to maintain a homelab that's secure, scalable, and actually useful.
+
+<p align="center">
+  <a href="https://www.credly.com/badges/664b0259-2896-430d-a552-3db866a66d34" target="_blank" rel="noopener">
+    <img src="https://images.credly.com/size/340x340/images/cd6c6449-6814-4613-a2d3-13cf4ac5be4f/image.png" alt="Linux Foundation Kubestronaut Badge" width="150" />
+  </a>
+</p>
+
+I'm also a [Kubestronaut](https://www.cncf.io/training/kubestronaut/), recognized by the CNCF for passing all Kubernetes certifications and contributing to the Cloud Native community.
 
 ## Overview
 
