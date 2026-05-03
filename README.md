@@ -8,10 +8,18 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
 
 ### Architecture
 
-Simplified layered view from external edge to platform and Kubernetes services.
-Source of truth: `docs/homelab-diagram.dot` (Graphviz).
+Layered view of request flow and core platform components, from internet edge down to Kubernetes workloads.
+Source of truth: `docs/homelab-diagram.dot` (Graphviz), with SVG output committed for quick viewing.
 
-![Homelab Architecture](./docs/homelab-diagram.svg)
+<p align="center">
+  <img src="./docs/homelab-diagram.svg" alt="Homelab Architecture" width="100%" />
+</p>
+
+Regenerate after editing the DOT source:
+
+```bash
+dot -Tsvg docs/homelab-diagram.dot -o docs/homelab-diagram.svg
+```
 
 I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control nodes, and 1 Ubuntu VM GPU Worker Node. All VMs are provisioned from my Proxmox Cluster with currently 2 Mini PCs and 1 old gaming PC. I chose k3s as it is a lightweight Kubernetes distribution and I can spin up more VMs for node replacement easily from my PVE cluster if it needs more resources.
 
