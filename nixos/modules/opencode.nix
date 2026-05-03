@@ -12,13 +12,16 @@
   environment.systemPackages = with pkgs; [
     opencode
     git
+    gh
     ripgrep
     nodejs
     nodePackages.typescript-language-server
     python3
+    yq-go
     jq
     curl
     wget
+    kubectl
   ];
 
   users.users.opencode = {
@@ -28,6 +31,7 @@
     createHome = true;
     shell = pkgs.bashInteractive;
     description = "opencode service user";
+    extraGroups = [ "kubernetes" ];
   };
 
   users.groups.opencode = { };
@@ -86,6 +90,9 @@
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
+
+  # Kubernetes config — shared cluster access for all users on this VM.
+  environment.variables.KUBECONFIG = "/etc/kube-config";
 
   systemd.services.opencode = {
     description = "opencode headless server";

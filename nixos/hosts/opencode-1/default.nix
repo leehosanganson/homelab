@@ -70,21 +70,32 @@
         group = "opencode";
         path = "/var/lib/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
+
+      "kube-config" = {
+        owner = "root";
+        group = "kubernetes";
+        path = "/etc/kube-config";
+      };
     };
   };
 
   # user
+  users.groups.kubernetes = { };
+
   users.users.ansonlee = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "kubernetes" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
     ];
   };
 
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
-  ];
+  users.users.root = {
+    extraGroups = [ "wheel" "kubernetes" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+    ];
+  };
 
   security.sudo = {
     enable = true;
