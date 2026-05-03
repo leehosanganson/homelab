@@ -31,7 +31,6 @@
     createHome = true;
     shell = pkgs.bashInteractive;
     description = "opencode service user";
-    extraGroups = [ "kubernetes" ];
   };
 
   users.groups.opencode = { };
@@ -82,7 +81,7 @@
     mode = "0444";
   };
 
-  systemd.tmpfiles.rules = [
+ systemd.tmpfiles.rules = [
     "d /var/lib/opencode/.config 0750 opencode opencode -"
     "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
     "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
@@ -90,9 +89,6 @@
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
-
-  # Kubernetes config — shared cluster access for all users on this VM.
-  environment.variables.KUBECONFIG = "/etc/kube-config";
 
   systemd.services.opencode = {
     description = "opencode headless server";
@@ -104,6 +100,7 @@
       HOME = "/var/lib/opencode";
       SHELL = "${pkgs.bashInteractive}/bin/bash";
       GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
+      KUBECONFIG = "/etc/kube-config";
     };
 
     serviceConfig = {

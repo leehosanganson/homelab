@@ -75,6 +75,7 @@
         owner = "root";
         group = "kubernetes";
         path = "/etc/kube-config";
+        mode = "0640";
       };
     };
   };
@@ -84,7 +85,7 @@
 
   users.users.ansonlee = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "kubernetes" ];
+    extraGroups = [ "wheel" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
     ];
