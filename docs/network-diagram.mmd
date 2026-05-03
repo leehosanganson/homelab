@@ -1,0 +1,263 @@
+---
+title: "Homelab Network & Service Architecture"
+---
+
+flowchart TD
+    %% ============================================
+    %% 0. EXTERNAL / INTERNET
+    %% ============================================
+    subgraph External["🌐 External / Internet"]
+        PublicUsers["Public Users"]:::external
+        CF_DNS["Cloudflare DNS\n*.infra.leehosanganson.dev"]:::external
+        CF_TUNNEL["Cloudflare Tunnel\nZero Trust Gateway"]:::external
+    end
+
+    %% ============================================
+    %% 1. PHYSICAL LAYER - Proxmox Cluster
+    %% ============================================
+    subgraph Physical["🖥️ Proxmox VE Cluster (Physical Layer)"]
+        PVE01["pve01\nMini PC"]:::vm
+        PVE02["pve02\nMini PC"]:::vm
+        PVE03["pve03\nGaming PC"]:::vm
+        LAN["LAN 192.168.1.0/24\nvmbr0 Bridge"]:::physical
+        ROUTER["Router / Gateway\n192.168.1.1"]:::external
+    end
+
+    %% ============================================
+    %% 2. PROXMOX VMs (Infrastructure Services)
+    %% ============================================
+    subgraph ProxmoxVMs["📦 Proxmox VMs (Infrastructure Services)"]
+        HAP1["haproxy-1\n192.168.1.251\npve01"]:::vm
+        HAP2["haproxy-2\n192.168.1.252\npve02"]:::vm
+        HAP3["haproxy-3\n192.168.1.253\npve03"]:::vm
+        OPN1["opencode-1\n192.168.1.161\npve01\nOpenCode AI Agent :4096"]:::vm
+    end
+
+    %% ============================================
+    %% 3. K3S CLUSTER - Host Nodes
+    %% ============================================
+    subgraph K3sCluster["⚓ K3s Kubernetes Cluster (Host Nodes)"]
+        CTRL01["k3s ctrl-01\n192.168.1.151"]:::vm
+        CTRL02["k3s ctrl-02\n192.168.1.152"]:::vm
+        CTRL03["k3s ctrl-03\n192.168.1.153"]:::vm
+        GPU_WORKER["k3s worker-gpu\nRTX 5060 Ti"]:::vm
+    end
+
+    %% ============================================
+    %% 4. K8s INFRASTRUCTURE
+    %% ============================================
+    subgraph K8sInfra["🔧 Kubernetes Infrastructure (kubernetes/infra/)"]
+        subgraph IngressCert["Ingress & Certificates"]
+            TRAFIK["Traefik\nIngress Controller"]:::k8s
+            CERTMGR["Cert Manager\nTLS Automation"]:::k8s
+        end
+
+        subgraph CloudTunnelK8s["Cloud Tunnel (K8s-side)"]
+            CFT_K8S["Cloudflare Tunnel\ncloudflared"]:::k8s
+        end
+
+        subgraph GPUStack["GPU & AI Runtime"]
+            GPUOP["GPU Operator\nNVIDIA Runtime"]:::k8s
+        end
+
+        subgraph SecretsStorage["Secrets & Storage"]
+            ESO["External Secrets Op.\nAzure Key Vault Sync"]:::k8s
+            SYNCSI["Synology CSI Driver\nPV Provisioning"]:::k8s
+        end
+
+        subgraph DBOperators["Database Operators"]
+            CNPG["CloudNativePG\nPostgreSQL Operator"]:::k8s
+        end
+
+        subgraph RegistryMgmt["Registry & Management"]
+            HARBOR["Harbor\nContainer Registry"]:::k8s
+            RANCHER["Rancher\nK8s Management"]:::k8s
+        end
+
+        subgraph BackupMetrics["Backup & Metrics"]
+            VELERO["Velero\nBackup/Restore + Azure"]:::k8s
+            METRICS_SVR["Metrics Server\nK8s Resource Metrics"]:::k8s
+        end
+    end
+
+    %% ============================================
+    %% 5. K8s APPLICATIONS
+    %% ============================================
+    subgraph K8sApps["📦 Kubernetes Applications (kubernetes/apps/)"]
+        subgraph Productivity["Productivity & Dev Tools"]
+            AB["Actual Budget\nPersonal Finance"]:::k8s
+            CHROME["Chrome\nInternal Browser"]:::k8s
+            ITTOOL["IT-Tools\nDeveloper Collection"]:::k8s
+            TERMIX["Termix\nTerminal/SSH Mobile"]:::k8s
+            WHOAMI["Whoami\nDebug HTTP Service"]:::k8s
+            PORTFOLIO["Portfolio\nPersonal Website"]:::k8s
+        end
+
+        subgraph DashboardBrowsing["Dashboard & Browsing"]
+            HOMEPAGE["Homepage\nHome Page / Dashboard"]:::k8s
+            CFED["Commafeed\nRSS Reader"]:::k8s
+        end
+
+        subgraph PhotoDoc["Photo & Document Management"]
+            IMMICH["Immich\nPhoto/Video Mgmt + Redis"]:::k8s
+            PAPERLESS["Paperless-ngx\nDocument Mgmt + Redis"]:::k8s
+        end
+
+        subgraph MediaSuite["Media Suite"]
+            JELLYFIN["Jellyfin\nMedia Server & Player"]:::k8s
+            JELLYSEERR["Jellyseerr\nMedia Discovery/Requests"]:::k8s
+            NAV["Navidrome\nMusic Streaming"]:::k8s
+        end
+
+        subgraph MediaArr["*arr Suite (Media Management)"]
+            PROWLARR["Prowlarr\nIndexer"]:::k8s
+            QBT["qBittorrent\nDownload Client"]:::k8s
+            RAD["Radarr\nMovie Management"]:::k8s
+            SON["Sonarr\nTV Show Management"]:::k8s
+            LID["Lidarr\nMusic Management"]:::k8s
+            BAZ["Bazarr\nSubtitles"]:::k8s
+        end
+
+        subgraph AIStack["AI Services (on GPU Worker)"]
+            VL["vLLM\nLLM Inference Serving"]:::k8s
+            LLAMA_CPP["llama.cpp\nC/C++ LLM Inference"]:::k8s
+            LITELLM["LiteLLM\nLLM Gateway"]:::k8s
+            OWEBUI["OpenWebUI\nChat UI → LiteLLM"]:::k8s
+        end
+
+        subgraph OtherApps["Other Applications"]
+            HA["Home Assistant\nHome Automation"]:::k8s
+            N8N["n8n\nWorkflow Automation"]:::k8s
+            SYNCT["Syncthing\nFile Sync"]:::k8s
+            GRIM["Grimmory\nDigital Library Mgmt"]:::k8s
+            MINIQR["Mini QR\nQR Code Generator"]:::k8s
+            LUKQ["Life in the UK Quiz\nCustom Quiz App"]:::k8s
+        end
+
+        subgraph MonitoringStack["Monitoring & Observability"]
+            PROM["Prometheus + Grafana\nkube-prometheus-stack"]:::k8s
+            LOKI["Loki\nLog Aggregation"]:::k8s
+            ALLOY["Alloy\nOpenTelemetry Collector"]:::k8s
+        end
+
+        subgraph OtherServices["Other Services"]
+            MINECRAFT["Minecraft Server"]:::k8s
+            ZOTERO["Zotero WebDAV"]:::k8s
+            KARA["Karakeep\nDigital Collection"]:::k8s
+        end
+    end
+
+    %% ============================================
+    %% 6. EXTERNAL SERVICES (Non-managed)
+    %% ============================================
+    subgraph ExternalInfra["🗄️ External Infrastructure (Not managed by this repo)"]
+        SYN["Synology NAS\n192.168.1.197\nFile Server & CSI PV Provisioner"]:::external
+        PIH1["Pi-hole 1\n192.168.1.132"]:::external
+        PIH2["Pi-hole 2\n192.168.1.133"]:::external
+    end
+
+    %% ============================================
+    %% CONNECTIONS - Data Flow
+    %% ============================================
+
+    %% External → HAProxy / Cloudflare
+    PublicUsers -->|"HTTPS"\| CF_DNS
+    CF_DNS --> CFT_TUNNEL
+    CFT_TUNNEL -->|"Zero Trust"\| HAP1
+    PublicUsers -->|"direct"\| HAP1
+
+    %% HAProxy internal routes
+    HAP1 -->|"k3s VIP"\| CTRL01
+    HAP1 -->|"k3s VIP"\| CTRL02
+    HAP1 -->|"k3s VIP"\| CTRL03
+    HAP1 -->|"nas-1"\| SYN
+    HAP1 -->|"pihole-1"\| PIH1
+    HAP1 -->|"pihole-2"\| PIH2
+
+    %% LAN physical connections
+    LAN --- PVE01
+    LAN --- PVE02
+    LAN --- PVE03
+    PVE01 -.-> HAP1
+    PVE01 -.-> OPN1
+    PVE02 -.-> HAP2
+    PVE03 -.-> HAP3
+
+    %% K8s control plane
+    CTRL01 <-->|"etcd + API"\| CTRL02
+    CTRL02 <-->|"etcd + API"\| CTRL03
+    CTRL01 -->|"scheduler"\| GPU_WORKER
+
+    %% HAProxy → Traefik (K8s ingress)
+    HAP1 -->|"traefik internal"\| TRAFIK
+
+    %% Traefik routes to all app services
+    TRAFIK --> AB
+    TRAFIK --> CHROME
+    TRAFIK --> ITTOOL
+    TRAFIK --> TERMIX
+    TRAFIK --> WHOAMI
+    TRAFIK --> PORTFOLIO
+    TRAFIK --> HOMEPAGE
+    TRAFIK --> CFED
+    TRAFIK --> HA
+    TRAFIK --> N8N
+    TRAFIK --> SYNCT
+    TRAFIK --> GRIM
+    TRAFIK --> MINIQR
+    TRAFIK --> LUKQ
+    TRAFIK --> IMMICH
+    TRAFIK --> PAPERLESS
+    TRAFIK --> JELLYFIN
+    TRAFIK --> JELLYSEERR
+    TRAFIK --> NAV
+    TRAFIK --> OWEBUI
+    TRAFIK --> MINECRAFT
+
+    %% AI stack flow
+    OWEBUI -->|"LLM API"\| LITELLM
+    LITELLM -->|"route to"\| VL
+    LITELLM -->|"route to"\| LLAMA_CPP
+
+    %% GPU worker hosts AI services
+    GPU_WORKER -.-> VL
+    GPU_WORKER -.-> LLAMA_CPP
+    GPU_WORKER -.-> LITELLM
+
+    %% *arr suite internal connections
+    PROWLARR <-->|"indexer"\| QBT
+    RAD <-->|"API"\| QBT
+    SON <-->|"API"\| QBT
+    LID <-->|"API"\| QBT
+    RAD --> JELLYFIN
+    SON --> JELLYFIN
+    NAV --> JELLYFIN
+
+    %% Database connections via CNPG
+    IMMICH -->|"PostgreSQL"\| CNPG
+    PAPERLESS -->|"PostgreSQL"\| CNPG
+    N8N -->|"PostgreSQL"\| CNPG
+
+    %% Redis (inlined as services)
+    REDIS_IMM["Redis\n(Immich)"]:::db
+    REDIS_PPL["Redis\n(Paperless)"]:::db
+    IMMICH -->|"Redis"\| REDIS_IMM
+    PAPERLESS -->|"Redis"\| REDIS_PPL
+
+    %% Storage
+    SYNCSI --> SYN
+
+    %% Monitoring
+    PROM --> CTRL01
+    PROM --> GPU_WORKER
+    ALLOY -->|"OTEL data"\| PROM
+    LOKI -->|"logs"\| PROM
+
+    %% ============================================
+    %% 7. STYLES / CLASS DEFINITIONS
+    %% ============================================
+    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+    classDef k8s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
+    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
+    classDef db fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+    classDef physical fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238;
