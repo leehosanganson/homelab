@@ -70,6 +70,13 @@
         group = "opencode";
         path = "/var/lib/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
+
+      "kube-config" = {
+        owner = "opencode";
+        group = "opencode";
+        path = "/var/lib/opencode/.kube/config";
+        mode = "0400";
+      };
     };
   };
 
