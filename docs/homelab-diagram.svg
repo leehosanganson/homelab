@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(14.4 470.4)">
 <title>homelab</title>
 <polygon fill="white" stroke="none" points="-14.4,14.4 -14.4,-470.4 260.4,-470.4 260.4,14.4 -14.4,14.4"/>
-<text text-anchor="middle" x="123" y="-438.7" font-family="Helvetica,sans-Serif" font-size="14.00">Homelab Architecture</text>
+<text text-anchor="middle" x="123" y="-438.7" font-family="Helvetica,sans-Serif" font-size="14.00">Homelab Architecture //updated</text>
 <g id="clust1" class="cluster">
 <title>cluster_edge</title>
 <path fill="white" stroke="#f2994a" d="M50,-273.5C50,-273.5 138,-273.5 138,-273.5 144,-273.5 150,-279.5 150,-285.5 150,-285.5 150,-410.75 150,-410.75 150,-416.75 144,-422.75 138,-422.75 138,-422.75 50,-422.75 50,-422.75 44,-422.75 38,-416.75 38,-410.75 38,-410.75 38,-285.5 38,-285.5 38,-279.5 44,-273.5 50,-273.5"/>

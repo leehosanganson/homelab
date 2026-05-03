@@ -1,6 +1,6 @@
 digraph homelab {
   graph [
-    label="Homelab Architecture",
+    label="Homelab Architecture /\/updated",
     labelloc=t,
     rankdir=TB,
     splines=ortho,
