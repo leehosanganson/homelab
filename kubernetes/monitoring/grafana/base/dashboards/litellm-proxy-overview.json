@@ -22,12 +22,17 @@
         "name": "interval",
         "type": "custom",
         "label": "Interval",
-        "query": "1m,5m,15m,1h,6h",
+        "query": "30s,1m,5m,15m,1h,6h",
         "current": {
           "text": "5m",
           "value": "5m"
         },
         "options": [
+          {
+            "text": "30s",
+            "value": "30s",
+            "selected": false
+          },
           {
             "text": "1m",
             "value": "1m",
