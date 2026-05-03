@@ -1,14 +1,14 @@
 # Homelab
 
-This repository details the configuration and deployment of my Kubernetes-native homelab.
+This repository documents the configuration and deployment of my Kubernetes-native homelab.
 
-As a Machine Learning Engineer, the purpose of my homelab is to serve as a platform for me to try and learn the newest and greatest, from Cloud Native technologies to state-of-the-art AI models. Since the best way for me to learn is to be under pressure, I started to self-host various kinds of applications for my family such that I am responsible for making any changes to the cluster and keeping the deployments operating 24/7. This repository serves as an artifact to document my journey on maintaining a secure, scalable and efficient homelab.
-
-## Overview
+As a Machine Learning Engineer, I built this space to learn Cloud Native technologies and state-of-the-art AI models by putting myself under real pressure - running them for real instead of just tinkering in isolation. To keep things interesting, I started self-hosting all sorts of apps for my family, so now I'm the one responsible for keeping everything running 24/7. This repo is my way of documenting that journey as I try to maintain a homelab that's secure, scalable, and actually useful.
 
 <p align="center">
   <img src="./docs/server-rack.jpg" alt="Server Rack" width="80%" />
 </p>
+
+## Overview
 
 ### Architecture
 
@@ -16,9 +16,9 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
   <img src="./docs/homelab-diagram.svg" alt="Homelab Architecture" width="100%" />
 </p>
 
-I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control nodes, and 1 Ubuntu VM GPU Worker Node. All VMs are provisioned from my Proxmox Cluster with currently 2 Mini PCs and 1 old gaming PC. I chose k3s as it is a lightweight Kubernetes distribution and I can spin up more VMs for node replacement easily from my PVE cluster if it needs more resources.
+I run a 3-node HA Kubernetes cluster using k3s, with Ubuntu VMs handling the control plane and one GPU-enabled worker node doing the heavy lifting. Everything runs out of my Proxmox cluster, currently 2 Mini PCs and an old gaming PC. I picked k3s because it's lightweight enough that I can spin up replacement nodes from Proxmox whenever a machine needs more resources or gets swapped out.
 
-My most recent addition to the cluster is a GPU node with a low-mid tier consumer graphics card (RTX5060 Ti). It allows me to schedule GPU workload such as local LLM inferencing server, or lightweight model training. With the current configuration, I can easily add more GPU nodes and scale out & up my private LLM inferencing service for AI workflows and Agentic Coding concurrently with my own resources.
+The newest addition to the cluster is a GPU node packed with an RTX 5060 Ti, not top-of-the-line, but more than enough to run local LLM inference and light model training. It's opened up a whole new world for running AI workflows and Agentic Coding locally. And if I ever need more compute, adding another GPU node to the cluster is pretty straightforward, so I can scale out and up without relying on anyone else's resources.
 
 ## Services
 
