@@ -1,0 +1,63 @@
+digraph homelab {
+  graph [
+    label="Homelab Architecture",
+    labelloc=t,
+    rankdir=TB,
+    splines=ortho,
+    pad=0.2,
+    nodesep=0.35,
+    ranksep=0.5,
+    fontname="Helvetica",
+    bgcolor="white"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Helvetica",
+    fontsize=10,
+    color="#5f6368",
+    fillcolor="#f8f9fa",
+    penwidth=1.0
+  ];
+
+  edge [
+    color="#5f6368",
+    penwidth=1.0,
+    arrowsize=0.7,
+    fontname="Helvetica",
+    fontsize=9
+  ];
+
+  subgraph cluster_edge {
+    label="External Edge";
+    color="#f2994a";
+    style="rounded";
+
+    users [label="Users", fillcolor="#fff3e0"];
+    cloudflare [label="Cloudflare\nDNS + Tunnel", fillcolor="#fff3e0"];
+  }
+
+  subgraph cluster_platform {
+    label="Homelab Platform";
+    color="#90a4ae";
+    style="rounded";
+
+    proxmox [label="Proxmox VMs\nHAProxy + K3s Nodes", fillcolor="#eceff1"];
+    traefik [label="Traefik\nIngress", fillcolor="#e8f5e9"];
+  }
+
+  subgraph cluster_services {
+    label="Kubernetes Services";
+    color="#42a5f5";
+    style="rounded";
+
+    services [label="Public: Homepage, Immich, Open WebUI\nPrivate: n8n, Paperless, Grafana\nAI: LiteLLM + vLLM (GPU Worker)\nData: CloudNativePG + Redis + NAS CSI", fillcolor="#e3f2fd"];
+  }
+
+  users -> cloudflare [xlabel="HTTPS"];
+  users -> proxmox [xlabel="LAN"];
+  cloudflare -> proxmox [xlabel="Tunnel"];
+  proxmox -> traefik [xlabel="Ingress"];
+  traefik -> services;
+}

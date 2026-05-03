@@ -6,27 +6,12 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
 
 ## Overview
 
-### Network Architecture
+### Architecture
 
-Infrastructure topology from external → Proxmox → K3s cluster → Kubernetes services.
+Simplified layered view from external edge to platform and Kubernetes services.
+Source of truth: `docs/homelab-diagram.dot` (Graphviz).
 
-<details>
-<summary>Click to expand diagram</summary>
-
-![Homelab Network Architecture](./docs/network-diagram.svg)
-
-</details>
-
-### Application Data Flow
-
-Kubernetes application services and their data dependencies.
-
-<details>
-<summary>Click to expand diagram</summary>
-
-![Application Data Flow](./docs/app-diagram.svg)
-
-</details>
+![Homelab Architecture](./docs/homelab-diagram.svg)
 
 I use k3s for setting up my HA Kubernetes cluster, with 3 Ubuntu VMs as Control nodes, and 1 Ubuntu VM GPU Worker Node. All VMs are provisioned from my Proxmox Cluster with currently 2 Mini PCs and 1 old gaming PC. I chose k3s as it is a lightweight Kubernetes distribution and I can spin up more VMs for node replacement easily from my PVE cluster if it needs more resources.
 
@@ -91,4 +76,3 @@ My most recent addition to the cluster is a GPU node with a low-mid tier consume
 | <img src="https://avatars.githubusercontent.com/u/66682517?s=48&v=4" height="32" /> <img src="https://avatars.githubusercontent.com/u/7195757?s=48&v=4" height="32"/> <img src="https://prometheus.io/_next/static/media/prometheus-logo.7aa022e5.svg" height="32" /> | [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) | Out-of-the-box monitoring solution: Prometheus, Grafana, and Alertmanager. |
 |                                                                                   <img src="https://github.com/grafana/loki/raw/main/docs/sources/logo_and_name.png" height="32" />                                                                                   | [Loki](https://github.com/grafana/loki)                                                                             | Prometheus, but for logs                                                   |
 |                                                                    <img src="https://github.com/grafana/alloy/raw/main/docs/sources/assets/logo_alloy_light.svg#gh-dark-mode-only" height="32" />                                                                     | [Alloy](https://github.com/grafana/alloy)                                                                           | OpenTelemetry Collector                                                    |
-
