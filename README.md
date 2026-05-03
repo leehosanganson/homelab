@@ -6,6 +6,10 @@ As a Machine Learning Engineer, the purpose of my homelab is to serve as a platf
 
 ## Overview
 
+<p align="center">
+  <img src="./docs/server-rack.jpg" alt="Server Rack" width="80%" />
+</p>
+
 ### Architecture
 
 <p align="center">
