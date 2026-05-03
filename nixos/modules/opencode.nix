@@ -90,6 +90,16 @@
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
 
+  environment.etc."profile.d/kubeconfig.sh" = {
+    text = ''
+      # Set KUBECONFIG for opencode user's interactive shells
+      if [ "$(id -un)" = "opencode" ]; then
+        export KUBECONFIG="/etc/kube-config"
+      fi
+    '';
+    mode = "0555";
+  };
+
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
