@@ -93,7 +93,7 @@
   environment.etc."profile.d/kubeconfig.sh" = {
     text = ''
       # Set KUBECONFIG for opencode user's interactive shells
-      if [ "$(id -un)" = "opencode" ]; then
+      if [ "$USER" = "opencode" ]; then
         export KUBECONFIG="/etc/kube-config"
       fi
     '';
