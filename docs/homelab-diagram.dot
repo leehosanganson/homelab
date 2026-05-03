@@ -4,7 +4,7 @@ digraph homelab {
         compound=true,
         splines=ortho,
         pad=0.5,
-        nodesep=0.8, // Increased slightly to give straight lines more breathing room
+        nodesep=0.8,
         ranksep=1.0,
         fontname="Inter, Helvetica, sans-serif",
         fontsize=16,
