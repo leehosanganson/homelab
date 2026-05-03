@@ -46,7 +46,8 @@ digraph homelab {
         tofu   [label="OpenTofu\nVM Provisioning"];
         flux   [label="FluxCD\nK8s Reconciliation"];
 
-        {rank=same; github; nixos; tofu; flux;}
+        // Enforce horizontal order to prevent crossing lines
+        {rank=same; github -> flux -> nixos -> tofu [style=invis]}
     }
 
     subgraph cluster_network {
@@ -58,7 +59,7 @@ digraph homelab {
         public      [label="Public"];
         private     [label="Private"];
 
-        {rank=same; public; private}
+        {rank=same; public -> private [style=invis]}
     }
 
     subgraph cluster_external {
@@ -70,7 +71,7 @@ digraph homelab {
         azure_kv [label="Azure Key Vault"];
         cloudflare  [label="Cloudflare\nDNS & Proxy"];
 
-        {rank=same; azure_kv; cloudflare;}
+        {rank=same; azure_kv -> cloudflare [style=invis]}
     }
 
     subgraph cluster_hardware {
@@ -82,7 +83,7 @@ digraph homelab {
         proxmox     [label="Proxmox VE Cluster\n3 Nodes"];
         syn_nas  [label="Synology NAS\nNFS Volumes & LUN"];
 
-        {rank=same; proxmox; syn_nas;}
+        {rank=same; syn_nas -> proxmox [style=invis]}
     }
 
     subgraph cluster_vm {
@@ -95,7 +96,7 @@ digraph homelab {
       pihole      [label="Pi-hole & Tailscale"];
       opencode     [label="OpenCode"];
 
-      {rank=same; haproxy; pihole; opencode;}
+      {rank=same; haproxy -> pihole -> opencode [style=invis]}
     }
 
     subgraph cluster_infra {
@@ -109,7 +110,7 @@ digraph homelab {
         ingress     [label="Traefik Ingress\nController"];
         obs         [label="Observability\nPrometheus, Grafana, Loki"];
 
-        {rank=same; storage; platform; ingress; obs;}
+        {rank=same; platform -> ingress -> storage -> obs [style=invis]}
     }
 
     subgraph cluster_workloads {
@@ -125,38 +126,49 @@ digraph homelab {
         dev       [label="Dev: n8n, Coder", color="#EF4444"];
         home      [label="Home: Assistant, MC", color="#EF4444"];
 
-        {rank=same; ai_apps; media; docs; utility; dev; home;}
+        {rank=same; ai_apps -> media -> docs -> utility -> dev -> home [style=invis]}
     }
 
     // ==========================================
     // SYSTEM WIRING (Horizontal "Blueprints")
     // ==========================================
     
-    // Provisioning
-    tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#A1A1AA"];
-    nixos -> opencode       [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#A1A1AA"];
+    // Provisioning (Added weights to naturally pull GitOps to the right targets)
+    tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#A1A1AA", weight=10];
+    nixos -> opencode     [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#A1A1AA", weight=10];
     proxmox -> pihole      [rhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#A1A1AA"];
-    flux -> storage    [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#A1A1AA"];
+    flux -> storage    [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#A1A1AA", weight=10];
     
     // Data & Secrets
     azure_kv -> platform [xlabel=" Secrets ", style=dashed, color="#0EA5E9"];
     syn_nas -> storage   [lhead=cluster_infra, xlabel=" Mounts ", style=dashed, color="#0EA5E9"];
 
-    // Traffic Flow
-    public -> cloudflare -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
-    private -> pihole -> haproxy -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
-    ingress -> docs [lhead=cluster_workloads, color="#F59E0B", penwidth=2, xlabel=" Routes Traffic "];
+    // Traffic Flow (Added weight=10 to main flows to enforce straight vertical lines)
+    public -> cloudflare [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic ", weight=10];
+    cloudflare -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic ", weight=10];
+    private -> pihole [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic ", weight=5];
+    pihole -> haproxy [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
+    haproxy -> ingress [color="#3B82F6", penwidth=2, xlabel=" Routes Traffic "];
+    ingress -> docs [lhead=cluster_workloads, color="#F59E0B", penwidth=2, xlabel=" Routes Traffic ", weight=10];
 
     // ==========================================
-    // HIDDEN ANCHORS
+    // HIDDEN ANCHORS FOR BALANCED ALIGNMENT
     // ==========================================
-    // Layer 1: GITOPS & IaC + NETWORK ENTRY
-    // Layer 2: EXTERNAL + HARDWARE
-    // Layer 3: VIRTUAL MACHINES
-    // Layer 4: KUBERNETES INFRASTRUCTURE
-    edge [style=invis];
-    edge [weight=100];
-    proxmox -> haproxy -> storage -> docs;
-    public -> cloudflare -> pihole -> home;
-    private -> syn_nas;
+    // These vertical spines force the centers of the clusters to align beautifully
+    edge [style=invis, weight=100];
+    
+    // Left Spine
+    azure_kv -> haproxy -> platform -> ai_apps;
+    
+    // Center-Left Spine (Main Public Flow)
+    public -> cloudflare -> ingress -> docs;
+    
+    // Center Spine (Main Private Flow)
+    private -> pihole -> storage -> utility;
+    
+    // Center-Right Spine
+    syn_nas -> opencode -> obs -> dev;
+    
+    // Right Spine
+    proxmox -> home;
 }
