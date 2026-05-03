@@ -18,7 +18,6 @@ spec:
       - llm
       - media
       - minecraft
-      - monitoring
       - n8n
       - navidrome
       - paperless

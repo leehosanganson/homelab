@@ -1,6 +1,10 @@
 namespace: paperless
+
 resources:
   - ../../base
 
 patches:
   - path: patch-velero.yaml
+
+patchesStrategicMerge:
+  - db.yaml

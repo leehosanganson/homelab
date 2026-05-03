@@ -6,6 +6,9 @@ resources:
   - backup-store.yaml
   - secrets.yaml
 
+patchesStrategicMerge:
+  - db.yaml
+
 configMapGenerator:
   - files:
       - values.yaml

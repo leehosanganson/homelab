@@ -11,7 +11,7 @@ Phase 1: Bootstrap Flux
      ↓
 Phase 2: Reconcile Infrastructure (External Secrets → Storage → Velero → CNPG → Harbor)
      ↓
-Phase 3: Velero Restore (apps + harbor + monitoring namespaces)
+Phase 3: Velero Restore (apps + harbor namespaces)
      ↓
 Phase 4: CNPG Database Recovery (automatic via recovery bootstrap)
      ↓
@@ -139,12 +139,13 @@ Because all storage classes used (`synology-retain`, `nfs-csi-retain`) are **ret
 | `llm` | Open WebUI deployment, PVC |
 | `media` | All *arr deployments + Jellyfin PVCs, NFS media/downloads PV/PVC |
 | `minecraft` | Deployment, 50Gi game data PVC (`synology-retain`) |
-| `monitoring` | Grafana config PVC (1Gi), Uptime Kuma config PVC (4Gi), Prometheus PVC (150Gi), Loki/MinIO PVCs |
 | `n8n` | Deployment, PVC (database backed up separately via CNPG) |
 | `navidrome` | Deployment, config PVC (1Gi), NFS music PV/PVC |
 | `paperless` | Deployment, PVCs (database backed up separately via CNPG) |
 | `syncthing` | Deployment, config PVC (1Gi), NFS sync-data PV/PVC |
 | `zotero` | Deployment, PVC (10Gi) |
+
+> **Note:** The `monitoring` namespace is intentionally excluded. Prometheus metrics are re-scraped after recovery, and Loki/Grafana/Uptime Kuma configurations are trivial to restore or rebuild.
 
 ### Step 3.1 — List Available Backups
 
@@ -187,12 +188,14 @@ All PVCs must be `Bound` before proceeding. If a PVC is `Pending`, see [Velero P
 
 ## Phase 4: CNPG Database Recovery
 
-CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. All cluster manifests use `bootstrap.recovery` so Flux automatically recovers each database from its latest barman backup when the cluster is first created on the new cluster.
+CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. All cluster manifests use `bootstrap.recovery` (in the overlay) so Flux automatically recovers each database from its latest barman backup when the cluster is first created on the new cluster.
+
+> **How this works:** The base `db.yaml` files contain `bootstrap.initdb` for fresh cluster provisioning. Each app's overlay overrides only the `bootstrap` section with `recovery.bootstrap.source: clusterBackup`. During recovery, Flux applies the overlay and CNPG recovers from barman. On a fresh cluster (no backup), the base `initdb` is used instead.
 
 ### Cluster Inventory
 
 | Cluster | Namespace | Barman Object Store | Azure Blob Path |
-|---------|-----------|--------------------|--------------------|
+|---------|-----------|--------------------|-----------------|
 | `immich-db` | `immich` | `immich-backup-storage` | `lhshomelabbackup/immich` |
 | `n8n-db` | `n8n` | `n8n-backup-storage` | `lhshomelabbackup/n8n` |
 | `paperless-db` | `paperless` | `paperless-backup-storage` | `lhshomelabbackup/paperless` |
@@ -201,7 +204,22 @@ CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-clou
 | `coder-db` | `coder` | `coder-backup-storage` | `lhshomelabbackup/coder` |
 | `life-in-the-uk-quiz-db` | `life-in-the-uk-quiz` | `life-in-the-uk-quiz-backup-storage` | `lhshomelabbackup/life-in-the-uk-quiz` |
 
-### Step 4.1 — Verify ObjectStore and Secrets Exist
+### Step 4.1 — Pre-flight: Verify Barman Backups Exist
+
+Before CNPG creates a cluster, verify that barman backups are available for each database. Run this check for every namespace that needs recovery:
+
+```bash
+# Example for immich:
+kubectl exec -it $(kubectl get pod -l cnpg.io/cluster=immich-db -n immich -o name 2>/dev/null | head -1) \
+  -n immich -- barman-cloud-backup-list --format json lhshomelabbackup/immich immich-db-backup 2>/dev/null
+
+# If no pods exist yet (fresh cluster), check Azure Blob directly:
+az storage blob list --container-name <barman-container> --output table
+```
+
+If a barman backup is missing for a namespace, that database must be bootstrapped fresh using `initdb` (see Step 4.3).
+
+### Step 4.2 — Verify ObjectStore and Secrets Exist
 
 Before CNPG creates a cluster, the `ObjectStore` resource and its backing secret (synced by ESO) must exist in the namespace. Flux deploys these as part of the app kustomization ahead of the Cluster resource.
 
@@ -218,7 +236,40 @@ kubectl annotate externalsecret -n <namespace> <name> \
   force-sync=$(date +%s) --overwrite
 ```
 
-### Step 4.2 — Watch Recovery Progress
+### Step 4.3 — Handle Fresh Clusters (No Prior Barman Backups)
+
+If a cluster has no prior barman backup, the overlay recovery mode will fail because there is nothing to recover from. In this case, temporarily switch to `initdb` in the overlay:
+
+1. **Edit the overlay `db.yaml`** for the affected app and replace:
+   ```yaml
+   bootstrap:
+     recovery:
+       source: clusterBackup
+   ```
+   with:
+   ```yaml
+   bootstrap:
+     initdb:
+       database: <app-db-name>
+       owner: <app-username>
+       secret:
+         name: <existing-secret-ref>
+   ```
+
+2. **Trigger Flux to reconcile:**
+   ```bash
+   flux reconcile kustomization apps-production --with-source
+   ```
+
+3. **Wait for the cluster to initialise** (check `kubectl get cluster -n <namespace>`).
+
+4. **Once WAL archiving produces a full base backup**, revert the overlay back to `recovery` mode so future restores work automatically.
+
+> **Per-database notes:**
+> - **immich**: After fresh initdb, run manually: `CREATE EXTENSION vchord CASCADE; CREATE EXTENSION earthdistance CASCADE;`
+> - **All others**: Standard initdb is sufficient.
+
+### Step 4.4 — Watch Recovery Progress
 
 Once Flux reconciles the app kustomization, CNPG creates the cluster and begins recovery automatically:
 
@@ -232,25 +283,7 @@ kubectl describe cluster <cluster-name> -n <namespace>
 
 The cluster transitions through `Setting up primary` → `Recovering` → `Cluster in healthy state`. Recovery time depends on the size of the backup and WAL replay volume.
 
-### Step 4.3 — Handle Accidental `initdb` Bootstrap
-
-If a cluster is accidentally created before a barman backup is available (e.g. fresh cluster with no prior backups), it will initialise with an empty database. To recover properly:
-
-```bash
-# Delete the cluster and its PVCs
-kubectl delete cluster <cluster-name> -n <namespace>
-kubectl delete pvc -l cnpg.io/cluster=<cluster-name> -n <namespace>
-
-# Trigger Flux to recreate with recovery bootstrap
-flux reconcile kustomization apps-production
-```
-
-> **Note for truly fresh clusters with no prior barman backups:** `bootstrap.recovery` will fail if no
-> backup exists. In that case, temporarily set `bootstrap.initdb` in the cluster manifest, let the
-> cluster initialise, then revert to `bootstrap.recovery` once WAL archiving has produced a full base
-> backup.
-
-### Step 4.4 — Verify Data After Recovery
+### Step 4.5 — Verify Data After Recovery
 
 ```bash
 kubectl exec -it <cluster-name>-1 -n <namespace> -- psql -U postgres
@@ -277,11 +310,11 @@ This deploys (all in the `monitoring` namespace):
 
 | Component | Description |
 |-----------|-------------|
-| Prometheus | Metrics collection (150Gi PVC — data re-scraped automatically) |
-| Grafana | Dashboards and alerts (1Gi PVC restored via Velero) |
-| Loki | Log aggregation (MinIO PVCs restored via Velero) |
+| Prometheus | Metrics collection — data re-scraped automatically from targets |
+| Grafana | Dashboards and alerts — configure once after cluster is up |
+| Loki | Log aggregation — logs will be re-collected as workloads come back online |
 | Alloy | Log/metric collection agent |
-| Uptime Kuma | Uptime monitoring (4Gi PVC restored via Velero) |
+| Uptime Kuma | Uptime monitoring — trivial to reconfigure monitors |
 
 ---
 
@@ -372,4 +405,3 @@ If the PV was using a static `volumeName` reference, ensure the PV manifest was 
 ```bash
 kubectl apply -f kubernetes/apps/<app>/base/pvc.yaml
 ```
-

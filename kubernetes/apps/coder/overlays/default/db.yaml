@@ -1,0 +1,8 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: coder-db
+spec:
+  bootstrap:
+    recovery:
+      source: clusterBackup

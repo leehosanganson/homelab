@@ -1,0 +1,8 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: life-in-the-uk-quiz-db
+spec:
+  bootstrap:
+    recovery:
+      source: clusterBackup

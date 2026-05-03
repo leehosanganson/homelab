@@ -12,8 +12,11 @@ spec:
   monitoring:
     enablePodMonitor: true
   bootstrap:
-    recovery:
-      source: clusterBackup
+    initdb:
+      database: quiz
+      owner: quiz
+      secret:
+        name: life-in-the-uk-quiz-secrets
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

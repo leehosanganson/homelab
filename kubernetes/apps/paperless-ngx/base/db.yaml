@@ -12,8 +12,11 @@ spec:
   monitoring:
     enablePodMonitor: true
   bootstrap:
-    recovery:
-      source: clusterBackup
+    initdb:
+      database: paperless
+      owner: paperless
+      secret:
+        name: paperless-env
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

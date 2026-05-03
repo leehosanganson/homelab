@@ -1,3 +1,7 @@
 namespace: commafeed
+
 resources:
   - ../../base
+
+patchesStrategicMerge:
+  - db.yaml

@@ -10,9 +10,6 @@ spec:
     size: 3Gi
   monitoring:
     enablePodMonitor: true
-  bootstrap:
-    recovery:
-      source: clusterBackup
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

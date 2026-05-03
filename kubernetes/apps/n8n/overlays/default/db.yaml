@@ -1,0 +1,8 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: n8n-db
+spec:
+  bootstrap:
+    recovery:
+      source: clusterBackup

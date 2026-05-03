@@ -11,8 +11,11 @@ spec:
   monitoring:
     enablePodMonitor: true
   bootstrap:
-    recovery:
-      source: clusterBackup
+    initdb:
+      database: coder
+      owner: coder
+      secret:
+        name: coder-db-env
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
