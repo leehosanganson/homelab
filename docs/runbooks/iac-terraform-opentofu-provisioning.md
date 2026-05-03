@@ -1,8 +1,6 @@
-# Infrastructure as Code (Iac)
+# Infrastructure as Code (IaC) — Terraform (OpenTofu) Provisioning
 
-## Terraform (OpenTofu) Provisioning
-
-### Overview
+## Overview
 
 This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox using the [`bpg/proxmox`](https://registry.terraform.io/providers/bpg/proxmox/latest) provider (`~> 0.104.0`).
 
@@ -19,7 +17,7 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 ---
 
-### Prerequisites
+## Prerequisites
 
 - [OpenTofu](https://opentofu.org/docs/intro/install/) installed
 - Access to a Proxmox VE cluster
@@ -29,11 +27,11 @@ This directory is **Layer 1** of a two-layer IaC stack. OpenTofu manages the vir
 
 ---
 
-### Proxmox User Setup
+## Proxmox User Setup
 
 Create a least-privilege `terraform@pam` user with a custom `TerraformProv` role.
 
-#### 1. Create the role with required privileges
+### 1. Create the role with required privileges
 
 Log into your Proxmox GUI.
 
@@ -55,7 +53,7 @@ Privileges: Select the following (minimum requirements for most Terraform provid
 
 Click Create.
 
-#### 2. Create the user
+### 2. Create the user
 
 Navigate to Datacenter > Permissions > Users.
 
@@ -67,7 +65,7 @@ Realm: Select pam (Linux PAM standard authentication).
 
 Click Add.
 
-#### 3. Create an API token
+### 3. Create an API token
 
 Run the following on the Proxmox host (or use the web UI under Datacenter > Permissions > API Tokens):
 
@@ -91,7 +89,7 @@ echo "terraform@pam!homelab=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" \
 chmod 600 ~/.config/sops-nix/secrets/pve-terraform-api-token
 ```
 
-#### 4. Assign Permissions (ACLs)
+### 4. Assign Permissions (ACLs)
 
 > **Critical:** Both the **user** and the **token** must have their own ACL entries, even when `privsep=0`. With `privsep=0`, Proxmox still requires the user to have its own ACL — the token ACL alone is not sufficient.
 
@@ -105,11 +103,11 @@ pveum aclmod / --token terraform@pam!homelab --role TerraformProv
 
 ---
 
-### ISO
+## ISO
 
 The installer ISO is built from the NixOS flake in this repository.
 
-#### Build the ISO
+### Build the ISO
 
 ```bash
 cd ../nixos
@@ -117,7 +115,7 @@ nix build .#packages.x86_64-linux.installer
 # Output: result/iso/nixos-minimal-*.iso
 ```
 
-#### Upload to Proxmox
+### Upload to Proxmox
 
 Upload the ISO to a Proxmox storage (e.g. `local`) using `./nixos/scripts/sync-iso.sh`
 
@@ -126,7 +124,7 @@ cd ../nixos
 ./scripts/sync-iso.sh nixos/result/iso/nixos-*.iso pve01 pve02 pve03
 ```
 
-#### Reference in tfvars
+### Reference in tfvars
 
 Set `nixos_iso` in `terraform.tfvars` to the Proxmox storage path:
 
@@ -136,7 +134,7 @@ nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 
 ---
 
-### Configuration
+## Configuration
 
 Copy or edit `terraform.tfvars` with values for your environment:
 
@@ -159,7 +157,7 @@ Add additional entries to `nodes` for each VM to provision.
 
 ---
 
-### Variables Reference
+## Variables Reference
 
 | Variable                   | Type          | Description                                                                    |
 | -------------------------- | ------------- | ------------------------------------------------------------------------------ |
@@ -181,9 +179,9 @@ Add additional entries to `nodes` for each VM to provision.
 
 ---
 
-### Usage
+## Usage
 
-#### Initialise
+### Initialise
 
 ```bash
 tofu init
@@ -193,58 +191,17 @@ tofu apply
 
 ---
 
-## NixOS Configurations
+# Infrastructure as Code (IaC) — Gotchas & Lessons Learned
 
-This guide covers the full operational lifecycle for NixOS VMs in this homelab, from building the installer ISO through provisioning and day-to-day updates.
-
-### Prerequisites
-
-- **Nix with flakes enabled** — the `nix` CLI must have `experimental-features = nix-command flakes` set.
-- **nixos-anywhere available** — either in your PATH or invoked via `nix run`.
-- **SSH access to the Proxmox host** — required for uploading the installer ISO and for `nixos-anywhere` to reach the target VM.
-- **sops age keys** — the age private key for decrypting secrets must be available locally; the corresponding public key must already be registered as a recipient in the sops-secrets repository.
-
----
-
-### Usage
-
-#### 1. Provisioning as Terraform Module
-
-Terraform module should execute the `./nixos/scripts/provision.sh` according to the spec and apply the flakes onto the VM.
-
-Otherwise,
-
-```bash
-./nixos/scripts/provision.sh hostname 192.168.1.x
-```
-
-To inject pre-generated SSH host keys for sops-nix Day-0 secret decryption, place them under `nixos/scripts/keys/<hostname>/etc/ssh/` before running `provision.sh`.
-
-#### 2. Rebuilding
-
-```bash
-./nixos/scripts/rebuild.sh hostname 192.168.1.x
-```
-
-To pull the latest secrets revision before deploying, pass the optional flag:
-
-```bash
-./nixos/scripts/rebuild.sh --update-secrets hostname 192.168.1.x
-```
-
----
-
-## Gotchas & Lessons Learned
-
-### DHCP IP vs Static IP
+## DHCP IP vs Static IP
 
 After `tofu apply`, the VM is powered off. You must **start it manually** in Proxmox first. On first boot it gets a DHCP IP — find it from the Proxmox console (VM > Summary > IPs, or check your DHCP server). Use this DHCP IP for `provision.sh`. After provisioning, the flake configures a static IP — use **that static IP** for all subsequent `rebuild.sh` calls.
 
-### Root SSH Access Required for rebuild.sh
+## Root SSH Access Required for rebuild.sh
 
 `rebuild.sh` connects as `root`. The NixOS config must include your SSH public key in `users.users.root.openssh.authorizedKeys.keys`.
 
-### Both User and Token Need ACLs (privsep=0 is not enough)
+## Both User and Token Need ACLs (privsep=0 is not enough)
 
 Even with `privsep=0`, Proxmox requires **both** the user (`terraform@pam`) and the token (`terraform@pam!homelab`) to have explicit ACL entries. The token ACL alone is not sufficient. Always run both:
 
@@ -253,8 +210,6 @@ pveum aclmod / --user terraform@pam --role TerraformProv
 pveum aclmod / --token terraform@pam!homelab --role TerraformProv
 ```
 
-### Use pam Realm, Not pve Realm
+## Use pam Realm, Not pve Realm
 
 Create the Terraform user in the `pam` realm (`terraform@pam`), not `pve` (`terraform@pve`). In Proxmox 8.4, `pve` realm token ACLs are not evaluated correctly, causing persistent 403 errors even with correct ACL entries.
-
----

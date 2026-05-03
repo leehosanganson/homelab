@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-commit hook: re-renders any staged .dot files to SVG using Graphviz.
+# Install via: bash tools/install-hooks.sh
+
+set -euo pipefail
+
+# Find all .dot files that are staged for commit
+staged_dots=$(git diff --cached --name-only --diff-filter=ACM | grep '\.dot$' || true)
+
+if [ -z "$staged_dots" ]; then
+  exit 0
+fi
+
+if ! command -v dot &>/dev/null; then
+  echo "pre-commit: 'dot' (Graphviz) not found — skipping .dot → SVG rendering."
+  echo "  Install via: nix develop  or  brew install graphviz  or  apt install graphviz"
+  exit 0
+fi
+
+while IFS= read -r dot_file; do
+  svg_file="${dot_file%.dot}.svg"
+  echo "pre-commit: rendering $dot_file → $svg_file"
+  dot -Tsvg "$dot_file" -o "$svg_file"
+  git add "$svg_file"
+done <<< "$staged_dots"
