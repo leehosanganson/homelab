@@ -652,9 +652,9 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (requested_model) (increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
+          "expr": "sum by (model) (increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", model=~\"$model\"}[$__rate_interval]))",
           "interval": "$interval",
-          "legendFormat": "{{requested_model}}",
+          "legendFormat": "{{model}}",
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
