@@ -29,12 +29,13 @@ in
   environment.systemPackages = opencodePkgs;
 
   users.users.opencode = {
-    isSystemUser = true;
+    isSystemUser = false;
     group = "opencode";
-    home = "/var/lib/opencode";
+    home = "/home/opencode";
     createHome = true;
     shell = pkgs.bashInteractive;
     description = "opencode service user";
+    passwordHash = "disabled";
   };
 
   users.groups.opencode = { };
@@ -43,7 +44,7 @@ in
   programs.git = {
     enable = true;
     config = {
-      core.safeDirectory = "/var/lib/opencode";
+      core.safeDirectory = "/home/opencode";
       core.sshCommand = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
       url."ssh://git@github.com:".insteadOf = "https://github.com/";
     };
@@ -85,13 +86,13 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d /var/lib/opencode/.config 0750 opencode opencode -"
-    "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
-    "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
-    "d /var/lib/opencode/.kube 0700 opencode opencode -"
-    "d /var/lib/opencode/repos 0750 opencode opencode -"
-    "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
-    "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
+    "d /home/opencode/.config 0750 opencode opencode -"
+    "d /home/opencode/.config/opencode 0750 opencode opencode -"
+    "d /home/opencode/.config/ai 0750 opencode opencode -"
+    "d /home/opencode/.kube 0700 opencode opencode -"
+    "d /home/opencode/repos 0750 opencode opencode -"
+    "C /home/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
+    "C /home/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
   ];
 
   systemd.services.opencode = {
@@ -101,7 +102,7 @@ in
     path = opencodePkgs;
 
     environment = {
-      HOME = "/var/lib/opencode";
+      HOME = "/home/opencode";
       SHELL = "${pkgs.bashInteractive}/bin/bash";
       GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
     };
@@ -110,7 +111,7 @@ in
       ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
       User = "opencode";
       Group = "opencode";
-      WorkingDirectory = "/var/lib/opencode";
+      WorkingDirectory = "/home/opencode";
 
       EnvironmentFile = config.sops.secrets."opencode-env".path;
 
@@ -121,7 +122,7 @@ in
       NoNewPrivileges = true;
       ProtectSystem = "strict";
       ProtectHome = "tmpfs";
-      ReadWritePaths = [ "/var/lib/opencode" ];
+      ReadWritePaths = [ "/home/opencode" ];
       PrivateTmp = true;
     };
   };
