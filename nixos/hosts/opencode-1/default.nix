@@ -29,20 +29,6 @@
     group = "root";
   };
 
-  environment.etc."opencode/ssh/id_ed25519_github" = {
-    source = "${sops-secrets}/keys/opencode-user";
-    mode = "0400";
-    user = "opencode";
-    group = "opencode";
-  };
-
-  environment.etc."opencode/ssh/id_ed25519_github.pub" = {
-    source = "${sops-secrets}/keys/opencode-user.pub";
-    mode = "0444";
-    user = "opencode";
-    group = "opencode";
-  };
-
   # Secrets — sops-nix decrypts at boot using the host SSH key.
   # The opencode-env secret must contain all env vars for the service:
   #   OPENCODE_SERVER_PASSWORD=...
@@ -59,39 +45,41 @@
         group = "opencode";
       };
 
+      # Required for litellm
       "litellm-api-key" = {
         owner = "opencode";
         group = "opencode";
-        path = "/var/lib/opencode/.config/sops-nix/secrets/litellm-api-key";
       };
 
+      # Required for GitHub MCP
       "opencode-github-pat" = {
         owner = "opencode";
         group = "opencode";
-        path = "/var/lib/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
 
+      # Required for kubectl
       "kube-config" = {
         owner = "opencode";
         group = "opencode";
-        path = "/var/lib/opencode/.kube/config";
         mode = "0400";
       };
     };
   };
 
   # user
-  users.users.ansonlee = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = [
+  users.users = {
+    ansonlee = {
+      isNormalUser = true;
+      extraGroups = [ "wheel" ];
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+      ];
+    };
+
+    root.openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
     ];
   };
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
-  ];
 
   security.sudo = {
     enable = true;
@@ -100,16 +88,19 @@
 
   nix.settings.trusted-users = [ "root" "ansonlee" ];
 
-  services.openssh = {
-    enable = true;
-    settings.PasswordAuthentication = false;
-    settings.PermitRootLogin = "prohibit-password";
-  };
+  # services
+  services = {
+    openssh = {
+      enable = true;
+      settings.PasswordAuthentication = false;
+      settings.PermitRootLogin = "prohibit-password";
+    };
 
-  services.qemuGuest.enable = true;
+    qemuGuest.enable = true;
 
-  services.resolved = {
-    enable = true;
-    settings.Resolve.DNSSEC = "false";
+    resolved = {
+      enable = true;
+      settings.Resolve.DNSSEC = "false";
+    };
   };
 }
