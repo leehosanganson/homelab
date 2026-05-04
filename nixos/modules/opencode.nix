@@ -30,21 +30,6 @@ in
 
   users.groups.opencode = { };
 
-  # Deploy SSH private key for git/gh authentication.
-  environment.etc."home/opencode/.ssh/id_ed25519" = {
-    source = "${sops-secrets}/keys/opencode-user";
-    mode = "0600";
-    user = "opencode";
-    group = "opencode";
-  };
-
-  environment.etc."home/opencode/.ssh/id_ed25519.pub" = {
-    source = "${sops-secrets}/keys/opencode-user.pub";
-    mode = "0444";
-    user = "opencode";
-    group = "opencode";
-  };
-
   # Dev Tools
   environment.systemPackages = opencodePkgs;
 
@@ -52,7 +37,7 @@ in
   programs.git = {
     enable = true;
     config = {
-      core.safeDirectory = "/home/opencode";
+      core.safeDirectory = "*";
     };
   };
 
@@ -60,15 +45,21 @@ in
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
     path = opencodePkgs;
 
     environment = {
       HOME = "/home/opencode";
       SHELL = "${pkgs.bashInteractive}/bin/bash";
+      XDG_CACHE_HOME = "/var/cache/opencode";
+      XDG_STATE_HOME = "/var/lib/opencode";
+      XDG_RUNTIME_DIR = "/run/opencode";
+      TMPDIR = "/tmp";
     };
 
     serviceConfig = {
+      ExecStartPre = "${pkgs.coreutils}/bin/test -r ${config.sops.secrets."opencode-env".path}";
       ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
       User = "opencode";
       Group = "opencode";
@@ -79,10 +70,14 @@ in
       Restart = "on-failure";
       RestartSec = "5s";
 
+      RuntimeDirectory = "opencode";
+      StateDirectory = "opencode";
+      CacheDirectory = "opencode";
+
       # Hardening
       NoNewPrivileges = true;
       ProtectSystem = "strict";
-      ReadWritePaths = [ "/home/opencode" ];
+      ReadWritePaths = [ "/home/opencode" "/var/lib/opencode" "/var/cache/opencode" "/run/opencode" ];
       PrivateTmp = true;
     };
   };

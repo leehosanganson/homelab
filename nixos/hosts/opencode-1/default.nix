@@ -31,6 +31,7 @@
       "opencode-env" = {
         owner = "opencode";
         group = "opencode";
+        restartUnits = [ "opencode.service" ];
       };
 
       # Required for litellm
@@ -92,4 +93,3 @@
     };
   };
 }
-
