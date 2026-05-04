@@ -58,6 +58,18 @@ kubectl get pods -n flux-system
 flux get kustomizations
 ```
 
+### 1.1 — Suspend app/monitoring reconciliation before recovery actions
+
+Before running restores or database recovery, suspend `apps-production` and `monitoring-production` so Flux does not race ahead while PVCs and databases are being restored.
+
+```bash
+flux suspend kustomization apps-production
+flux suspend kustomization monitoring-production
+flux get kustomizations
+```
+
+`infra-production` should remain active.
+
 ---
 
 ## Phase 2 — Reconcile Infrastructure
@@ -207,15 +219,35 @@ CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-clou
 
 ### 4.1 — Pre-flight: Verify Barman Backups Exist
 
-Before CNPG creates a cluster, verify that barman backups are available for each database. Run this check for every namespace that needs recovery:
+Before CNPG creates a cluster, verify that barman backups are available for each database.
+
+Use Azure Blob checks first (works even when no CNPG pod exists yet):
 
 ```bash
-# Example for immich:
-kubectl exec -it $(kubectl get pod -l cnpg.io/cluster=immich-db -n immich -o name 2>/dev/null | head -1) \
-  -n immich -- barman-cloud-backup-list --format json lhshomelabbackup/immich immich-db-backup 2>/dev/null
+# Returns 1 when at least one base backup exists, 0 when none exists.
+az storage blob list \
+  --auth-mode login \
+  --account-name lhshomelabbackup \
+  --container-name immich \
+  --prefix immich-db-backup/base/ \
+  --num-results 1 \
+  --query 'length(@)' -o tsv
 
-# If no pods exist yet (fresh cluster), check Azure Blob directly:
-az storage blob list --container-name <barman-container> --output table
+# Repeat with each container/server pair from the Cluster Inventory table, e.g.:
+#   n8n + n8n-db-backup
+#   paperless + paperless-db-backup
+#   commafeed + commafeed-db-backup
+#   litellm + litellm-db-backup
+#   coder + coder-db-backup
+#   life-in-the-uk-quiz + life-in-the-uk-quiz-db-backup
+```
+
+If a CNPG pod already exists, you can also verify from inside the cluster:
+
+```bash
+kubectl exec -it <cluster-name>-1 -n <namespace> -- \
+  barman-cloud-backup-list --format json \
+  lhshomelabbackup/<container> <server-name>
 ```
 
 If a barman backup is missing for a namespace, that database must be bootstrapped fresh using `initdb` (see Step 4.3).
@@ -239,9 +271,11 @@ kubectl annotate externalsecret -n <namespace> <name> \
 
 ### 4.3 — Handle Fresh Clusters (No Prior Barman Backups)
 
-If a cluster has no prior barman backup, the overlay recovery mode will fail because there is nothing to recover from. In this case, temporarily switch to `initdb` in the overlay:
+If a cluster has no prior barman backup, the overlay recovery mode will fail because there is nothing to recover from. Use a **temporary Git branch + temporary Flux branch tracking** so the fallback is explicit and reversible.
 
-1. **Edit the overlay `db.yaml`** for the affected app and replace:
+1. **Create a temporary branch from `main`** (or your recovery branch) and change only the affected app overlay `db.yaml`.
+
+2. **Replace recovery bootstrap with initdb** for the affected app:
 
     ```yaml
     bootstrap:
@@ -260,15 +294,33 @@ If a cluster has no prior barman backup, the overlay recovery mode will fail bec
           name: <existing-secret-ref>
     ```
 
-2. **Trigger Flux to reconcile:**
+3. **Commit and push the temporary fallback change**, then patch Flux to track that branch while recovery is in progress:
+
+    ```bash
+    kubectl patch gitrepository flux-system -n flux-system \
+      --type='merge' \
+      -p '{"spec":{"ref":{"branch":"<temporary-fallback-branch>"}}}'
+    ```
+
+4. **Trigger Flux to reconcile:**
 
     ```bash
     flux reconcile kustomization apps-production --with-source
     ```
 
-3. **Wait for the cluster to initialise** (check `kubectl get cluster -n <namespace>`).
+5. **Wait for the cluster to initialise** (check `kubectl get cluster -n <namespace>`).
 
-4. **Once WAL archiving produces a full base backup**, revert the overlay back to `recovery` mode so future restores work automatically.
+6. **Once WAL archiving produces a full base backup**, revert the overlay back to `recovery` mode (`source: clusterBackup`) in Git, push the revert commit, and reconcile again.
+
+7. **Patch Flux back to `main`** once the temporary fallback branch is no longer needed:
+
+    ```bash
+    kubectl patch gitrepository flux-system -n flux-system \
+      --type='merge' \
+      -p '{"spec":{"ref":{"branch":"main"}}}'
+    ```
+
+> Tip: Use the branch patch workflow in [Workflows — Testing & Validation](workflows-testing-validation.md) for the same safe temporary branch mechanism.
 
 > **Per-database notes:**
 > - **immich**: After fresh initdb, run manually: `CREATE EXTENSION vchord CASCADE; CREATE EXTENSION earthdistance CASCADE;`
@@ -307,6 +359,7 @@ SELECT COUNT(*) FROM <key_table>;
 With infrastructure ready and PVCs restored via Velero, bring up the monitoring stack:
 
 ```bash
+flux resume kustomization monitoring-production
 flux reconcile kustomization monitoring-production --with-source
 flux get kustomizations monitoring-production --watch
 ```
