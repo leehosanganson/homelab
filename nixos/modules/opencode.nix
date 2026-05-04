@@ -1,4 +1,4 @@
-{ config, sops-secrets, pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   opencodePkgs = with pkgs; [
@@ -41,12 +41,65 @@ in
     };
   };
 
+  # Declarative SSH setup for opencode user git operations.
+  # Key separation is explicit:
+  # - /etc/ssh/bootstrap-vm is reserved for sops bootstrap decryption.
+  # - /etc/ssh/opencode-user(.pub) is dedicated to opencode git auth.
+  systemd.services.opencode-git-ssh-setup = {
+    description = "Install opencode git SSH key material";
+    wantedBy = [ "multi-user.target" ];
+    before = [ "opencode.service" ];
+    after = [ "local-fs.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      Group = "root";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "opencode-git-ssh-setup" ''
+                set -euo pipefail
+
+                # Backward-compatible one-time migration from legacy generic key names.
+                # Keep /etc/ssh/bootstrap-vm dedicated to sops bootstrap only.
+                if [[ ! -f /etc/ssh/opencode-user && -f /etc/ssh/id_ed25519 ]]; then
+                  install -m 0600 -o root -g root /etc/ssh/id_ed25519 /etc/ssh/opencode-user
+                fi
+
+                if [[ ! -f /etc/ssh/opencode-user.pub && -f /etc/ssh/id_ed25519.pub ]]; then
+                  install -m 0644 -o root -g root /etc/ssh/id_ed25519.pub /etc/ssh/opencode-user.pub
+                fi
+
+                install -d -m 0700 -o opencode -g opencode /home/opencode/.ssh
+
+                install -m 0600 -o opencode -g opencode /etc/ssh/opencode-user /home/opencode/.ssh/id_ed25519
+                install -m 0644 -o opencode -g opencode /etc/ssh/opencode-user.pub /home/opencode/.ssh/id_ed25519.pub
+
+                cat > /home/opencode/.ssh/config <<'EOF'
+        Host github.com
+          HostName github.com
+          User git
+          IdentityFile /home/opencode/.ssh/id_ed25519
+          IdentitiesOnly yes
+          StrictHostKeyChecking accept-new
+        EOF
+
+                chown opencode:opencode /home/opencode/.ssh/config
+                chmod 0600 /home/opencode/.ssh/config
+
+                touch /home/opencode/.ssh/known_hosts
+                chown opencode:opencode /home/opencode/.ssh/known_hosts
+                chmod 0644 /home/opencode/.ssh/known_hosts
+      '';
+    };
+  };
+
   # Service
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
+    requires = [ "opencode-git-ssh-setup.service" ];
     wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
+    after = [ "network-online.target" "opencode-git-ssh-setup.service" ];
     path = opencodePkgs;
 
     environment = {
