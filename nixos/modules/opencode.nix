@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   opencodePkgs = with pkgs; [
@@ -18,8 +18,6 @@ let
 in
 
 {
-  environment.systemPackages = opencodePkgs;
-
   users.users.opencode = {
     isNormalUser = true;
     group = "opencode";
@@ -32,7 +30,23 @@ in
 
   users.groups.opencode = { };
 
-  # Git config for opencode path/use case.
+  # Deploy SSH private key for git/gh authentication.
+  environment.etc."home/opencode/.ssh/id_ed25519" = {
+    mode = "0600";
+    user = "opencode";
+    group = "opencode";
+  };
+
+  environment.etc."home/opencode/.ssh/id_ed25519.pub" = {
+    mode = "0444";
+    user = "opencode";
+    group = "opencode";
+  };
+
+  # Dev Tools
+  environment.systemPackages = opencodePkgs;
+
+  # Git
   programs.git = {
     enable = true;
     config = {
@@ -40,11 +54,7 @@ in
     };
   };
 
-  systemd.tmpfiles.rules = [
-    "d /home/opencode/.config 0750 opencode opencode -"
-    "d /home/opencode/repos 0750 opencode opencode -"
-  ];
-
+  # Service
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];

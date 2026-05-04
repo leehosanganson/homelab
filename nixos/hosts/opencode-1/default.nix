@@ -2,6 +2,7 @@
   imports = [
     ../../modules/opencode.nix
     ../../modules/disko.nix
+    ../../modules/sops-bootstrap.nix
   ];
 
   system.stateVersion = "26.05";
@@ -22,22 +23,9 @@
     firewall.allowedTCPPorts = [ 22 4096 ];
   };
 
-  environment.etc."ssh/opencode-1" = {
-    source = "${sops-secrets}/keys/opencode-1";
-    mode = "0600";
-    user = "root";
-    group = "root";
-  };
-
-  # Secrets — sops-nix decrypts at boot using the host SSH key.
-  # The opencode-env secret must contain all env vars for the service:
-  #   OPENCODE_SERVER_PASSWORD=...
-  #   GITHUB_TOKEN=...
+  # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
-    age.sshKeyPaths = [
-      "/etc/ssh/opencode-1"
-    ];
 
     secrets = {
       "opencode-env" = {
@@ -103,4 +91,7 @@
       settings.Resolve.DNSSEC = "false";
     };
   };
+
+  # SSH private key for opencode user (git/gh SSH authentication)
+  opencode-ssh-key.path = ../../scripts/keys/opencode-1/etc/ssh/opencode-user;
 }
