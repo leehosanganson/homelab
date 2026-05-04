@@ -1,7 +1,10 @@
+namespace: life-in-the-uk-quiz
+
 resources:
   - ../../base
   - secrets.yaml
   - backup-schedule.yaml
   - backup-store.yaml
 
-namespace: life-in-the-uk-quiz
+patches:
+  - path: db.yaml

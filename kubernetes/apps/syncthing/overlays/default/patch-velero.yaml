@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: paperless
+  name: syncthing
 spec:
   template:
     metadata:
       annotations:
-        backup.velero.io/backup-volumes: data
+        backup.velero.io/backup-volumes: syncthing-config

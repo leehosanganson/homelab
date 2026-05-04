@@ -2,3 +2,6 @@ namespace: syncthing
 
 resources:
   - ../../base
+
+patches:
+  - path: patch-velero.yaml

@@ -1,3 +1,6 @@
 namespace: llm
 resources:
   - ../../base
+
+patches:
+  - path: patch-velero.yaml

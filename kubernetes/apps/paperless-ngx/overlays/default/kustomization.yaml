@@ -1,6 +1,8 @@
 namespace: paperless
+
 resources:
   - ../../base
 
 patches:
   - path: patch-velero.yaml
+  - path: db.yaml

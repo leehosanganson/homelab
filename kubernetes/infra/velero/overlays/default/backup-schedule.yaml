@@ -10,11 +10,18 @@ spec:
     defaultVolumesToFsBackup: false
     includedNamespaces:
       - actual-budget
+      - grimmory
+      - harbor
       - home-assistant
-      - n8n
+      - immich
       - karakeep
+      - llm
       - media
+      - n8n
+      - navidrome
       - paperless
+      - syncthing
+      - zotero
     includedResources:
       - deployments
       - pods
