@@ -91,7 +91,5 @@
       settings.Resolve.DNSSEC = "false";
     };
   };
-
-  # SSH private key for opencode user (git/gh SSH authentication)
-  opencode-ssh-key.path = ../../scripts/keys/opencode-1/etc/ssh/opencode-user;
 }
+

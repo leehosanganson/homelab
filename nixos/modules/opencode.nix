@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, sops-secrets, pkgs, ... }:
 
 let
   opencodePkgs = with pkgs; [
@@ -32,12 +32,14 @@ in
 
   # Deploy SSH private key for git/gh authentication.
   environment.etc."home/opencode/.ssh/id_ed25519" = {
+    source = "${sops-secrets}/keys/opencode-user";
     mode = "0600";
     user = "opencode";
     group = "opencode";
   };
 
   environment.etc."home/opencode/.ssh/id_ed25519.pub" = {
+    source = "${sops-secrets}/keys/opencode-user.pub";
     mode = "0444";
     user = "opencode";
     group = "opencode";
