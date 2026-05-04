@@ -45,24 +45,23 @@ in
     config = {
       core.safeDirectory = "/var/lib/opencode";
       core.sshCommand = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
-      url."ssh://git@opencode-github/".insteadOf = "https://github.com/";
+      url."ssh://git@github.com:".insteadOf = "https://github.com/";
     };
   };
 
   # Service-scoped SSH config for opencode git operations.
   environment.etc."opencode/ssh/config" = {
     text = ''
-      Host opencode-github github.com
+      Host github.com
         HostName github.com
         User git
         IdentityFile /etc/opencode/ssh/id_ed25519_github
         IdentitiesOnly yes
-        UserKnownHostsFile /etc/opencode/ssh/known_hosts
     '';
     mode = "0444";
   };
 
-  environment.etc."opencode/ssh/known_hosts" = {
+  environment.etc."ssh/known_hosts" = {
     text = ''
       github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
     '';
