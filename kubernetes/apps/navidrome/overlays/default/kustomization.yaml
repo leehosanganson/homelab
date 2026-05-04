@@ -3,3 +3,6 @@ namespace: navidrome
 resources:
   - ../../base
   - secrets.yaml
+
+patches:
+  - path: patch-velero.yaml

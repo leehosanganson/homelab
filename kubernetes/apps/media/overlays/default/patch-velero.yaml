@@ -61,6 +61,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: lidarr
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lrcget
+spec:
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: sonarr
 spec:
   template:
