@@ -1,0 +1,219 @@
+digraph homelab {
+    graph [
+        rankdir=TB,
+        compound=true,
+        splines=ortho,
+        pad=0.5,
+        nodesep=0.8,
+        ranksep=1.0,
+        fontname="Inter, Helvetica, sans-serif",
+        fontsize=16,
+        bgcolor="#09090B"
+    ];
+
+    // Global Node Defaults
+    node [
+        shape=box,
+        style="rounded,filled",
+        fillcolor="#18181B",
+        color="#3F3F46",
+        fontcolor="#FAFAFA",
+        fontname="Inter, Helvetica, sans-serif",
+        fontsize=11,
+        margin="0.25,0.15",
+        penwidth=1.5
+    ];
+
+    // Global Edge Defaults
+    edge [
+        color="#52525B",
+        fontcolor="#A1A1AA",
+        fontname="Inter, Helvetica, sans-serif",
+        fontsize=10,
+        penwidth=1.2,
+        arrowsize=0.8
+    ];
+
+    // ==========================================
+    // LAYER 1: GITOPS & NETWORK ENTRY
+    // ==========================================
+    subgraph cluster_network {
+        label="NETWORK ENTRY";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#06B6D4";
+        fontcolor="#22D3EE";
+        fontsize=13;
+        margin=15;
+        node [color="#06B6D4"]; // Cyan
+
+        public      [label="Public"];
+        private     [label="Private"];
+
+        { rank=same; public -> private [style=invis] }
+    }
+
+    subgraph cluster_gitops {
+        label="GITOPS & IaC";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#6366F1";
+        fontcolor="#818CF8";
+        fontsize=13;
+        margin=15;
+        node [color="#6366F1"]; // Indigo
+
+        nixos  [label="NixOS\nOS Config"];
+        tofu   [label="OpenTofu\nVM Provisioning"];
+        github [label="GitHub Repo\nFlux + Tofu Sources"];
+        flux   [label="FluxCD\nK8s Reconciliation"];
+
+        { rank=same; nixos -> tofu -> github -> flux [style=invis] }
+    }
+
+    // ==========================================
+    // LAYER 2: EXTERNAL & HARDWARE
+    // ==========================================
+    subgraph cluster_external {
+        label="EXTERNAL";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#EC4899";
+        fontcolor="#F472B6";
+        fontsize=13;
+        margin=15;
+        node [color="#EC4899"]; // Pink
+
+        cloudflare  [label="Cloudflare\nDNS & Proxy"];
+        azure_kv    [label="Azure Key Vault"];
+
+        { rank=same; cloudflare -> azure_kv [style=invis] }
+    }
+
+    subgraph cluster_hardware {
+        label="HARDWARE";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#10B981";
+        fontcolor="#34D399";
+        fontsize=13;
+        margin=15;
+        node [color="#10B981"]; // Emerald
+
+        proxmox     [label="Proxmox VE Cluster\n3 Nodes"];
+        syn_nas     [label="Synology NAS\nNFS Volumes & LUN"];
+
+        { rank=same; proxmox -> syn_nas [style=invis] }
+    }
+
+    // ==========================================
+    // LAYER 3: VIRTUAL MACHINES
+    // ==========================================
+    subgraph cluster_vm {
+        label="VIRTUAL MACHINES";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#F59E0B";
+        fontcolor="#FCD34D";
+        fontsize=13;
+        margin=15;
+        node [color="#F59E0B"]; // Amber
+
+        haproxy     [label="HAProxy x3"];
+        pihole      [label="Pi-hole & Tailscale"];
+        opencode    [label="OpenCode"];
+        k3s         [label="k3s Nodes\nKubernetes Cluster"];
+
+        { rank=same; haproxy -> pihole -> opencode -> k3s [style=invis] }
+    }
+
+    // ==========================================
+    // LAYER 4: KUBERNETES INFRASTRUCTURE
+    // ==========================================
+    subgraph cluster_infra {
+        label="KUBERNETES INFRASTRUCTURE";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#F43F5E";
+        fontcolor="#FB7185";
+        fontsize=13;
+        margin=15;
+        node [color="#F43F5E"]; // Rose
+
+        ingress     [label="Traefik Ingress\nController"];
+        platform    [label="Core Services\nCert-Manager, Harbor"];
+        obs         [label="Observability\nPrometheus, Grafana, Loki"];
+        storage     [label="Data & Storage & Backup\nCloudNativePG, Velero"];
+
+        { rank=same; ingress -> platform -> obs -> storage [style=invis] }
+    }
+
+    // ==========================================
+    // LAYER 5: PRODUCTION WORKLOADS
+    // ==========================================
+    subgraph cluster_workloads {
+        label="PRODUCTION WORKLOADS";
+        style="rounded,filled";
+        fillcolor="#111111";
+        color="#8B5CF6";
+        fontcolor="#A78BFA";
+        fontsize=13;
+        margin=15;
+        node [color="#8B5CF6"]; // Violet
+
+        docs      [label="Docs: Paperless, Karakeep"];
+        ai_apps   [label="AI: LiteLLM, Open WebUI"];
+        media     [label="Media: Jellyfin, *arr"];
+        dev       [label="Dev: n8n, Coder"];
+        utility   [label="Util: Homepage, Budget"];
+        home      [label="Home: Assistant, MC"];
+
+        { rank=same; docs -> ai_apps -> media -> dev -> utility -> home [style=invis] }
+    }
+
+    // ==========================================
+    // SYSTEM WIRING & ANNOTATIONS
+    // ==========================================
+
+    // Automation & IaC (Indigo)
+    tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
+    nixos -> opencode     [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
+    flux -> storage       [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot"];
+    k3s -> storage        [lhead=cluster_infra, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
+
+    // Infrastructure (Emerald)
+    proxmox -> pihole     [rhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
+
+    // Security (Yellow)
+    azure_kv -> platform  [xlabel=" Secrets ", style=dashed, color="#FBBF24", fontcolor="#FBBF24", arrowhead="obox"];
+
+    // Stateful Data (Teal)
+    syn_nas -> storage    [lhead=cluster_infra, xlabel=" Mounts ", style=dotted, penwidth=1.5, color="#2DD4BF", fontcolor="#2DD4BF", arrowhead="box"];
+
+    // Network Traffic (Sky Blue)
+    public -> cloudflare  [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic ", weight=5];
+    cloudflare -> ingress [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
+    private -> pihole     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
+    pihole -> haproxy     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
+    haproxy -> ingress    [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
+    ingress -> docs       [lhead=cluster_workloads, color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic ", weight=5];
+
+    // ==========================================
+    // STRICT GRID ENFORCEMENT (THE 6-COLUMN SUPER SPINE)
+    // ==========================================
+    // This explicitly anchors every single node into a rigid top-to-bottom grid
+    edge [style=invis, weight=100];
+
+    // Column 1
+    public -> cloudflare -> haproxy -> ingress -> docs;
+    // Column 2
+    private -> azure_kv -> pihole -> platform -> ai_apps;
+    // Column 3
+    nixos -> opencode -> obs -> media;
+    // Column 4
+    tofu -> proxmox -> k3s -> storage -> dev;
+    // Column 5
+    github -> syn_nas -> utility;
+    // Column 6
+    flux -> home;
+}

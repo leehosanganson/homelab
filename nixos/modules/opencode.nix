@@ -12,13 +12,16 @@
   environment.systemPackages = with pkgs; [
     opencode
     git
+    gh
     ripgrep
     nodejs
     nodePackages.typescript-language-server
     python3
+    yq-go
     jq
     curl
     wget
+    kubectl
   ];
 
   users.users.opencode = {
@@ -82,6 +85,7 @@
     "d /var/lib/opencode/.config 0750 opencode opencode -"
     "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
     "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
+    "d /var/lib/opencode/.kube 0700 opencode opencode -"
     "d /var/lib/opencode/repos 0750 opencode opencode -"
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
@@ -91,7 +95,11 @@
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    path = [ pkgs.git ];
+    path = [
+      pkgs.git
+      pkgs.kubectl
+      pkgs.coreutils
+    ];
 
     environment = {
       HOME = "/var/lib/opencode";
