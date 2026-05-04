@@ -32,18 +32,21 @@
         owner = "opencode";
         group = "opencode";
         restartUnits = [ "opencode.service" ];
+        path = "/home/opencode/.config/sops-nix/secrets/opencode-env";
       };
 
       # Required for litellm
       "litellm-api-key" = {
         owner = "opencode";
         group = "opencode";
+        path = "/home/opencode/.config/sops-nix/secrets/litellm-api-key";
       };
 
       # Required for GitHub MCP
       "opencode-github-pat" = {
         owner = "opencode";
         group = "opencode";
+        path = "/home/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
 
       # Required for kubectl
@@ -51,6 +54,7 @@
         owner = "opencode";
         group = "opencode";
         mode = "0400";
+        path = "/home/opencode/.kube/config";
       };
     };
   };

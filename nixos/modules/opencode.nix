@@ -26,6 +26,10 @@ in
     shell = pkgs.bashInteractive;
     description = "opencode service user";
     hashedPassword = "!";
+
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+    ];
   };
 
   users.groups.opencode = { };
@@ -93,12 +97,32 @@ in
     };
   };
 
+  # Ensure ~/.config/sops-nix/secrets/ directory exists for sops-nix
+  # to decrypt secrets into. Created early so sops-nix can write there.
+  systemd.services.opencode-sops-dir = {
+    description = "Create opencode user sops secrets directory";
+    wantedBy = [ "multi-user.target" ];
+    before = [ "opencode.service" ];
+    after = [ "local-fs.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      Group = "root";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "opencode-sops-dir" ''
+        set -euo pipefail
+        install -d -m 0750 -o opencode -g opencode /home/opencode/.config/sops-nix/secrets
+      '';
+    };
+  };
+
   # Service
   systemd.services.opencode = {
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     requires = [ "opencode-git-ssh-setup.service" ];
-    wants = [ "network-online.target" ];
+    wants = [ "network-online.target" "opencode-sops-dir.service" ];
     after = [ "network-online.target" "opencode-git-ssh-setup.service" ];
     path = opencodePkgs;
 
