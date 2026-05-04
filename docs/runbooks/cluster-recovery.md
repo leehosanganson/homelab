@@ -135,7 +135,7 @@ kubectl get secret cloud-credentials -n velero
 
 ### What Velero Backs Up
 
-The Velero schedule (`kubernetes/infra/velero/overlays/default/backup-schedule.yaml`) runs daily at 07:00 UTC. It captures **Kubernetes object manifests** for `deployments`, `pods`, `persistentvolumes`, `persistentvolumeclaims`, and `namespaces`. Volume data is **not** included in the file-system backup (`defaultVolumesToFsBackup: false`).
+The Velero schedule (`kubernetes/infra/velero/overlays/default/backup-schedule.yaml`) runs daily at 07:00 UTC. It captures **Kubernetes object manifests** for `deployments`, `pods`, `persistentvolumes`, `persistentvolumeclaims`, and `namespaces`. File-system backup is off by default (`defaultVolumesToFsBackup: false`), but pod volumes are still included when explicitly annotated with `backup.velero.io/backup-volumes`.
 
 Because all storage classes used (`synology-retain`, `nfs-csi-retain`) are **retain** classes backed by a Synology NAS, the actual data on the NAS persists across cluster rebuilds. Velero's role is to restore the PVC/PV binding and Deployment objects so that applications re-attach to the same NAS volumes after the cluster is rebuilt.
 
@@ -151,7 +151,6 @@ Because all storage classes used (`synology-retain`, `nfs-csi-retain`) are **ret
 | `karakeep` | Deployment, PVCs (app + meilisearch) |
 | `llm` | Open WebUI deployment, PVC |
 | `media` | All *arr deployments + Jellyfin PVCs, NFS media/downloads PV/PVC |
-| `minecraft` | Deployment, 50Gi game data PVC (`synology-retain`) |
 | `n8n` | Deployment, PVC (database backed up separately via CNPG) |
 | `navidrome` | Deployment, config PVC (1Gi), NFS music PV/PVC |
 | `paperless` | Deployment, PVCs (database backed up separately via CNPG) |
@@ -168,7 +167,21 @@ velero get backups
 
 Backups are retained for 10 days (240h TTL). Use the most recent backup name in the steps below.
 
-### 3.2 — Restore All Covered Namespaces
+### 3.2 — Verify annotated pod-volume backups
+
+Before restore, confirm whether the selected backup captured any annotated pod volumes:
+
+```bash
+velero backup describe <backup-name> --details
+
+# Check PodVolumeBackup objects created for that backup
+kubectl get podvolumebackups -n velero \
+  -l velero.io/backup-name=<backup-name>
+```
+
+If no PodVolumeBackup objects are listed, the backup contains only Kubernetes objects/PVC/PV manifests for this schedule (which is expected unless workloads are annotated with `backup.velero.io/backup-volumes`).
+
+### 3.3 — Restore All Covered Namespaces
 
 ```bash
 velero restore create --from-backup <backup-name>
@@ -182,7 +195,7 @@ velero restore create \
   --include-namespaces actual-budget
 ```
 
-### 3.3 — Monitor Restore Progress
+### 3.4 — Monitor Restore Progress
 
 ```bash
 velero restore get
@@ -452,7 +465,7 @@ Common causes:
 
 ### Velero restore fails for PVCs
 
-Velero backs up PVC/PV object manifests; actual volume data is preserved on the NAS. If a PVC is restored but shows `Pending`, check that the `synology-retain` storage class is available and the Synology CSI driver is running:
+Velero backs up PVC/PV object manifests by default in this schedule; file-system backup runs only for pod volumes explicitly annotated with `backup.velero.io/backup-volumes`. If a PVC is restored but shows `Pending`, check that the `synology-retain` storage class is available and the Synology CSI driver is running:
 
 ```bash
 kubectl get storageclass
@@ -463,4 +476,12 @@ If the PV was using a static `volumeName` reference, ensure the PV manifest was 
 
 ```bash
 kubectl apply -f kubernetes/apps/<app>/base/pvc.yaml
+```
+
+If you expected file-system volume restore for a workload, verify that the source pod had `backup.velero.io/backup-volumes` and that PodVolumeBackup records exist for the selected backup:
+
+```bash
+velero backup describe <backup-name> --details
+kubectl get podvolumebackups -n velero \
+  -l velero.io/backup-name=<backup-name>
 ```

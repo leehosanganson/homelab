@@ -27,7 +27,7 @@ Phase 7: Post-migration cleanup
 ### Migration principles
 
 - Keep `infra-production` active; control timing by suspending/resuming `apps-production` and `monitoring-production`.
-- Use Velero to restore Kubernetes objects/PVC bindings; persistent data remains on NAS for retain storage classes.
+- Use Velero to restore Kubernetes objects/PVC bindings; file-system backup is off by default and only annotated pod volumes (`backup.velero.io/backup-volumes`) are included.
 - Use CNPG `bootstrap.recovery` overlays for database recovery from barman unless a cluster has no historical backup.
 - Perform DNS/Ingress cutover only after all gates pass.
 
@@ -221,6 +221,10 @@ velero --kubecontext "$DST_CTX" restore create --from-backup <backup-name>
 
 velero --kubecontext "$DST_CTX" restore get
 velero --kubecontext "$DST_CTX" restore describe <restore-name> --details
+
+# Optional: confirm annotated pod-volume backups exist for selected backup
+kubectl --context "$DST_CTX" get podvolumebackups -n velero \
+  -l velero.io/backup-name=<backup-name>
 ```
 
 ### 5.4 Validate PVC attachment assumptions for retain classes

@@ -17,7 +17,6 @@ spec:
       - karakeep
       - llm
       - media
-      - minecraft
       - n8n
       - navidrome
       - paperless
