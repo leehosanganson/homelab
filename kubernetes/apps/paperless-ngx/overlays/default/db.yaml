@@ -4,5 +4,6 @@ metadata:
   name: paperless-db
 spec:
   bootstrap:
+    $patch: replace
     recovery:
       source: clusterBackup

@@ -6,8 +6,8 @@ resources:
   - backup-store.yaml
   - backup-schedule.yaml
 
-patchesStrategicMerge:
-  - db.yaml
+patches:
+  - path: db.yaml
 
 configMapGenerator:
   - files:

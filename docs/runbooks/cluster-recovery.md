@@ -137,7 +137,7 @@ kubectl get secret cloud-credentials -n velero
 
 The Velero schedule (`kubernetes/infra/velero/overlays/default/backup-schedule.yaml`) runs daily at 07:00 UTC. It captures **Kubernetes object manifests** for `deployments`, `pods`, `persistentvolumes`, `persistentvolumeclaims`, and `namespaces`. File-system backup is off by default (`defaultVolumesToFsBackup: false`), but pod volumes are still included when explicitly annotated with `backup.velero.io/backup-volumes`.
 
-Because all storage classes used (`synology-retain`, `nfs-csi-retain`) are **retain** classes backed by a Synology NAS, the actual data on the NAS persists across cluster rebuilds. Velero's role is to restore the PVC/PV binding and Deployment objects so that applications re-attach to the same NAS volumes after the cluster is rebuilt.
+For workloads/PVCs that use `synology-retain` or `nfs-csi-retain` (both `reclaimPolicy: Retain`), the underlying NAS data persists across cluster rebuilds. Velero's role is to restore the PVC/PV binding and Deployment objects so those workloads can re-attach to the same NAS volumes. Workloads using storage classes with `reclaimPolicy: Delete` should not assume underlying data persistence.
 
 ### Namespaces Covered
 
@@ -214,9 +214,9 @@ All PVCs must be `Bound` before proceeding. If a PVC is `Pending`, see [Velero P
 
 ## Phase 4 — CNPG Database Recovery
 
-CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. All cluster manifests use `bootstrap.recovery` (in the overlay) so Flux automatically recovers each database from its latest barman backup when the cluster is first created on the new cluster.
+CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. In this repository, app overlays set `bootstrap.recovery` for recovery operations.
 
-> **How this works:** The base `db.yaml` files contain `bootstrap.initdb` for fresh cluster provisioning. Each app's overlay overrides only the `bootstrap` section with `recovery.bootstrap.source: clusterBackup`. During recovery, Flux applies the overlay and CNPG recovers from barman. On a fresh cluster (no backup), the base `initdb` is used instead.
+> **How this works:** Base `db.yaml` files define the default bootstrap behavior for fresh provisioning, while each app overlay replaces the entire `bootstrap` section with `recovery.source: clusterBackup` during recovery mode. There is no automatic fallback to base bootstrap behavior once the recovery overlay is applied. If no backup exists, use the temporary fallback flow in Step 4.3 to switch that app overlay to `initdb`.
 
 ### Cluster Inventory
 

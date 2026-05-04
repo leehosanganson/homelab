@@ -4,5 +4,6 @@ metadata:
   name: commafeed-db
 spec:
   bootstrap:
+    $patch: replace
     recovery:
       source: clusterBackup

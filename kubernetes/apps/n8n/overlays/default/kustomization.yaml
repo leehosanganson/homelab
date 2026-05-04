@@ -5,6 +5,4 @@ resources:
 
 patches:
   - path: patch-velero.yaml
-
-patchesStrategicMerge:
-  - db.yaml
+  - path: db.yaml

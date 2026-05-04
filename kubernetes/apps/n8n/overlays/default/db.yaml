@@ -4,5 +4,6 @@ metadata:
   name: n8n-db
 spec:
   bootstrap:
+    $patch: replace
     recovery:
       source: clusterBackup

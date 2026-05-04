@@ -6,5 +6,5 @@ resources:
   - backup-schedule.yaml
   - backup-store.yaml
 
-patchesStrategicMerge:
-  - db.yaml
+patches:
+  - path: db.yaml

@@ -4,5 +4,6 @@ metadata:
   name: coder-db
 spec:
   bootstrap:
+    $patch: replace
     recovery:
       source: clusterBackup
