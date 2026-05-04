@@ -1,16 +1,7 @@
 { config, pkgs, ... }:
 
-{
-  # opencode: headless AI coding agent server
-  #
-  # Runs `opencode serve` as a systemd service. Secrets (server password,
-  # GitHub token, SSH key) are supplied via sops-nix.
-  #
-  # Port 4096 is exposed on all interfaces so that Traefik (running on the
-  # K3s cluster) can reverse-proxy the service.
-
-  environment.systemPackages = with pkgs; [
-    opencode
+let
+  opencodePkgs = with pkgs; [
     git
     gh
     ripgrep
@@ -21,8 +12,21 @@
     jq
     curl
     wget
+    opencode
     kubectl
   ];
+in
+
+{
+  # opencode: headless AI coding agent server
+  #
+  # Runs `opencode serve` as a systemd service. Secrets (server password,
+  # GitHub token, SSH key) are supplied via sops-nix.
+  #
+  # Port 4096 is exposed on all interfaces so that Traefik (running on the
+  # K3s cluster) can reverse-proxy the service.
+
+  environment.systemPackages = opencodePkgs;
 
   users.users.opencode = {
     isSystemUser = true;
@@ -95,11 +99,7 @@
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    path = [
-      pkgs.git
-      pkgs.kubectl
-      pkgs.coreutils
-    ];
+    path = opencodePkgs;
 
     environment = {
       HOME = "/var/lib/opencode";
