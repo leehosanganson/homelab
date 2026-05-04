@@ -1,6 +1,6 @@
-# Cluster Recovery Playbook
+# Cluster Recovery
 
-This document is the step-by-step playbook for recovering the Kubernetes cluster from scratch. It covers bootstrapping Flux, restoring stateful workloads via Velero, recovering CNPG databases from barman backups, and allowing Flux to reconcile the rest.
+Procedures for recovering the Kubernetes cluster from scratch, covering bootstrapping Flux, restoring stateful workloads via Velero, recovering CNPG databases from barman backups, and allowing Flux to reconcile the rest.
 
 ## Overview
 
@@ -32,6 +32,7 @@ Ensure the following tools are available and configured before starting:
 - `velero` CLI installed
 - The Azure Service Principal credentials for External Secrets Operator (ClientID, ClientSecret)
   - These are stored in Azure Key Vault; retrieve them with:
+
     ```bash
     az keyvault secret show --vault-name lhs-kubernetes-keyvault --name <sp-client-id-secret>
     az keyvault secret show --vault-name lhs-kubernetes-keyvault --name <sp-client-secret-secret>
@@ -39,7 +40,7 @@ Ensure the following tools are available and configured before starting:
 
 ---
 
-## Phase 1: Bootstrap Flux
+## Phase 1 — Bootstrap Flux
 
 Flux is the foundation — it manages all other resources. Bootstrap it first using the script at `fluxcd/bootstrap.sh`.
 
@@ -59,9 +60,9 @@ flux get kustomizations
 
 ---
 
-## Phase 2: Reconcile Infrastructure
+## Phase 2 — Reconcile Infrastructure
 
-### Step 2.1 — Seed the External Secrets Service Principal
+### 2.1 — Seed the External Secrets Service Principal
 
 ESO authenticates to Azure Key Vault via a Service Principal. This secret cannot be managed by ESO itself (that would be circular), so it must be seeded manually before ESO can pull any other secrets.
 
@@ -77,7 +78,7 @@ kubectl create secret generic azure-sp-secret \
 > The secret name and required keys are referenced in
 > `kubernetes/infra/external-secrets/overlays/default/azure-kv-secret.yaml.example`.
 
-### Step 2.2 — Reconcile Infrastructure
+### 2.2 — Reconcile Infrastructure
 
 Trigger a reconcile and wait for all infra components to become ready:
 
@@ -100,7 +101,7 @@ Flux installs components in order (as defined in `kubernetes/infra/overlays/prod
 | Harbor | `harbor` | Container registry (stateful; PVCs restored via Velero in Phase 3) |
 | Renovate | `renovate` | Dependency update automation |
 
-### Step 2.3 — Verify Velero Is Ready
+### 2.3 — Verify Velero Is Ready
 
 Velero must be available before restoring backups in Phase 3.
 
@@ -118,7 +119,7 @@ kubectl get secret cloud-credentials -n velero
 
 ---
 
-## Phase 3: Velero Restore
+## Phase 3 — Velero Restore
 
 ### What Velero Backs Up
 
@@ -147,7 +148,7 @@ Because all storage classes used (`synology-retain`, `nfs-csi-retain`) are **ret
 
 > **Note:** The `monitoring` namespace is intentionally excluded. Prometheus metrics are re-scraped after recovery, and Loki/Grafana/Uptime Kuma configurations are trivial to restore or rebuild.
 
-### Step 3.1 — List Available Backups
+### 3.1 — List Available Backups
 
 ```bash
 velero get backups
@@ -155,7 +156,7 @@ velero get backups
 
 Backups are retained for 10 days (240h TTL). Use the most recent backup name in the steps below.
 
-### Step 3.2 — Restore All Covered Namespaces
+### 3.2 — Restore All Covered Namespaces
 
 ```bash
 velero restore create --from-backup <backup-name>
@@ -169,7 +170,7 @@ velero restore create \
   --include-namespaces actual-budget
 ```
 
-### Step 3.3 — Monitor Restore Progress
+### 3.3 — Monitor Restore Progress
 
 ```bash
 velero restore get
@@ -186,7 +187,7 @@ All PVCs must be `Bound` before proceeding. If a PVC is `Pending`, see [Velero P
 
 ---
 
-## Phase 4: CNPG Database Recovery
+## Phase 4 — CNPG Database Recovery
 
 CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-cloud plugin. All cluster manifests use `bootstrap.recovery` (in the overlay) so Flux automatically recovers each database from its latest barman backup when the cluster is first created on the new cluster.
 
@@ -204,7 +205,7 @@ CNPG clusters continuously archive WAL to Azure Blob Storage via the barman-clou
 | `coder-db` | `coder` | `coder-backup-storage` | `lhshomelabbackup/coder` |
 | `life-in-the-uk-quiz-db` | `life-in-the-uk-quiz` | `life-in-the-uk-quiz-backup-storage` | `lhshomelabbackup/life-in-the-uk-quiz` |
 
-### Step 4.1 — Pre-flight: Verify Barman Backups Exist
+### 4.1 — Pre-flight: Verify Barman Backups Exist
 
 Before CNPG creates a cluster, verify that barman backups are available for each database. Run this check for every namespace that needs recovery:
 
@@ -219,7 +220,7 @@ az storage blob list --container-name <barman-container> --output table
 
 If a barman backup is missing for a namespace, that database must be bootstrapped fresh using `initdb` (see Step 4.3).
 
-### Step 4.2 — Verify ObjectStore and Secrets Exist
+### 4.2 — Verify ObjectStore and Secrets Exist
 
 Before CNPG creates a cluster, the `ObjectStore` resource and its backing secret (synced by ESO) must exist in the namespace. Flux deploys these as part of the app kustomization ahead of the Cluster resource.
 
@@ -236,30 +237,34 @@ kubectl annotate externalsecret -n <namespace> <name> \
   force-sync=$(date +%s) --overwrite
 ```
 
-### Step 4.3 — Handle Fresh Clusters (No Prior Barman Backups)
+### 4.3 — Handle Fresh Clusters (No Prior Barman Backups)
 
 If a cluster has no prior barman backup, the overlay recovery mode will fail because there is nothing to recover from. In this case, temporarily switch to `initdb` in the overlay:
 
 1. **Edit the overlay `db.yaml`** for the affected app and replace:
-   ```yaml
-   bootstrap:
-     recovery:
-       source: clusterBackup
-   ```
+
+    ```yaml
+    bootstrap:
+      recovery:
+        source: clusterBackup
+    ```
+
    with:
-   ```yaml
-   bootstrap:
-     initdb:
-       database: <app-db-name>
-       owner: <app-username>
-       secret:
-         name: <existing-secret-ref>
-   ```
+
+    ```yaml
+    bootstrap:
+      initdb:
+        database: <app-db-name>
+        owner: <app-username>
+        secret:
+          name: <existing-secret-ref>
+    ```
 
 2. **Trigger Flux to reconcile:**
-   ```bash
-   flux reconcile kustomization apps-production --with-source
-   ```
+
+    ```bash
+    flux reconcile kustomization apps-production --with-source
+    ```
 
 3. **Wait for the cluster to initialise** (check `kubectl get cluster -n <namespace>`).
 
@@ -269,7 +274,7 @@ If a cluster has no prior barman backup, the overlay recovery mode will fail bec
 > - **immich**: After fresh initdb, run manually: `CREATE EXTENSION vchord CASCADE; CREATE EXTENSION earthdistance CASCADE;`
 > - **All others**: Standard initdb is sufficient.
 
-### Step 4.4 — Watch Recovery Progress
+### 4.4 — Watch Recovery Progress
 
 Once Flux reconciles the app kustomization, CNPG creates the cluster and begins recovery automatically:
 
@@ -283,7 +288,7 @@ kubectl describe cluster <cluster-name> -n <namespace>
 
 The cluster transitions through `Setting up primary` → `Recovering` → `Cluster in healthy state`. Recovery time depends on the size of the backup and WAL replay volume.
 
-### Step 4.5 — Verify Data After Recovery
+### 4.5 — Verify Data After Recovery
 
 ```bash
 kubectl exec -it <cluster-name>-1 -n <namespace> -- psql -U postgres
@@ -297,7 +302,7 @@ SELECT COUNT(*) FROM <key_table>;
 
 ---
 
-## Phase 5: Reconcile Monitoring
+## Phase 5 — Reconcile Monitoring
 
 With infrastructure ready and PVCs restored via Velero, bring up the monitoring stack:
 
@@ -318,7 +323,7 @@ This deploys (all in the `monitoring` namespace):
 
 ---
 
-## Phase 6: Reconcile Applications
+## Phase 6 — Reconcile Applications
 
 With infrastructure, databases, and monitoring in place, allow Flux to reconcile all remaining applications:
 
@@ -385,11 +390,12 @@ kubectl logs <cluster-name>-1 -n <namespace> -c postgres
 Common causes:
 - The `ObjectStore` secret (barman SAS token) has not been synced by ESO yet
 - The barman backup does not contain a full base backup — check WAL archive completeness:
-  ```bash
-  kubectl exec -it <cluster-name>-1 -n <namespace> -- \
-    barman-cloud-backup-list --format json \
-    <azure-blob-path> <server-name>
-  ```
+
+    ```bash
+    kubectl exec -it <cluster-name>-1 -n <namespace> -- \
+      barman-cloud-backup-list --format json \
+      <azure-blob-path> <server-name>
+    ```
 
 ### Velero restore fails for PVCs
 
