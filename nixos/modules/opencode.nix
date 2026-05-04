@@ -1,4 +1,19 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
+
+let
+  opencodePkgs = with pkgs; [
+    git
+    gitHubCLI
+    ripgrep
+    nodejs
+    nodePackages.typescript-language-server
+    python3
+    jq
+    curl
+    wget
+    opencode
+  ];
+in
 
 {
   # opencode: headless AI coding agent server
@@ -9,17 +24,7 @@
   # Port 4096 is exposed on all interfaces so that Traefik (running on the
   # K3s cluster) can reverse-proxy the service.
 
-  environment.systemPackages = with pkgs; [
-    opencode
-    git
-    ripgrep
-    nodejs
-    nodePackages.typescript-language-server
-    python3
-    jq
-    curl
-    wget
-  ];
+  environment.systemPackages = opencodePkgs;
 
   users.users.opencode = {
     isSystemUser = true;
@@ -91,7 +96,7 @@
     description = "opencode headless server";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    path = [ pkgs.git ];
+    path = opencodePkgs;
 
     environment = {
       HOME = "/var/lib/opencode";
