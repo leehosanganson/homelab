@@ -3,15 +3,17 @@
 let
   opencodePkgs = with pkgs; [
     git
-    gitHubCLI
+    gh
     ripgrep
     nodejs
     nodePackages.typescript-language-server
     python3
+    yq-go
     jq
     curl
     wget
     opencode
+    kubectl
   ];
 in
 
@@ -87,6 +89,7 @@ in
     "d /var/lib/opencode/.config 0750 opencode opencode -"
     "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
     "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
+    "d /var/lib/opencode/.kube 0700 opencode opencode -"
     "d /var/lib/opencode/repos 0750 opencode opencode -"
     "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
     "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"

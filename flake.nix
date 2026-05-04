@@ -26,6 +26,7 @@
             jq
             yq-go
             kubectl-neat
+            graphviz
           ];
 
           shellHook = ''
@@ -41,6 +42,7 @@
             echo "  sops / age      — Secret management"
             echo "  jq / yq         — JSON/YAML processing"
             echo "  kubectl-neat    — Clean kubectl output"
+            echo "  dot             — Graphviz diagram rendering"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo ""
           '';
