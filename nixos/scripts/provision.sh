@@ -43,7 +43,7 @@ TARGET_IP="${2:-}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_ROOT="$SCRIPT_DIR/.."
-KEYS_DIR="$SCRIPT_DIR/keys"
+KEYS_DIR="$FLAKE_ROOT/keys"
 
 echo "==> Provisioning '$HOSTNAME' at $TARGET_IP"
 
