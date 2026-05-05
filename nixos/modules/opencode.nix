@@ -128,7 +128,7 @@ in
 
     environment = {
       HOME = "/home/opencode";
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
+      SHELL = "/run/current-system/sw/bin/bash";
       XDG_CACHE_HOME = "/var/cache/opencode";
       XDG_STATE_HOME = "/var/lib/opencode";
       XDG_RUNTIME_DIR = "/run/opencode";
