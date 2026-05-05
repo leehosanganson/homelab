@@ -1,7 +1,10 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   opencodePkgs = with pkgs; [
+    bash
+    coreutils
+    which
     git
     gh
     ripgrep
@@ -23,7 +26,7 @@ in
     group = "opencode";
     home = "/home/opencode";
     createHome = true;
-    shell = pkgs.bashInteractive;
+    shell = pkgs.bash;
     description = "opencode service user";
     hashedPassword = "!";
 
@@ -128,7 +131,6 @@ in
 
     environment = {
       HOME = "/home/opencode";
-      SHELL = "/run/current-system/sw/bin/bash";
       XDG_CACHE_HOME = "/var/cache/opencode";
       XDG_STATE_HOME = "/var/lib/opencode";
       XDG_RUNTIME_DIR = "/run/opencode";
@@ -137,7 +139,11 @@ in
 
     serviceConfig = {
       ExecStartPre = "${pkgs.coreutils}/bin/test -r ${config.sops.secrets."opencode-env".path}";
-      ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
+      # Intentionally force SHELL and PATH at launch to stabilize runtime even if EnvironmentFile has stale values.
+      ExecStart = ''
+        ${pkgs.coreutils}/bin/env SHELL=/run/current-system/sw/bin/bash PATH=/run/current-system/sw/bin:${lib.makeBinPath opencodePkgs} \
+        ${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096
+      '';
       User = "opencode";
       Group = "opencode";
       WorkingDirectory = "/home/opencode";
@@ -153,7 +159,7 @@ in
 
       # Hardening
       NoNewPrivileges = true;
-      ProtectSystem = "strict";
+      ProtectSystem = "full";
       ReadWritePaths = [ "/home/opencode" "/var/lib/opencode" "/var/cache/opencode" "/run/opencode" ];
       PrivateTmp = true;
     };
