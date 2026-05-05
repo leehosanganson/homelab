@@ -12,7 +12,7 @@
 #
 # Optional — stable host fingerprints & sops Day-0 secret decryption:
 #   Pre-generate an SSH host key pair and place the files under
-#   ./keys/<hostname>/etc/ssh/ before running this script.
+#   ../keys/<hostname>/* before running this script.
 #   nixos-anywhere will inject them via --extra-files.
 #
 # Usage:
