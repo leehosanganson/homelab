@@ -2,24 +2,19 @@
 
 let
   opencodePkgs = with pkgs; [
-    bashInteractive
-    coreutils
-    which
+    opencode
+    zsh
     vim
     git
     gh
     ripgrep
     nodejs
-    nodePackages.typescript-language-server
     python3
-    yq-go
     jq
     curl
     wget
-    opencode
     kubectl
     eza
-    ncurses
   ];
 in
 
@@ -30,7 +25,7 @@ in
     extraGroups = [ "wheel" ];
     home = "/home/opencode";
     createHome = true;
-    shell = pkgs.bashInteractive;
+    shell = pkgs.zsh;
     description = "opencode service user";
     packages = opencodePkgs;
     initialPassword = "opencode"; # Requires a change on first login
@@ -71,6 +66,13 @@ in
     '';
   };
 
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+  };
+
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -86,7 +88,6 @@ in
 
     environment = {
       BASH_ENV = "/etc/bashrc";
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
       HOME = "/home/opencode";
       XDG_CONFIG_HOME = "/home/opencode/.config";
       LANG = "en_US.UTF-8";
