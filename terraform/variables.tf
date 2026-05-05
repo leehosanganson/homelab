@@ -19,6 +19,12 @@ variable "nixos_iso" {
   type        = string
 }
 
+variable "use_host_instruction" {
+  description = "Use host CPU type to expose host instructions (enable only on nodes that support required instructions)"
+  type        = bool
+  default     = false
+}
+
 variable "nodes" {
   description = "Map of NixOS VM definitions. Hardware specs only — OS config (including networking) is handled by nixos-anywhere via the flake."
   type = map(object({

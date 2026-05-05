@@ -2,127 +2,114 @@
 
 let
   opencodePkgs = with pkgs; [
+    opencode
+    zsh
+    vim
     git
     gh
     ripgrep
     nodejs
-    nodePackages.typescript-language-server
     python3
-    yq-go
     jq
     curl
     wget
-    opencode
     kubectl
+    eza
   ];
 in
 
 {
-  # opencode: headless AI coding agent server
-  #
-  # Runs `opencode serve` as a systemd service. Secrets (server password,
-  # GitHub token, SSH key) are supplied via sops-nix.
-  #
-  # Port 4096 is exposed on all interfaces so that Traefik (running on the
-  # K3s cluster) can reverse-proxy the service.
-
-  environment.systemPackages = opencodePkgs;
-
   users.users.opencode = {
-    isSystemUser = true;
+    isNormalUser = true;
     group = "opencode";
-    home = "/var/lib/opencode";
+    extraGroups = [ "wheel" ];
+    home = "/home/opencode";
     createHome = true;
-    shell = pkgs.bashInteractive;
+    shell = pkgs.zsh;
     description = "opencode service user";
+    packages = opencodePkgs;
+    initialPassword = "opencode"; # Requires a change on first login
+
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+    ];
   };
 
   users.groups.opencode = { };
 
-  # Git config for opencode path/use case.
+  systemd.tmpfiles.rules = [
+    "d /home/opencode 0700 opencode opencode - -"
+
+    # Lock down .ssh
+    "d /home/opencode/.ssh 0700 opencode opencode - -"
+    "f /home/opencode/.ssh/id_ed25519 0600 opencode opencode - -"
+    "f /home/opencode/.ssh/id_ed25519.pub 0644 opencode opencode - -"
+  ];
+
+  # Git
   programs.git = {
     enable = true;
     config = {
-      core.safeDirectory = "/var/lib/opencode";
-      core.sshCommand = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
-      url."ssh://git@opencode-github/".insteadOf = "https://github.com/";
+      user = {
+        name = "OpenCode@Homelab";
+        email = "leehosanganson@gmail.com";
+        signingkey = "~/.ssh/id_ed25519";
+      };
+      gpg.format = "ssh";
+      commit.gpgsign = true;
     };
   };
 
-  # Service-scoped SSH config for opencode git operations.
-  environment.etc."opencode/ssh/config" = {
-    text = ''
-      Host opencode-github github.com
+  programs.ssh = {
+    extraConfig = ''
+      Host github.com
         HostName github.com
         User git
-        IdentityFile /etc/opencode/ssh/id_ed25519_github
+        IdentityFile ~/.ssh/id_ed25519
         IdentitiesOnly yes
-        UserKnownHostsFile /etc/opencode/ssh/known_hosts
+        UserKnownHostsFile ~/.ssh/known_hosts
     '';
-    mode = "0444";
   };
 
-  environment.etc."opencode/ssh/known_hosts" = {
-    text = ''
-      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
-    '';
-    mode = "0444";
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
   };
 
-  # Declarative bootstrap for service config directories that were previously
-  # populated out-of-band from dotfiles.
-  environment.etc."opencode/bootstrap/opencode-config.json" = {
-    text = ''
-      {}
-    '';
-    mode = "0444";
-  };
+  # Locale
+  i18n.defaultLocale = "en_US.UTF-8";
 
-  environment.etc."opencode/bootstrap/ai-config.json" = {
-    text = ''
-      {}
-    '';
-    mode = "0444";
-  };
-
-  systemd.tmpfiles.rules = [
-    "d /var/lib/opencode/.config 0750 opencode opencode -"
-    "d /var/lib/opencode/.config/opencode 0750 opencode opencode -"
-    "d /var/lib/opencode/.config/ai 0750 opencode opencode -"
-    "d /var/lib/opencode/.kube 0700 opencode opencode -"
-    "d /var/lib/opencode/repos 0750 opencode opencode -"
-    "C /var/lib/opencode/.config/opencode/config.json 0640 opencode opencode - /etc/opencode/bootstrap/opencode-config.json"
-    "C /var/lib/opencode/.config/ai/config.json 0640 opencode opencode - /etc/opencode/bootstrap/ai-config.json"
-  ];
+  # Service
+  services.envfs.enable = true;
 
   systemd.services.opencode = {
     description = "opencode headless server";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
     path = opencodePkgs;
 
     environment = {
-      HOME = "/var/lib/opencode";
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
-      GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -F /etc/opencode/ssh/config";
+      BASH_ENV = "/etc/bashrc";
+      HOME = "/home/opencode";
+      XDG_CONFIG_HOME = "/home/opencode/.config";
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+      TERM = "xterm-256color";
     };
 
     serviceConfig = {
       ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
       User = "opencode";
       Group = "opencode";
-      WorkingDirectory = "/var/lib/opencode";
+      RuntimeDirectory = "opencode";
+      WorkingDirectory = "/home/opencode";
 
-      EnvironmentFile = config.sops.secrets."opencode-env".path;
-
-      Restart = "on-failure";
+      Restart = "always";
       RestartSec = "5s";
-
-      # Hardening
       NoNewPrivileges = true;
-      ProtectSystem = "strict";
-      ProtectHome = "tmpfs";
-      ReadWritePaths = [ "/var/lib/opencode" ];
       PrivateTmp = true;
     };
   };

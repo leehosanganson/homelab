@@ -14,7 +14,7 @@ resource "proxmox_virtual_environment_vm" "nixos" {
 
   cpu {
     cores = each.value.cores
-    type  = "x86-64-v2-AES"
+    type  = var.use_host_instruction ? "host" : "x86-64-v3"
   }
 
   memory {
@@ -90,4 +90,3 @@ resource "terraform_data" "wait_for_guest_ssh" {
     command = "../nixos/scripts/provision.sh ${each.key} ${try(proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0], "")}"
   }
 }
-
