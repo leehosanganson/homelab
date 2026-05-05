@@ -101,7 +101,6 @@ in
     };
 
     serviceConfig = {
-      ExecStartPre = "${pkgs.coreutils}/bin/test -r ${config.sops.secrets."opencode-env".path}";
       ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0 --port 4096";
       User = "opencode";
       Group = "opencode";
