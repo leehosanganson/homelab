@@ -10,6 +10,10 @@ spec:
     size: 3Gi
   monitoring:
     enablePodMonitor: true
+  bootstrap:
+    initdb:
+      database: litellm
+      owner: litellm
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
