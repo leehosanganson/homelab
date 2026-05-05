@@ -60,6 +60,17 @@ in
     };
   };
 
+  programs.ssh = {
+    extraConfig = ''
+      Host github.com
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519
+        IdentitiesOnly yes
+        UserKnownHostsFile ~/.ssh/known_hosts
+    '';
+  };
+
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
