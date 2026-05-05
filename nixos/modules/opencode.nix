@@ -32,7 +32,7 @@ in
     shell = pkgs.bash;
     description = "opencode service user";
     packages = opencodePkgs;
-    hashedPassword = "!";
+    initialPassword = "opencode"; # Requires a change on first login
 
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
@@ -40,6 +40,10 @@ in
   };
 
   users.groups.opencode = { };
+
+  systemd.tmpfiles.rules = [
+    "Z /home/opencode 0755 opencode opencode - -" # Recursive ownership for opencode
+  ];
 
   # Git
   programs.git = {
@@ -56,6 +60,8 @@ in
   };
 
   # Service
+  services.envfs.enable = true;
+
   systemd.services.opencode = {
     description = "opencode headless server";
     after = [ "network-online.target" ];
@@ -66,6 +72,10 @@ in
     environment = {
       SHELL = "${pkgs.bash}/bin/bash";
       HOME = "/home/opencode";
+      XDG_CONFIG_HOME = "/home/opencode/.config";
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+      TERM = "xterm-256color";
     };
 
     serviceConfig = {
@@ -75,7 +85,8 @@ in
       Group = "opencode";
       EnvironmentFile = config.sops.secrets."opencode-env".path;
       RuntimeDirectory = "opencode";
-      RuntimeDirectoryMode = "0700";
+      WorkingDirectory = "/home/opencode";
+
       Restart = "always";
       RestartSec = "5s";
       NoNewPrivileges = true;
