@@ -28,13 +28,6 @@
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
 
     secrets = {
-      "opencode-env" = {
-        owner = "opencode";
-        group = "opencode";
-        restartUnits = [ "opencode.service" ];
-        path = "/home/opencode/.config/sops-nix/secrets/opencode-env";
-      };
-
       # Required for litellm
       "litellm-api-key" = {
         owner = "opencode";
