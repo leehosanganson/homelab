@@ -35,31 +35,6 @@ The entire homelab is provisioned and configured using a two-layer, fully declar
 - **Layer 1 — VM Lifecycle (OpenTofu):** OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox. It creates VMs with defined CPU, memory, disk, and network configuration, then leaves them powered off — OS installation is handled by Layer 2.
 - **Layer 2 — OS & Configuration (NixOS):** Host provisioning uses `nixos-anywhere` + `disko` from the [`nixos/`](nixos/) flake directory. All configuration is declarative and reproducible.
 
-### NixOS Structure
-
-```
-nixos/
-├── flake.nix          # Main flake entry point
-├── flake.lock
-├── hosts/             # Per-VM host configurations
-│   ├── opencode-1/
-│   ├── haproxy-{1,2,3}/
-│   └── ...
-├── modules/           # Reusable NixOS modules
-│   ├── opencode.nix
-│   ├── sops-bootstrap.nix
-│   └── ...
-└── scripts/           # Provisioning and bootstrap scripts
-```
-
-### Secrets & SOPS
-
-Decryption keys are managed through `sops-nix`. A shared bootstrap SSH key is injected during provisioning (`nixos/scripts/provision.sh`) so that `sops-nix` can decrypt secrets at boot without per-host key management. Encrypted secrets live in the external [sops-secrets](https://github.com/leehosanganson/sops) repository and are referenced by each host's NixOS configuration.
-
-### CPU Configuration
-
-VMs use `x86-64-v3` as the default CPU type for a balance of portability and performance. The `use_host_instruction` variable in `terraform/terraform.tfvars` can be set to `true` on nodes that support required host instructions (e.g., for specific AI workloads).
-
 ## Services
 
 ### Applications

@@ -36,7 +36,7 @@ nixos/
 - **Nix with flakes enabled** — the `nix` CLI must have `experimental-features = nix-command flakes` set.
 - **nixos-anywhere available** — either in your PATH or invoked via `nix run`.
 - **SSH access to the Proxmox host** — required for uploading the installer ISO and for `nixos-anywhere` to reach the target VM.
-- **sops age keys** — the age private key for decrypting secrets must be available locally; the corresponding public key must already be registered as a recipient in the [sops-secrets](https://github.com/leehosanganson/sops) repository.
+- **sops age keys** — the age private key for decrypting secrets must be available locally; the corresponding public key must already be registered as a recipient in the GitHub Repository.
 
 ---
 
@@ -49,7 +49,7 @@ Provisioning is driven by the Terraform/OpenTofu module, which calls `nixos/scri
 Manual provisioning:
 
 ```bash
-./nixos/scripts/provision.sh hostname <target-ip>
+./nixos/scripts/provision.sh <hostname> <target-ip>
 ```
 
 #### SSH Host Keys (Day-0 Bootstrap)
@@ -62,13 +62,13 @@ Before running `provision.sh`, pre-generate an SSH host key pair and place it un
 ### 2. Rebuilding
 
 ```bash
-./nixos/scripts/rebuild.sh hostname <target-ip>
+./nixos/scripts/rebuild.sh <hostname> <target-ip>
 ```
 
 To pull the latest secrets revision before deploying, pass the optional flag:
 
 ```bash
-./nixos/scripts/rebuild.sh --update-secrets hostname <target-ip>
+./nixos/scripts/rebuild.sh --update-secrets <hostname> <target-ip>
 ```
 
 ---
@@ -77,7 +77,7 @@ To pull the latest secrets revision before deploying, pass the optional flag:
 
 Each host imports [`sops-bootstrap.nix`](../nixos/modules/sops-bootstrap.nix) which configures sops-nix to use the bootstrap SSH key injected during provisioning. This eliminates per-host key management — all hosts share the same Day-0 decryption capability.
 
-Encrypted secrets are stored in the external [sops-secrets](https://github.com/leehosanganson/sops) repository and referenced by each host's NixOS configuration via `defaultSopsFile`.
+Encrypted secrets are stored in the external repository and referenced by each host's NixOS configuration via `defaultSopsFile`.
 
 ---
 
