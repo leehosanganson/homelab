@@ -30,10 +30,10 @@ The newest addition to the cluster is a GPU node packed with an RTX 5060 Ti, not
 
 ## Infrastructure as Code
 
-The entire homelab is provisioned and configured using a two-layer, fully declarative IaC approach:
+The entire homelab is provisioned and configured using a fully declarative IaC approach:
 
-- **Layer 1 — VM Lifecycle (OpenTofu):** OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox. It creates VMs with defined CPU, memory, disk, and network configuration, then leaves them powered off — OS installation is handled by Layer 2.
-- **Layer 2 — OS & Configuration (NixOS):** Host provisioning uses `nixos-anywhere` + `disko` from the [`nixos/`](nixos/) flake directory. All configuration is declarative and reproducible.
+- **VM Lifecycle (OpenTofu):** OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox from the [`terraform/`](terraform/). It creates VMs with defined CPU, memory, disk, and network configuration.
+- **OS & Configuration (NixOS):** Host provisioning uses `nixos-anywhere` + `disko` from the [`nixos/`](nixos/) flake directory. All configuration is declarative and reproducible.
 
 ## Services
 
@@ -65,12 +65,12 @@ The entire homelab is provisioned and configured using a two-layer, fully declar
 
 ### AI
 
-|                                                    Logo                                                    | Name                                                   | Description                                                              |
-| :--------------------------------------------------------------------------------------------------------: | ------------------------------------------------------ | ------------------------------------------------------------------------ |
-|           <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/llama-cpp.png" height="32" />            | [llama.cpp](https://github.com/ggerganov/llama2.cpp)   | LLM inference in C/C++                                                   |
-|     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" />     | [LiteLLM](https://github.com/BerriAI/litellm)          | LLM Gateway for local LLM servers & other cloud providers.               |
-| <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/light/opencode.png" height="32" /> | [OpenCode](https://opencode.ai/docs/web/)              | Browser-based remote coding agent server (runs on Proxmox VM opencode-1) |
-| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM                             |
+|                                                    Logo                                                    | Name                                                   | Description                                                |
+| :--------------------------------------------------------------------------------------------------------: | ------------------------------------------------------ | ---------------------------------------------------------- |
+|           <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/llama-cpp.png" height="32" />            | [llama.cpp](https://github.com/ggerganov/llama2.cpp)   | LLM Inferencing Engine                                     |
+|     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" />     | [LiteLLM](https://github.com/BerriAI/litellm)          | LLM Gateway for local LLM servers & other cloud providers. |
+| <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/light/opencode.png" height="32" /> | [OpenCode](https://opencode.ai/docs/web/)              | Browser-based remote coding agent server                   |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM               |
 
 ### Infrastructure
 
