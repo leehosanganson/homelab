@@ -2,7 +2,7 @@
 
 let
   opencodePkgs = with pkgs; [
-    bash
+    bashInteractive
     coreutils
     which
     vim
@@ -19,6 +19,7 @@ let
     opencode
     kubectl
     eza
+    ncurses
   ];
 in
 
@@ -29,7 +30,7 @@ in
     extraGroups = [ "wheel" ];
     home = "/home/opencode";
     createHome = true;
-    shell = pkgs.bash;
+    shell = pkgs.bashInteractive;
     description = "opencode service user";
     packages = opencodePkgs;
     initialPassword = "opencode"; # Requires a change on first login
@@ -59,6 +60,9 @@ in
     };
   };
 
+  # Locale
+  i18n.defaultLocale = "en_US.UTF-8";
+
   # Service
   services.envfs.enable = true;
 
@@ -70,7 +74,8 @@ in
     path = opencodePkgs;
 
     environment = {
-      SHELL = "${pkgs.bash}/bin/bash";
+      BASH_ENV = "/etc/bashrc";
+      SHELL = "${pkgs.bashInteractive}/bin/bash";
       HOME = "/home/opencode";
       XDG_CONFIG_HOME = "/home/opencode/.config";
       LANG = "en_US.UTF-8";
