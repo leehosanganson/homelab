@@ -2,6 +2,7 @@
   imports = [
     ../../modules/haproxy.nix
     ../../modules/disko.nix
+    ../../modules/sops-bootstrap.nix
   ];
 
   system.stateVersion = "25.11";
@@ -21,19 +22,9 @@
 
   services.qemuGuest.enable = true;
 
-  environment.etc."ssh/haproxy-1" = {
-    source = "${sops-secrets}/keys/haproxy-1";
-    mode = "0600";
-    user = "root";
-    group = "root";
-  };
-
-  # secrets
+  # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
   sops = {
     defaultSopsFile = "${sops-secrets}/secrets.yaml";
-    age.sshKeyPaths = [
-      "/etc/ssh/haproxy-1"
-    ];
 
     secrets = {
       "dns-provider-env" = {
@@ -48,7 +39,6 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "haproxy" ];
     openssh.authorizedKeys.keys = [
-      # Public Keys
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
     ];
   };

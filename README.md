@@ -9,12 +9,12 @@ This repository documents the configuration and deployment of my Kubernetes-nati
 As a Machine Learning Engineer, I built this space to learn Cloud Native technologies and state-of-the-art AI models by putting myself under real pressure - running them for real instead of just tinkering in isolation. To keep things interesting, I started self-hosting all sorts of apps for my family, so now I'm the one responsible for keeping everything running 24/7. This repo is my way of documenting that journey as I try to maintain a homelab that's secure, scalable, and actually useful.
 
 <p align="center">
-  <a href="https://www.credly.com/badges/664b0259-2896-430d-a552-3db866a66d34" target="_blank" rel="noopener">
+  <a href="https://www.cncf.io/training/kubestronaut/" target="_blank" rel="noopener">
     <img src="https://images.credly.com/size/340x340/images/cd6c6449-6814-4613-a2d3-13cf4ac5be4f/image.png" alt="Linux Foundation Kubestronaut Badge" width="150" />
   </a>
 </p>
 
-I'm also a [Kubestronaut](https://www.cncf.io/training/kubestronaut/), recognized by the CNCF for passing all Kubernetes certifications and contributing to the Cloud Native community.
+I'm also a [Kubestronaut](https://www.credly.com/badges/664b0259-2896-430d-a552-3db866a66d34), recognised by the CNCF for passing all Kubernetes certifications and contributing to the Cloud Native community.
 
 ## Overview
 
@@ -27,6 +27,13 @@ I'm also a [Kubestronaut](https://www.cncf.io/training/kubestronaut/), recognize
 I run a 3-node HA Kubernetes cluster using k3s, with Ubuntu VMs handling the control plane and one GPU-enabled worker node doing the heavy lifting. Everything runs out of my Proxmox cluster, currently 2 Mini PCs and an old gaming PC. I picked k3s because it's lightweight enough that I can spin up replacement nodes from Proxmox whenever a machine needs more resources or gets swapped out.
 
 The newest addition to the cluster is a GPU node packed with an RTX 5060 Ti, not top-of-the-line, but more than enough to run local LLM inference and light model training. It's opened up a whole new world for running AI workflows and Agentic Coding locally. And if I ever need more compute, adding another GPU node to the cluster is pretty straightforward, so I can scale out and up without relying on anyone else's resources.
+
+## Infrastructure as Code
+
+The entire homelab is provisioned and configured using a fully declarative IaC approach:
+
+- **VM Lifecycle (OpenTofu):** OpenTofu manages the virtual hardware boundary of each NixOS VM on Proxmox from the [`terraform/`](terraform/). It creates VMs with defined CPU, memory, disk, and network configuration.
+- **OS & Configuration (NixOS):** Host provisioning uses `nixos-anywhere` + `disko` from the [`nixos/`](nixos/) flake directory. All configuration is declarative and reproducible.
 
 ## Services
 
@@ -58,12 +65,12 @@ The newest addition to the cluster is a GPU node packed with an RTX 5060 Ti, not
 
 ### AI
 
-|                                                    Logo                                                    | Name                                                   | Description                                                              |
-| :--------------------------------------------------------------------------------------------------------: | ------------------------------------------------------ | ------------------------------------------------------------------------ |
-|           <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/llama-cpp.png" height="32" />            | [llama.cpp](https://github.com/ggerganov/llama2.cpp)   | LLM inference in C/C++                                                   |
-|     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" />     | [LiteLLM](https://github.com/BerriAI/litellm)          | LLM Gateway for local LLM servers & other cloud providers.               |
-| <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/light/opencode.png" height="32" /> | [OpenCode](https://opencode.ai/docs/web/)              | Browser-based remote coding agent server (runs on Proxmox VM opencode-1) |
-| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM                             |
+|                                                    Logo                                                    | Name                                                   | Description                                                |
+| :--------------------------------------------------------------------------------------------------------: | ------------------------------------------------------ | ---------------------------------------------------------- |
+|           <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/llama-cpp.png" height="32" />            | [llama.cpp](https://github.com/ggerganov/llama2.cpp)   | LLM Inferencing Engine                                     |
+|     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" />     | [LiteLLM](https://github.com/BerriAI/litellm)          | LLM Gateway for local LLM servers & other cloud providers. |
+| <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/light/opencode.png" height="32" /> | [OpenCode](https://opencode.ai/docs/web/)              | Browser-based remote coding agent server                   |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM               |
 
 ### Infrastructure
 

@@ -12,7 +12,7 @@
 #
 # Optional — stable host fingerprints & sops Day-0 secret decryption:
 #   Pre-generate an SSH host key pair and place the files under
-#   ./keys/<hostname>/etc/ssh/ before running this script.
+#   ../keys/<hostname>/* before running this script.
 #   nixos-anywhere will inject them via --extra-files.
 #
 # Usage:
@@ -43,7 +43,7 @@ TARGET_IP="${2:-}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_ROOT="$SCRIPT_DIR/.."
-KEYS_DIR="$SCRIPT_DIR/keys"
+KEYS_DIR="$FLAKE_ROOT/keys"
 
 echo "==> Provisioning '$HOSTNAME' at $TARGET_IP"
 

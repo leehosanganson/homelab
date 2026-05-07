@@ -146,6 +146,7 @@ proxmox_insecure         = true
 pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 
 nixos_iso = "local:iso/nixos-minimal-*-linux.iso"
+use_host_instruction = false
 
 nodes = {
     // VM Configs here
@@ -166,6 +167,7 @@ Add additional entries to `nodes` for each VM to provision.
 | `proxmox_insecure`         | `bool`        | Skip TLS certificate verification (`true` for self-signed certs)               |
 | `pve_ssh_private_key_file` | `string`      | SSH Key with permission ssh into the NixOS installer ISO                       |
 | `nixos_iso`                | `string`      | Proxmox storage path to the NixOS installer ISO (e.g. `local:iso/nixos-*.iso`) |
+| `use_host_instruction`     | `bool`        | Use `cpu.type = "host"` to expose host instructions; keep `false` for portable CPU type |
 | `nodes`                    | `map(object)` | Map of VM specs keyed by hostname — see below                                  |
 
 | Attribute   | Type     | Description                                          |

@@ -66,7 +66,7 @@ digraph homelab {
         nixos  [label="NixOS\nOS Config"];
         tofu   [label="OpenTofu\nVM Provisioning"];
         github [label="GitHub Repo\nFlux + Tofu Sources"];
-        flux   [label="FluxCD\nK8s Reconciliation"];
+        flux   [label="FluxCD\nReconciliation"];
 
         { rank=same; nixos -> tofu -> github -> flux [style=invis] }
     }
@@ -141,7 +141,7 @@ digraph homelab {
         node [color="#F43F5E"]; // Rose
 
         ingress     [label="Traefik Ingress\nController"];
-        platform    [label="Core Services\nCert-Manager, Harbor"];
+        platform    [label="Core Services\nCert-Manager, Harbor, ESO"];
         obs         [label="Observability\nPrometheus, Grafana, Loki"];
         storage     [label="Data & Storage & Backup\nCloudNativePG, Velero"];
 
@@ -178,11 +178,11 @@ digraph homelab {
     // Automation & IaC (Indigo)
     tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
     nixos -> opencode     [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
-    flux -> storage       [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot"];
+    flux -> github        [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot"];
     k3s -> storage        [lhead=cluster_infra, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
 
     // Infrastructure (Emerald)
-    proxmox -> pihole     [rhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
+    proxmox -> opencode   [lhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
 
     // Security (Yellow)
     azure_kv -> platform  [xlabel=" Secrets ", style=dashed, color="#FBBF24", fontcolor="#FBBF24", arrowhead="obox"];
@@ -191,12 +191,12 @@ digraph homelab {
     syn_nas -> storage    [lhead=cluster_infra, xlabel=" Mounts ", style=dotted, penwidth=1.5, color="#2DD4BF", fontcolor="#2DD4BF", arrowhead="box"];
 
     // Network Traffic (Sky Blue)
-    public -> cloudflare  [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic ", weight=5];
-    cloudflare -> ingress [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
-    private -> pihole     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
-    pihole -> haproxy     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
-    haproxy -> ingress    [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic "];
-    ingress -> docs       [lhead=cluster_workloads, color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Routes Traffic ", weight=5];
+    public -> cloudflare  [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic ", weight=5];
+    cloudflare -> ingress [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic "];
+    private -> pihole     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic "];
+    pihole -> haproxy     [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic "];
+    haproxy -> ingress    [color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic "];
+    ingress -> docs       [lhead=cluster_workloads, color="#38BDF8", fontcolor="#38BDF8", penwidth=2, arrowhead="vee", xlabel=" Traffic ", weight=5];
 
     // ==========================================
     // STRICT GRID ENFORCEMENT (THE 6-COLUMN SUPER SPINE)
