@@ -5,6 +5,3 @@ resources:
   - secrets.yaml
   - backup-schedule.yaml
   - backup-store.yaml
-
-patches:
-  - path: db.yaml

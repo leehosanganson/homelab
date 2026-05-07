@@ -6,6 +6,3 @@ resources:
   - config.yaml
   - backup-store.yaml
   - backup-schedule.yaml
-
-patches:
-  - path: db.yaml

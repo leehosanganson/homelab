@@ -1,9 +1,0 @@
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: paperless-db
-spec:
-  bootstrap:
-    $patch: replace
-    recovery:
-      source: clusterBackup
