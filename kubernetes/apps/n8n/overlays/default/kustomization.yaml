@@ -2,7 +2,3 @@ namespace: n8n
 
 resources:
   - ../../base
-
-patches:
-  - path: patch-velero.yaml
-  - path: db.yaml
