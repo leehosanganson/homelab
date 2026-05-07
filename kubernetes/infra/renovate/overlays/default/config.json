@@ -13,9 +13,8 @@
   "pinDigests": true,
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
-  "prCreation": "not-pending",
   "minimumReleaseAge": "7 days",
-  "internalChecksFilter": "strict",
+  "internalChecksFilter": "base",
   "packageRules": [
     {
       "description": "Automatically merge non-breaking patch updates",
