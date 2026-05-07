@@ -4,6 +4,6 @@ metadata:
   name: life-in-the-uk-quiz-db
 spec:
   bootstrap:
-    $patch: replace
+    initdb: null
     recovery:
       source: clusterBackup

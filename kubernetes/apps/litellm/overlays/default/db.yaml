@@ -4,6 +4,6 @@ metadata:
   name: litellm-db
 spec:
   bootstrap:
-    $patch: replace
+    initdb: null
     recovery:
       source: clusterBackup

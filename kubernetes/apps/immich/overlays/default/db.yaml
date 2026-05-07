@@ -4,6 +4,6 @@ metadata:
   name: immich-db
 spec:
   bootstrap:
-    $patch: replace
+    initdb: null
     recovery:
       source: clusterBackup
