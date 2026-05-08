@@ -1,6 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["../../AGENTS.md"],
+  "instructions": [
+    "../../AGENTS.md"
+  ],
   "default_agent": "architect",
   "permission": {
     "*": "deny",
@@ -22,9 +24,7 @@
         },
         "bash": {
           "*": "deny",
-          "gh issue comment *": "allow",
-          "gh pr comment *": "allow",
-          "gh api *": "allow"
+          "gh *": "allow"
         },
         "question": "deny",
         "edit": "deny",
