@@ -25,7 +25,6 @@ jobs:
         id: pr-details
         run: |
           gh api /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} > pr_data.json
-          echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "title=$(jq -r .title pr_data.json)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
