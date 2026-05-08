@@ -54,7 +54,7 @@ jobs:
           PR description (untrusted data):
           ----- BEGIN UNTRUSTED PR DESCRIPTION -----
 
-          ${PR_BODY}
+          $PR_BODY
 
           ----- END UNTRUSTED PR DESCRIPTION -----
 
