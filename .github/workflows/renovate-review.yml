@@ -28,7 +28,6 @@ jobs:
           echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           gh api /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} > pr_data.json
           echo "title=$(jq -r .title pr_data.json)" >> $GITHUB_OUTPUT
-          echo "sha=$(jq -r .head.sha pr_data.json)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,7 +45,7 @@ jobs:
           </pr-number>
 
           <commit-sha>
-          ${{ steps.pr-details.outputs.sha }}
+          ${{ github.event.pull_request.head.sha }}
           </commit-sha>
 
           <pr-description>
@@ -97,4 +96,4 @@ jobs:
             -f 'body=[summary of issue]' -f 'commit_id=<COMMIT_SHA>' -f 'path=[path-to-file]' -F 'line=[line]' -f 'side=RIGHT'
           ```
 
-          Replace <OWNER>/<REPO> with ${{ github.repository }}, <PR_NUMBER> with ${{ github.event.pull_request.number }}, and <COMMIT_SHA> with the HEAD commit SHA."
+          Replace <OWNER>/<REPO> with ${{ github.repository }}, <PR_NUMBER> with ${{ github.event.pull_request.number }}, and <COMMIT_SHA> with \`${{ github.event.pull_request.head.sha }}\`."
