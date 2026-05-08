@@ -15,8 +15,8 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
+        "edit": "deny",
+        "question": "deny",
         "task": {
           "*": "deny",
           "generator": "allow"
@@ -54,7 +54,44 @@
           "git push -u origin fix/*": "allow",
           "git push -u origin chore/*": "allow",
 
-          "gh pr create --draft *": "allow"
+          "gh pr create --draft *": "allow",
+
+          "python -c *": "deny",
+          "node -e *": "deny",
+          "sh -c *": "deny",
+          "bash -c *": "deny",
+
+          "rm *": "deny",
+          "rmdir *": "deny",
+          "truncate *": "deny",
+
+          "curl *": "deny",
+          "wget *": "deny",
+          "ssh *": "deny",
+          "scp *": "deny",
+          "sftp *": "deny",
+          "rsync *": "deny",
+          "nc *": "deny",
+
+          "git reset --hard *": "deny",
+          "git clean -fdx *": "deny",
+          "git push -f *": "deny",
+          "git push --force *": "deny",
+          "git push --force-with-lease *": "deny",
+
+          "gh auth *": "deny",
+          "gh secret *": "deny",
+          "gh variable *": "deny",
+          "gh pr edit *": "deny",
+          "gh pr merge *": "deny",
+          "gh pr close *": "deny",
+          "gh issue edit *": "deny",
+          "gh issue close *": "deny",
+          "gh issue create *": "deny",
+          "gh workflow *": "deny",
+
+          "git push * main*": "deny",
+          "git push * master*": "deny"
         },
         "task": {
           "*": "deny",
