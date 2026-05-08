@@ -7,7 +7,7 @@ on:
 
 jobs:
   review-renovate-pr:
-    if: ${{ github.event.pull_request.user.login == 'renovate[bot]' }}
+    if: ${{ startsWith(github.head_ref, 'renovate/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
