@@ -24,6 +24,11 @@
         },
         "bash": {
           "*": "deny",
+          "git show *": "allow",
+          "git status *": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git rev-parse *": "allow",
           "gh *": "allow"
         },
         "todowrite": "allow"
@@ -41,6 +46,7 @@
         "bash": {
           "*": "deny",
           "gh *": "allow",
+          "git show *": "allow",
           "git status *": "allow",
           "git diff *": "allow",
           "git log *": "allow",
@@ -63,9 +69,11 @@
         "bash": {
           "*": "deny",
           "gh *": "allow",
+          "git show *": "allow",
           "git status *": "allow",
           "git diff *": "allow",
-          "git log *": "allow"
+          "git log *": "allow",
+          "git rev-parse *": "allow"
         },
         "webfetch": "allow",
         "websearch": "allow",
