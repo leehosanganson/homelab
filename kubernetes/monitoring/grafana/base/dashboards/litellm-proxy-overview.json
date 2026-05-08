@@ -1,47 +1,7 @@
 {
-  "__inputs": [],
-  "__requires": [],
-  "version": 1,
-  "schemaVersion": 39,
-  "uid": "litellm-proxy-overview",
-  "title": "LiteLLM Proxy Overview",
-  "description": "Comprehensive LiteLLM proxy metrics dashboard covering token usage, costs, request volumes, and model performance.",
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "annotations": {
-    "list": []
-  },
-  "style": "dark",
-  "timezone": "browser",
   "panels": [
     {
       "id": 1,
-      "title": "Output Tokens",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "(clamp_min(sum(increase(litellm_output_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
-          "legendFormat": "Output Tokens"
-        }
-      ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      }
-    },
-    {
-      "id": 2,
       "title": "Input Tokens",
       "type": "stat",
       "fieldConfig": {
@@ -59,13 +19,13 @@
       "gridPos": {
         "h": 4,
         "w": 6,
-        "x": 6,
+        "x": 0,
         "y": 0
       }
     },
     {
-      "id": 3,
-      "title": "Total Tokens",
+      "id": 2,
+      "title": "Output Tokens",
       "type": "stat",
       "fieldConfig": {
         "defaults": {
@@ -75,8 +35,31 @@
       },
       "targets": [
         {
-          "expr": "(clamp_min(sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
-          "legendFormat": "Total Tokens"
+          "expr": "(clamp_min(sum(increase(litellm_output_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Output Tokens"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Cached Tokens",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "(clamp_min(sum(increase(litellm_cached_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Cached Tokens"
         }
       ],
       "gridPos": {
@@ -111,29 +94,6 @@
     },
     {
       "id": 5,
-      "title": "Monthly Cost (MTD)",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
-          "legendFormat": "Monthly Cost"
-        }
-      ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 4
-      }
-    },
-    {
-      "id": 6,
       "title": "Total Requests",
       "type": "stat",
       "fieldConfig": {
@@ -151,12 +111,12 @@
       "gridPos": {
         "h": 4,
         "w": 6,
-        "x": 6,
+        "x": 0,
         "y": 4
       }
     },
     {
-      "id": 7,
+      "id": 6,
       "title": "Failed Requests %",
       "type": "stat",
       "fieldConfig": {
@@ -192,24 +152,47 @@
       "gridPos": {
         "h": 4,
         "w": 6,
+        "x": 6,
+        "y": 4
+      }
+    },
+    {
+      "id": 7,
+      "title": "Period Cost",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Period Cost"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
         "x": 12,
         "y": 4
       }
     },
     {
       "id": 8,
-      "title": "Cache Hits",
+      "title": "Month to Date Cost",
       "type": "stat",
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "(clamp_min(sum(increase(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
-          "legendFormat": "Cache Hits"
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Month to Date Cost"
         }
       ],
       "gridPos": {
@@ -358,8 +341,72 @@
       }
     }
   ],
+  "title": "LiteLLM Proxy Overview",
+  "schemaVersion": 39,
+  "style": "dark",
+  "timezone": "browser",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "refresh": null,
+  "version": 1,
+  "__inputs": [],
+  "__requires": [],
+  "uid": "litellm-proxy-overview",
+  "description": "Comprehensive LiteLLM proxy metrics dashboard covering token usage, costs, request volumes, and model performance.",
+  "annotations": {
+    "list": []
+  },
   "templating": {
     "list": [
+      {
+        "name": "interval",
+        "type": "custom",
+        "label": "Interval",
+        "query": "30s,1m,5m,15m,1h,6h",
+        "current": {
+          "text": "5m",
+          "value": "5m"
+        },
+        "options": [
+          {
+            "text": "30s",
+            "value": "30s",
+            "selected": false
+          },
+          {
+            "text": "1m",
+            "value": "1m",
+            "selected": false
+          },
+          {
+            "text": "5m",
+            "value": "5m",
+            "selected": true
+          },
+          {
+            "text": "15m",
+            "value": "15m",
+            "selected": false
+          },
+          {
+            "text": "1h",
+            "value": "1h",
+            "selected": false
+          },
+          {
+            "text": "6h",
+            "value": "6h",
+            "selected": false
+          }
+        ],
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$DS_PROMETHEUS"
+        }
+      },
       {
         "name": "Time Range",
         "type": "interval",
