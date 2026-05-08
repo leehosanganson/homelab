@@ -1,5 +1,6 @@
 { sops-secrets, ... }: {
   imports = [
+    ../../modules/users.nix
     ../../modules/opencode.nix
     ../../modules/disko.nix
     ../../modules/sops-bootstrap.nix
@@ -58,21 +59,10 @@
       isNormalUser = true;
       extraGroups = [ "wheel" ];
       openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb lhs-desktop"
       ];
     };
-
-    root.openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
-    ];
   };
-
-  security.sudo = {
-    enable = true;
-    wheelNeedsPassword = false;
-  };
-
-  nix.settings.trusted-users = [ "root" "ansonlee" ];
 
   # services
   services = {

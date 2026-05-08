@@ -1,5 +1,6 @@
 { sops-secrets, ... }: {
   imports = [
+    ../../modules/users.nix
     ../../modules/haproxy.nix
     ../../modules/disko.nix
     ../../modules/sops-bootstrap.nix
@@ -39,22 +40,9 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "haproxy" ];
     openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb lhs-desktop"
     ];
   };
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb leehosanganson@gmail.com"
-  ];
-
-  security.sudo = {
-    enable = true;
-    # Intentional: passwordless sudo is required for nixos-rebuild --target-host,
-    # which connects as root over SSH. The SSH key is the sole authentication factor.
-    wheelNeedsPassword = false;
-  };
-
-  nix.settings.trusted-users = [ "root" "ansonlee" ];
 
   # ssh
   services.openssh = {
