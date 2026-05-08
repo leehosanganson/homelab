@@ -105,7 +105,7 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Output Tokens (Period)",
+      "title": "Output Tokens",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -156,7 +156,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(litellm_generated_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_generated_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(clamp_min(sum(increase(litellm_output_tokens_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Output Tokens",
           "refId": "A",
           "format": "time_series",
@@ -169,7 +169,7 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "Input Tokens (Period)",
+      "title": "Input Tokens",
       "gridPos": {
         "x": 6,
         "y": 0,
@@ -220,72 +220,8 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(litellm_prompt_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_prompt_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(clamp_min(sum(increase(litellm_input_tokens_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Input Tokens",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "Cached Tokens (Period)",
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 500000
-              },
-              {
-                "color": "red",
-                "value": 2000000
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "sum(litellm_cache_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_cache_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
-          "legendFormat": "Cached Tokens",
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
@@ -297,9 +233,9 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Total Tokens (Period)",
+      "title": "Total Tokens",
       "gridPos": {
-        "x": 18,
+        "x": 12,
         "y": 0,
         "w": 6,
         "h": 4
@@ -348,7 +284,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "(clamp_min(sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "expr": "(clamp_min(sum(increase(litellm_total_tokens_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Total Tokens",
           "refId": "A",
           "format": "time_series",
@@ -361,10 +297,10 @@
     {
       "id": 5,
       "type": "stat",
-      "title": "Session Cost (Period)",
+      "title": "Session Cost",
       "gridPos": {
-        "x": 0,
-        "y": 4,
+        "x": 18,
+        "y": 0,
         "w": 6,
         "h": 4
       },
@@ -412,7 +348,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Session Cost",
           "refId": "A",
           "format": "time_series",
@@ -429,7 +365,7 @@
       "description": "Always shows month-to-date regardless of the time picker selection.",
       "timeFrom": "now/M",
       "gridPos": {
-        "x": 6,
+        "x": 0,
         "y": 4,
         "w": 6,
         "h": 4
@@ -478,7 +414,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Monthly Cost",
           "refId": "A",
           "format": "time_series",
@@ -491,9 +427,9 @@
     {
       "id": 7,
       "type": "stat",
-      "title": "Total Requests (Period)",
+      "title": "Total Requests",
       "gridPos": {
-        "x": 12,
+        "x": 6,
         "y": 4,
         "w": 6,
         "h": 4
@@ -542,7 +478,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "(clamp_min(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "expr": "(clamp_min(sum(increase(litellm_proxy_total_requests_metric{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Total Requests",
           "refId": "A",
           "format": "time_series",
@@ -555,9 +491,9 @@
     {
       "id": 8,
       "type": "stat",
-      "title": "Failed Requests (Period)",
+      "title": "Failed Requests %",
       "gridPos": {
-        "x": 18,
+        "x": 12,
         "y": 4,
         "w": 6,
         "h": 4
@@ -576,7 +512,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "percent",
           "color": {
             "mode": "thresholds"
           },
@@ -589,11 +525,11 @@
               },
               {
                 "color": "yellow",
-                "value": 20
+                "value": 1
               },
               {
                 "color": "red",
-                "value": 100
+                "value": 5
               }
             ]
           },
@@ -606,8 +542,8 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "clamp_min(((sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)",
-          "legendFormat": "Failed Requests",
+          "expr": "(sum(increase(litellm_proxy_failed_requests_metric{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])) / clamp_min(sum(increase(litellm_proxy_total_requests_metric{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 1)) * 100",
+          "legendFormat": "Failed Requests %",
           "refId": "A",
           "format": "time_series",
           "editorMode": "code",
@@ -657,7 +593,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (requested_model) (increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
+          "expr": "sum by (requested_model) (increase(litellm_proxy_total_requests_metric{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
           "interval": "$interval",
           "legendFormat": "{{requested_model}}",
           "refId": "A",
@@ -709,7 +645,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (requested_model) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
+          "expr": "sum by (requested_model) (increase(litellm_total_tokens_metric{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\", requested_model=~\"$model\"}[$__rate_interval]))",
           "interval": "$interval",
           "legendFormat": "{{requested_model}}",
           "refId": "A",
@@ -754,7 +690,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "expr": "sum(rate(litellm_total_tokens_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
           "legendFormat": "Total Tokens",
           "refId": "A",
           "format": "time_series",
@@ -798,7 +734,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (requested_model) (rate(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "expr": "sum by (requested_model) (rate(litellm_total_tokens_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
           "legendFormat": "{{requested_model}}",
           "refId": "A",
           "format": "time_series",
@@ -932,7 +868,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum by (requested_model) (rate(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
+          "expr": "sum by (requested_model) (rate(litellm_spend_metric{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$interval]))",
           "legendFormat": "{{requested_model}}",
           "refId": "A",
           "format": "time_series",
