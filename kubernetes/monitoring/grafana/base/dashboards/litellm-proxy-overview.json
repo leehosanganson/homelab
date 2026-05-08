@@ -156,7 +156,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(clamp_min(sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Total Tokens",
           "refId": "A",
           "format": "time_series",
@@ -220,7 +220,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) - sum(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(clamp_min(sum(increase(litellm_spend_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Session Cost",
           "refId": "A",
           "format": "time_series",
@@ -414,7 +414,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) - sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range)",
+          "expr": "(clamp_min(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
           "legendFormat": "Total Requests",
           "refId": "A",
           "format": "time_series",
