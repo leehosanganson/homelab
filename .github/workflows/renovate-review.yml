@@ -32,7 +32,6 @@ jobs:
 
       - name: Run OpenCode Review Agent
         env:
-          PR_BODY: ${{ fromJSON(steps.pr-details.outputs.body_raw || '{}').body || '' }}
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode/opencode.json
