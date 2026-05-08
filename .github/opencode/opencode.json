@@ -3,15 +3,7 @@
   "instructions": ["../../AGENTS.md"],
   "default_agent": "architect",
   "permission": {
-    "*": "deny",
-    "edit": "allow",
-    "read": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "skill": "allow"
+    "*": "deny"
   },
   "agent": {
     "architect": {
@@ -19,31 +11,13 @@
       "mode": "primary",
       "prompt": "{file:../agents/architect.md}",
       "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
         "task": {
-          "*": "deny",
           "generator": "allow"
-        },
-        "bash": {
-          "*": "deny",
-          "pwd": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "tree": "allow",
-          "tree *": "allow",
-          "cat *": "allow",
-          "find *": "allow",
-          "gh": "allow",
-          "gh *": "allow",
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show *": "allow",
-          "git rev-parse *": "allow"
-        },
-        "todowrite": "allow"
+        }
       }
     },
     "generator": {
@@ -51,33 +25,33 @@
       "mode": "subagent",
       "prompt": "{file:../agents/generator.md}",
       "permission": {
-        "task": {
-          "*": "deny",
-          "evaluator": "allow"
-        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "edit": "allow",
         "bash": {
-          "*": "deny",
-          "pwd": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "tree": "allow",
-          "tree *": "allow",
-          "cat *": "allow",
-          "find *": "allow",
-          "gh": "allow",
-          "gh *": "allow",
           "git status": "allow",
           "git status *": "allow",
           "git diff": "allow",
           "git diff *": "allow",
           "git log": "allow",
           "git log *": "allow",
-          "git show *": "allow",
-          "git rev-parse *": "allow"
+
+          "git checkout -b *": "allow",
+          "git switch -c *": "allow",
+
+          "git add *": "allow",
+          "git commit -m *": "allow",
+          "git push -u origin feat/*": "allow",
+          "git push -u origin fix/*": "allow",
+          "git push -u origin chore/*": "allow",
+
+          "gh pr create --draft *": "allow"
         },
-        "webfetch": "allow",
-        "websearch": "allow",
-        "skill": "allow"
+        "task": {
+          "evaluator": "allow"
+        }
       }
     },
     "evaluator": {
@@ -85,32 +59,27 @@
       "mode": "subagent",
       "prompt": "{file:../agents/evaluator.md}",
       "permission": {
-        "edit": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
         "bash": {
-          "*": "deny",
-          "pwd": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "tree": "allow",
-          "tree *": "allow",
-          "cat *": "allow",
-          "find *": "allow",
           "git status": "allow",
           "git status *": "allow",
           "git diff": "allow",
           "git diff *": "allow",
           "git log": "allow",
           "git log *": "allow",
+          "git show": "allow",
           "git show *": "allow",
-          "git rev-parse *": "allow"
-        },
-        "webfetch": "allow",
-        "websearch": "allow",
-        "skill": "allow"
+          "git rev-parse": "allow",
+          "git rev-parse *": "allow",
+
+          "gh pr view": "allow",
+          "gh pr view *": "allow",
+          "gh issue view": "allow",
+          "gh issue view *": "allow"
+        }
       }
     }
   },
