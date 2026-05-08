@@ -1,0 +1,57 @@
+name: renovate-review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    branches: []
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: renovate-review-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: renovate-review
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'renovate[bot]' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Check PR age
+        id: pr-age-check
+        run: |
+          pr_date=$(date -d "${{ github.event.pull_request.created_at }}" +%s)
+          cutoff_date=$((pr_date - 14*24*60*60))
+          current_date=$(date +%s)
+          if [ "$current_date" -lt "$cutoff_date" ]; then
+            echo "PR is less than 14 days old, skipping review"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a # latest
+        if: steps.pr-age-check.outputs.skip != 'true'
+        env:
+          LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_CONFIG: .github/opencode.json
+          OPENCODE_PERMISSION: |
+            {
+              "*": "allow",
+              "bash": {
+                "*": "deny",
+                "gh pr *": "allow",
+                "gh search *": "allow"
+              }
+            }
+        with:
+          model: "litellm/unsloth/qwen-3.6"

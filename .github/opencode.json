@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["../AGENTS.md"],
+  "instructions": ["../AGENTS.md", ".github/renovate-review-instructions.md"],
   "compaction": {
     "auto": true,
     "prune": true,
