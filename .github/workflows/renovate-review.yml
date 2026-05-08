@@ -28,6 +28,7 @@ jobs:
           echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           gh api /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} > pr_data.json
           echo "title=$(jq -r .title pr_data.json)" >> $GITHUB_OUTPUT
+          echo "sha=$(jq -r .head.sha pr_data.json)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -43,6 +44,10 @@ jobs:
           <pr-number>
           ${{ github.event.pull_request.number }}
           </pr-number>
+
+          <commit-sha>
+          ${{ steps.pr-details.outputs.sha }}
+          </commit-sha>
 
           <pr-description>
           $PR_BODY
@@ -70,7 +75,26 @@ jobs:
           ## 6. NixOS-Specific Checks
           - When PR modifies \`flake.lock\` or NixOS host configs: compare old vs new git hash in flake.lock. Assess if any service versions being upgraded have known breaking changes (check nixpkgs commit messages). Flag upgrades that touch \`system.stateVersion\` or require \`nixos-rebuild\` migration steps. For multi-host setups (haproxy-1/2/3, opencode-1): note which hosts are affected and whether service restart patterns need coordination.
 
-          Provide a concise summary with:
+          Post a summary review comment on this PR thread using \`gh pr comment\`, replacing placeholders with actual values:
+          
+          ```bash
+          gh pr comment <PR_NUMBER> --body '<MULTILINE_COMMENT>'
+          ```
+
+          The summary should include:
           - **Status:** PASS / NEEDS_REVISION
-          - **Findings:** Bullet points for each category checked
-          - **Recommendation:** Clear go/no-go suggestion"
+          - **Findings:** Bullet points for each category checked (1-6)
+          - **Recommendation:** Clear go/no-go suggestion
+
+          When you find specific issues in files, leave inline file comments using \`gh api\`, replacing placeholders:
+          
+          ```bash
+          gh api \\
+            --method POST \\
+            -H "Accept: application/vnd.github+json" \\
+            -H "X-GitHub-Api-Version: 2022-11-28" \\
+            /repos/<OWNER>/<REPO>/pulls/<PR_NUMBER>/comments \\
+            -f 'body=[summary of issue]' -f 'commit_id=<COMMIT_SHA>' -f 'path=[path-to-file]' -F 'line=[line]' -f 'side=RIGHT'
+          ```
+
+          Replace <OWNER>/<REPO> with ${{ github.repository }}, <PR_NUMBER> with ${{ github.event.pull_request.number }}, and <COMMIT_SHA> with the HEAD commit SHA."

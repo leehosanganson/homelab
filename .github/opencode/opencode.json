@@ -22,8 +22,9 @@
         },
         "bash": {
           "*": "deny",
-          "gh issue comment*": "allow",
-          "gh pr comment*": "allow"
+          "gh issue comment *": "allow",
+          "gh pr comment *": "allow",
+          "gh api *": "allow"
         },
         "question": "deny",
         "edit": "deny",
@@ -52,12 +53,12 @@
         },
         "bash": {
           "*": "deny",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git rev-parse*": "allow",
-          "gh issue comment*": "allow",
-          "gh pr comment*": "allow"
+          "git status *": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "git rev-parse *": "allow",
+          "gh issue comment *": "allow",
+          "gh pr comment *": "allow"
         },
         "question": "deny",
         "external_directory": "deny",
@@ -80,11 +81,11 @@
         "list": "allow",
         "bash": {
           "*": "deny",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "gh issue comment*": "allow",
-          "gh pr comment*": "allow"
+          "git status *": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
+          "gh issue comment *": "allow",
+          "gh pr comment *": "allow"
         },
         "task": "deny",
         "question": "deny",
