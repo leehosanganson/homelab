@@ -5,53 +5,72 @@ on:
     types: [opened, synchronize]
     branches: []
 
-permissions:
-  contents: read
-  pull-requests: write
-
-concurrency:
-  group: renovate-review-${{ github.head_ref }}
-  cancel-in-progress: true
-
 jobs:
-  review:
-    name: renovate-review
-    runs-on: ubuntu-latest
+  review-renovate-pr:
     if: ${{ github.event.pull_request.user.login == 'renovate[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 1
 
-      - name: Check PR age
-        id: pr-age-check
+      - name: Install opencode
+        run: curl -fsSL https://opencode.ai/install | bash
+
+      - name: Get PR details
+        id: pr-details
         run: |
-          pr_date=$(date -d "${{ github.event.pull_request.created_at }}" +%s)
-          cutoff_date=$((pr_date - 14*24*60*60))
-          current_date=$(date +%s)
-          if [ "$current_date" -lt "$cutoff_date" ]; then
-            echo "PR is less than 14 days old, skipping review"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          gh api /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} > pr_data.json
+          echo "title=$(jq -r .title pr_data.json)" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run OpenCode
-        uses: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a # latest
-        if: steps.pr-age-check.outputs.skip != 'true'
+      - name: Run OpenCode Review Agent
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENCODE_CONFIG: .github/opencode.json
-          OPENCODE_PERMISSION: |
-            {
-              "*": "allow",
-              "bash": {
-                "*": "deny",
-                "gh pr *": "allow",
-                "gh search *": "allow"
-              }
-            }
-        with:
-          model: "litellm/unsloth/qwen-3.6"
+          OPENCODE_PERMISSION: '{ "bash": { "*": "deny", "gh pr *": "allow", "gh search *": "allow" } }'
+        run: |
+          PR_BODY=$(jq -r .body pr_data.json)
+          opencode run -m litellm/unsloth/qwen-3.6 "A Renovate dependency update pull request has been created: '${{ steps.pr-details.outputs.title }}'
+
+          <pr-number>
+          ${{ github.event.pull_request.number }}
+          </pr-number>
+
+          <pr-description>
+          $PR_BODY
+          </pr-description>
+
+          Please review this Renovate PR against the following checklist:
+
+          ## 1. Release Age Gate Verification
+          - Confirm the new version/release is at least 14 days old. If newer, flag and recommend waiting.
+
+          ## 2. Breaking Changes Analysis
+          - Compare current image/tag version with the new one. For Docker images: check Docker Hub changelogs, GitHub release notes, or official docs for breaking API changes between versions. Cross-reference Kubernetes deployment files in \`kubernetes/apps/<app>/base/deployment.yaml\` — check if environment variables, ports, commands, or health checks need updating. Flag any container image that mentions 'breaking' or major version bumps (e.g., MariaDB 11.x → 12.x).
+
+          ## 3. Security Risk Assessment
+          - Search for CVEs/vulnerabilities using \`gh search\` on GitHub advisories and Docker Hub security notices. Check if the new version fixes known vulnerabilities in the old version. Flag images from unverified publishers or registries with weak access controls. Only flag HIGH or CRITICAL severity CVEs, not medium/low ones.
+
+          ## 4. Version Compatibility
+          - Verify the new version is compatible with other services in the same app stack (e.g., if Paperless-ngx image updates, also check its Redis DB deployment). Check if database versions are synchronized (e.g., MariaDB upgrade should not be paired with an application that hasn't been tested against it). Flag mismatched or out-of-order upgrades (app updated before its dependencies).
+
+          ## 5. Deployment Impact Analysis
+          - **Database migrations:** If a DB image is updating (e.g., \`lscr.io/linuxserver/mariadb:11.4.8 → 11.5.x\`), note that CloudNative-PG managed clusters handle minor version upgrades automatically, but major version jumps require migration plans. Check the app's deployment for any DB connection config changes needed.
+          - **Persistent volumes:** Flag if new container versions change default mount paths or data directory layouts.
+          - **Configuration format changes:** If the app uses ConfigMaps (per AGENTS.md conventions), note if config file formats changed between versions.
+
+          ## 6. NixOS-Specific Checks
+          - When PR modifies \`flake.lock\` or NixOS host configs: compare old vs new git hash in flake.lock. Assess if any service versions being upgraded have known breaking changes (check nixpkgs commit messages). Flag upgrades that touch \`system.stateVersion\` or require \`nixos-rebuild\` migration steps. For multi-host setups (haproxy-1/2/3, opencode-1): note which hosts are affected and whether service restart patterns need coordination.
+
+          Provide a concise summary with:
+          - **Status:** PASS / NEEDS_REVISION
+          - **Findings:** Bullet points for each category checked
+          - **Recommendation:** Clear go/no-go suggestion"
