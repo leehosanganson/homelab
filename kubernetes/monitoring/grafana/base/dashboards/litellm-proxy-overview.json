@@ -78,7 +78,7 @@
       {
         "name": "team_alias",
         "type": "query",
-        "query": "label_values(litellm_total_tokens_metric_total, team_alias)",
+        "query": "label_values(litellm_proxy_total_requests_metric_total, team_alias)",
         "includeAll": true,
         "allValue": ".*",
         "multi": true,
@@ -105,7 +105,7 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Total Tokens (Period)",
+      "title": "Input Tokens",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -114,7 +114,201 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 5000000
+              }
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "(clamp_min(sum(increase(litellm_input_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Input Tokens",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Cached Tokens",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 5000000
+              }
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "(clamp_min(sum(increase(litellm_cached_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Cached Tokens",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Output Tokens",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000000
+              },
+              {
+                "color": "red",
+                "value": 5000000
+              }
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "(clamp_min(sum(increase(litellm_output_tokens_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Output Tokens",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Total Tokens",
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -165,18 +359,150 @@
       ]
     },
     {
-      "id": 2,
+      "id": 5,
       "type": "stat",
-      "title": "Session Cost (Period)",
+      "title": "Requests",
       "gridPos": {
-        "x": 6,
-        "y": 0,
+        "x": 0,
+        "y": 4,
         "w": 6,
         "h": 4
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5000
+              },
+              {
+                "color": "red",
+                "value": 20000
+              }
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "(clamp_min(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
+          "legendFormat": "Requests",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Failed Request %",
+      "description": "Percentage of requests that failed during the selected time period.",
+      "gridPos": {
+        "x": 6,
+        "y": 4,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus"
+          },
+          "expr": "(clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0) - clamp_min(((sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)) / clamp_min(clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0), 1)) * 100",
+          "legendFormat": "Failed Request %",
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Cost",
+      "description": "Total spend during the selected time period.",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -227,20 +553,22 @@
       ]
     },
     {
-      "id": 3,
+      "id": 8,
       "type": "stat",
-      "title": "Monthly Cost (MTD)",
+      "title": "MTD Cost",
       "description": "Always shows month-to-date regardless of the time picker selection.",
       "timeFrom": "now/M",
       "gridPos": {
-        "x": 12,
-        "y": 0,
+        "x": 18,
+        "y": 4,
         "w": 6,
         "h": 4
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -291,322 +619,12 @@
       ]
     },
     {
-      "id": 4,
-      "type": "stat",
-      "title": "Request Success Rate %",
-      "gridPos": {
-        "x": 18,
-        "y": 0,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 97
-              },
-              {
-                "color": "green",
-                "value": 99.5
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "((clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0) - clamp_min(((sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)) / clamp_min(clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0), 1)) * 100",
-          "legendFormat": "Success Rate %",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "type": "stat",
-      "title": "Total Requests (Period)",
-      "gridPos": {
-        "x": 0,
-        "y": 4,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 5000
-              },
-              {
-                "color": "red",
-                "value": 20000
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "(clamp_min(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}[$__range])), 0)) or vector(0)",
-          "legendFormat": "Total Requests",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "stat",
-      "title": "Failed Requests (Period)",
-      "gridPos": {
-        "x": 6,
-        "y": 4,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "red",
-                "value": 100
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "clamp_min(((sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)",
-          "legendFormat": "Failed Requests",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "type": "stat",
-      "title": "Cache Hit Rate %",
-      "gridPos": {
-        "x": 12,
-        "y": 4,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 40
-              },
-              {
-                "color": "green",
-                "value": 70
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "(clamp_min(((sum(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0) / clamp_min((clamp_min(((sum(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_cache_hits_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0) + clamp_min(((sum(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_cache_misses_metric_total{api_key_alias=~\"$api_key_alias\", requested_model=~\"$model\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)), 1)) * 100",
-          "legendFormat": "Cache Hit Rate %",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "type": "stat",
-      "title": "In-Flight Requests (Now)",
-      "gridPos": {
-        "x": 18,
-        "y": 4,
-        "w": 6,
-        "h": 4
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "value"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "red",
-                "value": 50
-              }
-            ]
-          },
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "uid": "prometheus"
-          },
-          "expr": "sum(litellm_in_flight_requests{api_key_alias=~\"$api_key_alias\"})",
-          "legendFormat": "In-Flight Requests",
-          "refId": "A",
-          "format": "time_series",
-          "editorMode": "code",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
       "id": 9,
       "type": "timeseries",
       "title": "Requests Over Time by Model",
       "gridPos": {
         "x": 0,
-        "y": 16,
+        "y": 24,
         "w": 24,
         "h": 8
       },
@@ -658,7 +676,7 @@
       "title": "Token Consumption Over Time by Model",
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 16,
         "w": 24,
         "h": 8
       },
@@ -710,7 +728,7 @@
       "title": "Request Success Rate Over Time",
       "gridPos": {
         "x": 0,
-        "y": 24,
+        "y": 32,
         "w": 12,
         "h": 8
       },
@@ -754,7 +772,7 @@
       "title": "Concurrent Requests Over Time",
       "gridPos": {
         "x": 12,
-        "y": 24,
+        "y": 32,
         "w": 12,
         "h": 8
       },
@@ -798,7 +816,7 @@
       "title": "Token Throughput Over Time (tokens/sec)",
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 40,
         "w": 12,
         "h": 8
       },
@@ -842,7 +860,7 @@
       "title": "Token Throughput per Model",
       "gridPos": {
         "x": 12,
-        "y": 32,
+        "y": 40,
         "w": 12,
         "h": 8
       },
@@ -886,7 +904,7 @@
       "title": "Request Latency P95",
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 48,
         "w": 12,
         "h": 8
       },
@@ -930,7 +948,7 @@
       "title": "Time to First Token P95",
       "gridPos": {
         "x": 12,
-        "y": 40,
+        "y": 48,
         "w": 12,
         "h": 8
       },
@@ -974,7 +992,7 @@
       "title": "Cache Hit Rate Over Time",
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 56,
         "w": 12,
         "h": 8
       },
@@ -1020,7 +1038,7 @@
       "title": "Cost Rate by Model ($/sec)",
       "gridPos": {
         "x": 12,
-        "y": 48,
+        "y": 56,
         "w": 12,
         "h": 8
       },
@@ -1062,4 +1080,3 @@
     }
   ]
 }
-
