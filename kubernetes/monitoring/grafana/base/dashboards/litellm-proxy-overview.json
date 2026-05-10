@@ -114,9 +114,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -178,9 +176,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -242,9 +238,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -306,9 +300,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -370,9 +362,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -425,8 +415,8 @@
     {
       "id": 6,
       "type": "stat",
-      "title": "Failed Request %",
-      "description": "Percentage of requests that failed during the selected time period.",
+      "title": "Success Request %",
+      "description": "Percentage of successful requests during the selected time period.",
       "gridPos": {
         "x": 6,
         "y": 4,
@@ -435,9 +425,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -456,15 +444,15 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 99
               },
               {
                 "color": "yellow",
-                "value": 1
+                "value": 95
               },
               {
                 "color": "red",
-                "value": 5
+                "value": null
               }
             ]
           },
@@ -477,7 +465,7 @@
           "datasource": {
             "uid": "prometheus"
           },
-          "expr": "((clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0) - clamp_min(((sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0)) / clamp_min(clamp_min(((sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"}) or vector(0)) - (sum(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\", team_alias=~\"$team_alias\"} offset $__range) or vector(0))), 0), 1)) * 100",
+          "expr": "((sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\",team_alias=~\"$team_alias\"}[$__range]))-sum(increase(litellm_proxy_failed_requests_metric_total{api_key_alias=~\"$api_key_alias\",team_alias=~\"$team_alias\"}[$__range])))/(sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"$api_key_alias\",team_alias=~\"$team_alias\"}[$__range]))>0 or vector(1)))*100",
           "legendFormat": "Failed Request %",
           "refId": "A",
           "format": "time_series",
@@ -500,9 +488,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -566,9 +552,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
