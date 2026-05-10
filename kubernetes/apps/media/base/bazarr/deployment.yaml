@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bazarr
-          image: linuxserver/bazarr:1.5.6@sha256:d736df5df0286373a26d34f47aa413cb8aeada74f6338dac372a6d37ba1b3b0d
+          image: linuxserver/bazarr:1.5.6@sha256:7adfe3ede9ce3562098a6f944fb644da16bdf245220e707260f89f1507c87b54
           ports:
             - containerPort: 6767
               name: http
