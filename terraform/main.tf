@@ -60,6 +60,32 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   }
 }
 
+locals {
+  guest_usable_ipv4_candidates_by_node = {
+    for hostname, vm in proxmox_virtual_environment_vm.nixos :
+    hostname => try([
+      for ip in flatten(vm.ipv4_addresses) : ip
+      if ip != "" && ip != "0.0.0.0" && !startswith(ip, "127.") && !startswith(ip, "169.254.")
+    ], [])
+  }
+
+  guest_rfc1918_ipv4_candidates_by_node = {
+    for hostname, ips in local.guest_usable_ipv4_candidates_by_node :
+    hostname => [
+      for ip in ips : ip
+      if startswith(ip, "10.") || startswith(ip, "192.168.") || can(regex("^172\\.(1[6-9]|2[0-9]|3[0-1])\\.", ip))
+    ]
+  }
+
+  guest_ipv4_by_node = {
+    for hostname, vm in proxmox_virtual_environment_vm.nixos :
+    hostname => try(concat(
+      local.guest_rfc1918_ipv4_candidates_by_node[hostname],
+      local.guest_usable_ipv4_candidates_by_node[hostname]
+    )[0], null)
+  }
+}
+
 # Wait for the Guest OS to be ready for nixos-anywhere
 resource "terraform_data" "wait_for_guest_ssh" {
   for_each = var.nodes
@@ -73,9 +99,16 @@ resource "terraform_data" "wait_for_guest_ssh" {
   connection {
     type        = "ssh"
     user        = "root"
-    host        = proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0]
+    host        = local.guest_ipv4_by_node[each.key]
     private_key = file(pathexpand(var.pve_ssh_private_key_file))
     timeout     = "5m"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = try(local.guest_ipv4_by_node[each.key], null) != null
+      error_message = "No usable guest IPv4 for node '${each.key}' is available from the Proxmox guest agent yet (loopback/link-local/0.0.0.0 are ignored). Wait for the VM to finish booting and ensure qemu-guest-agent is running, then retry."
+    }
   }
 
   # Confirm the VM is fully booted and ready for provisioning before running the local provisioning script
@@ -87,6 +120,6 @@ resource "terraform_data" "wait_for_guest_ssh" {
 
   # Run the local provisioning script with the VM name and IP address as arguments
   provisioner "local-exec" {
-    command = "../nixos/scripts/provision.sh ${each.key} ${try(proxmox_virtual_environment_vm.nixos[each.key].ipv4_addresses[1][0], "")}"
+    command = "../nixos/scripts/provision.sh ${each.key} ${local.guest_ipv4_by_node[each.key]}"
   }
 }

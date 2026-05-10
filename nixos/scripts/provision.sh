@@ -56,9 +56,16 @@ if [[ -d "$KEYS_DIR/$HOSTNAME" ]]; then
   EXTRA_ARGS+=(--extra-files "$KEYS_DIR/$HOSTNAME")
 fi
 
+echo "==> Pre-building system closure locally..."
+nix build \
+  "$FLAKE_ROOT#nixosConfigurations.$HOSTNAME.config.system.build.toplevel" \
+  --no-link \
+  --option extra-substituters "https://cache.nixos.org?ip-resolve=v4"
+
 nix run "$FLAKE_ROOT#nixos-anywhere" -- \
+  --option extra-substituters "https://cache.nixos.org?ip-resolve=v4" \
   --flake "$FLAKE_ROOT#$HOSTNAME" \
-  ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"} \
+  "${EXTRA_ARGS[@]}" \
   "root@$TARGET_IP"
 
 echo ""
