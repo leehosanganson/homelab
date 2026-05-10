@@ -6,7 +6,7 @@
     ../../modules/sops-bootstrap.nix
   ];
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   networking = {
     hostName = "haproxy-1";
@@ -33,15 +33,6 @@
         group = "acme";
       };
     };
-  };
-
-  # user
-  users.users.ansonlee = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "haproxy" ];
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOuRvc3yYsvjGSLlvtiSTGYx8YscOGAxuLoQEgP/llb lhs-desktop"
-    ];
   };
 
   # ssh
