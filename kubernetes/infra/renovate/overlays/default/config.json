@@ -3,7 +3,7 @@
   "repositories": [
     "leehosanganson/homelab"
   ],
-  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "gitAuthor": "Renovate Bot <renovate@leahosanganson.dev>",
   "onboarding": false,
   "requireConfig": "optional",
   "extends": [
