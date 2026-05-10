@@ -48,7 +48,7 @@ spec:
               memory: 4Gi
       containers:
         - name: llama-cpp
-          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:7e447b8dfec5c13025b3e269b1c0fbb0dee41e3e4b9ee55906fcbea9d847043f
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:67e9c92f9463af5f076524d0d94a600629763209e5cbe228cdcfe718911a98bd
           args:
             - -m
             - /models/Qwen3.6-35B-A3B-UD-IQ2_M.gguf
