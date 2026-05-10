@@ -1,4 +1,16 @@
-{ config, ... }: {
+{ config, ... }:
+
+let
+  keepalivedPriority = {
+    "haproxy-1" = 150;
+    "haproxy-2" = 120;
+    "haproxy-3" = 100;
+  }.${config.networking.hostName} or 100;
+  hostIp = (builtins.elemAt config.networking.interfaces.eth0.ipv4.addresses 0).address;
+  # NOTE: For clusters with more than 3 HAProxy nodes, extend keepalivedPeerIps accordingly.
+  keepalivedPeerIps = [ "192.168.1.251" "192.168.1.252" "192.168.1.253" ];
+  keepalivedPeers = builtins.filter (ip: ip != hostIp) keepalivedPeerIps;
+in {
   # ACME Wildcard for *.infra.leehosanganson.dev
   security.acme = {
     acceptTerms = true;
@@ -18,6 +30,48 @@
   };
 
   users.users.haproxy.extraGroups = [ "acme" ];
+
+  services.keepalived = {
+    enable = true;
+    openFirewall = true;
+    extraConfig = ''
+      vrrp_script chk_haproxy {
+          script "/run/current-system/sw/bin/systemctl is-active --quiet haproxy"
+          interval 2
+          fall 2
+          rise 2
+          weight -20
+      }
+
+      vrrp_instance VI_HAPROXY {
+          state BACKUP
+          interface eth0
+          virtual_router_id 51
+          priority ${toString keepalivedPriority}
+          advert_int 1
+
+          # NOTE: auth_pass is plaintext (VRRP unicast auth is not cryptographically strong).
+          # It only guards against accidental misconfiguration; protect the subnet to mitigate.
+          authentication {
+              auth_type PASS
+              auth_pass homelab-haproxy
+          }
+
+          unicast_src_ip ${hostIp}
+          unicast_peer {
+      ${builtins.concatStringsSep "\n" (builtins.map (ip: "        ${ip}") keepalivedPeers)}
+          }
+
+          virtual_ipaddress {
+              192.168.1.250/24 dev eth0
+          }
+
+          track_script {
+              chk_haproxy
+          }
+      }
+    '';
+  };
 
   # Service
   services.haproxy = {
@@ -67,6 +121,12 @@
           acl is_pihole_2 hdr(host) -i pihole-2.infra.leehosanganson.dev
           use_backend pihole_2 if is_pihole_2
 
+      frontend k3s_api
+          bind *:6443
+          mode tcp
+          option tcplog
+          default_backend k3s_api
+
       # --- BACKENDS ---
       backend local_ssl_termination
           mode tcp
@@ -98,6 +158,15 @@
           server ctrl-01 192.168.1.151:443 check
           server ctrl-02 192.168.1.152:443 check
           server ctrl-03 192.168.1.153:443 check
+
+      backend k3s_api
+          mode tcp
+          balance roundrobin
+          option tcp-check
+          # inter 5: probe every 5 seconds (reduces noise from flaky API servers)
+          server ctrl-01 192.168.1.151:6443 check inter 5
+          server ctrl-02 192.168.1.152:6443 check inter 5
+          server ctrl-03 192.168.1.153:6443 check inter 5
     '';
   };
 }

@@ -7,6 +7,14 @@ pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
 
 nodes = {
+  "haproxy-1" = {
+    node      = "pve01"
+    vm_id     = 201
+    cores     = 1
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+  }
   "haproxy-2" = {
     node      = "pve01"
     vm_id     = 202
