@@ -31,6 +31,11 @@ spec:
                   value: /usr/src/app/config.json
                 - name: LOG_LEVEL
                   value: "debug"
+                - name: RENOVATE_GIT_PRIVATE_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-git-private-key
+                      key: GIT_PRIVATE_KEY
               volumeMounts:
                 - name: renovate-config
                   mountPath: /usr/src/app/config.json

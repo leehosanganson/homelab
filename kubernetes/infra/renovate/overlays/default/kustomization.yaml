@@ -1,6 +1,7 @@
 namespace: renovate
 resources:
   - namespace.yaml
+  - secrets.yaml
   - ../../base
 
 configMapGenerator:
