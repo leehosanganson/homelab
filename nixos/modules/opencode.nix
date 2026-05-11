@@ -7,6 +7,7 @@ let
     vim
     git
     gh
+    gnupg
     ripgrep
     nodejs
     python3
@@ -47,7 +48,7 @@ in
     "f /home/opencode/.ssh/id_ed25519.pub 0644 opencode opencode - -"
   ];
 
-  # Git
+  # Git — use SSH-based GPG signing
   programs.git = {
     enable = true;
     config = {
@@ -61,6 +62,7 @@ in
     };
   };
 
+  # SSH known hosts for GitHub access (same SSH key)
   programs.ssh = {
     extraConfig = ''
       Host github.com

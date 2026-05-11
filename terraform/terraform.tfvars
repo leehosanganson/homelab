@@ -4,29 +4,37 @@ proxmox_insecure       = true
 
 pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 
-nixos_iso = "local:iso/nixos-minimal-26.05.20260302.cf59864-x86_64-linux.iso"
+nixos_iso = "local:iso/nixos-minimal-26.05.20260505.549bd84-x86_64-linux.iso"
 
 nodes = {
-  "haproxy-2" = {
+  "haproxy-1" = {
     node      = "pve01"
+    vm_id     = 201
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+  }
+  "haproxy-2" = {
+    node      = "pve02"
     vm_id     = 202
-    cores     = 1
+    cores     = 2
     memory    = 2048
     disk_size = 20
     datastore = "local-lvm"
   }
   "haproxy-3" = {
-    node      = "pve02"
+    node      = "pve03"
     vm_id     = 203
-    cores     = 1
-    memory    = 1024
+    cores     = 2
+    memory    = 2048
     disk_size = 20
     datastore = "local-lvm"
   }
   "opencode-1" = {
     node      = "pve01"
     vm_id     = 301
-    cores     = 2
+    cores     = 4
     memory    = 4096
     disk_size = 40
     datastore = "local-lvm"
