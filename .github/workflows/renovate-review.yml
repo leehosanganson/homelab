@@ -37,6 +37,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get release changelog and description
+        run: |
+          PR_BODY=$(jq -r '.body // ""' pr_data.json)
+
+          # Extract renovate-notify header fields from the PR body
+          SOURCE_URL=$(echo "$PR_BODY" | grep -oP '(?<=\| sourceUrl\| )[^ ]+' | head -1)
+          REPOSITORY_OWNER=$(echo "$PR_BODY" | grep -oP '(?<=\| repositoryOwner\| )[^ ]+' | head -1)
+          PACKAGE_NAME=$(echo "$PR_BODY" | grep -oP '(?<=\| packageName\| )[^ ]+' | head -1)
+          RELEASE_TAG=$(echo "$PR_BODY" | grep -oP '(?<=\| releaseTag\| )[^ ]+' | head -1)
+          RELEASE_URL=$(echo "$PR_BODY" | grep -oP '(?<=\| releaseUrl\| )[^ ]+' | head -1)
+
+          echo "Extracted: sourceUrl=$SOURCE_URL owner=$REPOSITORY_OWNER pkg=$PACKAGE_NAME tag=$RELEASE_TAG releaseUrl=$RELEASE_URL"
+
+          # Fetch GitHub release notes if we have the repo info and tag
+          if [ -n "$REPOSITORY_OWNER" ] && [ -n "$PACKAGE_NAME" ] && [ -n "$RELEASE_TAG" ]; then
+            RELEASE_NOTES=$(gh api --repo "${REPOSITORY_OWNER}/${PACKAGE_NAME}" "repos/releases/tags/${RELEASE_TAG}" --jq '.body // empty' 2>/dev/null || echo "")
+            if [ -n "$RELEASE_NOTES" ]; then
+              echo "GitHub release notes for ${RELEASE_TAG}:" > release_info.txt
+              echo "=========================================" >> release_info.txt
+              echo "$RELEASE_NOTES" >> release_info.txt
+            fi
+          fi
+
+          # Also fetch the release URL if present (e.g., changelog or release page)
+          if [ -n "$RELEASE_URL" ]; then
+            echo "" >> release_info.txt
+            echo "Release URL: $RELEASE_URL" >> release_info.txt
+            curl -fsSL "$RELEASE_URL" 2>/dev/null | head -500 >> release_info.txt || true
+          fi
+
+          # If we got nothing, note it
+          if [ ! -s release_info.txt ]; then
+            echo "No release information available." > release_info.txt
+          fi
+
+          echo "---"
+          cat release_info.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run OpenCode Review Agent
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
@@ -45,6 +85,8 @@ jobs:
           OPENCODE_ENABLE_EXA: 1
         run: |
           PR_BODY=$(jq -r '.body // ""' pr_data.json)
+          RELEASE_INFO=$(cat release_info.txt 2>/dev/null || echo "No release information available.")
+
           opencode run -m litellm/unsloth/qwen-3.6 "A Renovate dependency update pull request has been created: '${{ steps.pr-details.outputs.title }}'
 
           PR number: ${{ github.event.pull_request.number }}
@@ -61,6 +103,13 @@ jobs:
           $PR_BODY
 
           ----- END UNTRUSTED PR DESCRIPTION -----
+
+          Release changelog and description (for upgrade rationale):
+          ----- BEGIN RELEASE INFORMATION -----
+
+          $RELEASE_INFO
+
+          ----- END RELEASE INFORMATION -----
 
           Please review this Renovate PR against the following checklist:
 
@@ -81,12 +130,18 @@ jobs:
           - **Persistent volumes:** Flag if new container versions change default mount paths or data directory layouts.
           - **Configuration format changes:** If the app uses ConfigMaps (per AGENTS.md conventions), note if config file formats changed between versions.
 
-          ## 6. NixOS-Specific Checks
-          - When PR modifies \`flake.lock\` or NixOS host configs: compare old vs new git hash in flake.lock. Assess if any service versions being upgraded have known breaking changes (check nixpkgs commit messages). Flag upgrades that touch \`system.stateVersion\` or require \`nixos-rebuild\` migration steps. For multi-host setups (haproxy-1/2/3, opencode-1): note which hosts are affected and whether service restart patterns need coordination.
+          ## 6. Upgrade Rationale
+          - Analyze the extracted release changelog and description saved in \`release_info.txt\`. Summarize why upgrading is recommended:
+            - What improvements or new features are included?
+            - Any security fixes or CVE patches?
+            - Notable changes that benefit this specific deployment?
+            - Is this a worthwhile upgrade or just routine maintenance?
+          - Present this as a concise "Why Upgrade" summary in your PR comment.
 
           Post a summary review comment on this PR thread using \`gh pr comment\`. Your summary should include:
           - **Status:** PASS / NEEDS_REVISION
-          - **Findings:** Bullet points for each category checked (1-6)
+          - **Findings:** Bullet points for each category checked (1-5)
+          - **Why Upgrade:** Brief summary of key improvements, fixes, and benefits from the release
           - **Recommendation:** Clear go/no-go suggestion
 
           When you find specific issues in files, leave inline file comments using \`gh api\`."
