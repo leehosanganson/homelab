@@ -45,6 +45,7 @@ jobs:
           OPENCODE_ENABLE_EXA: 1
         run: |
           PR_BODY=$(jq -r '.body // ""' pr_data.json)
+
           opencode run -m litellm/unsloth/qwen-3.6 "A Renovate dependency update pull request has been created: '${{ steps.pr-details.outputs.title }}'
 
           PR number: ${{ github.event.pull_request.number }}
@@ -81,12 +82,18 @@ jobs:
           - **Persistent volumes:** Flag if new container versions change default mount paths or data directory layouts.
           - **Configuration format changes:** If the app uses ConfigMaps (per AGENTS.md conventions), note if config file formats changed between versions.
 
-          ## 6. NixOS-Specific Checks
-          - When PR modifies \`flake.lock\` or NixOS host configs: compare old vs new git hash in flake.lock. Assess if any service versions being upgraded have known breaking changes (check nixpkgs commit messages). Flag upgrades that touch \`system.stateVersion\` or require \`nixos-rebuild\` migration steps. For multi-host setups (haproxy-1/2/3, opencode-1): note which hosts are affected and whether service restart patterns need coordination.
+          ## 6. Upgrade Rationale
+          - Research and analyze the extracted release changelog and description. Summarize why upgrading is recommended:
+            - What improvements or new features are included?
+            - Any security fixes or CVE patches?
+            - Notable changes that benefit this specific deployment?
+            - Is this a worthwhile upgrade or just routine maintenance?
+          - Present this as a concise "Why Upgrade" summary in your PR comment.
 
           Post a summary review comment on this PR thread using \`gh pr comment\`. Your summary should include:
           - **Status:** PASS / NEEDS_REVISION
-          - **Findings:** Bullet points for each category checked (1-6)
+          - **Findings:** Bullet points for each category checked (1-5)
+          - **Why Upgrade:** Brief summary of key improvements, fixes, and benefits from the release
           - **Recommendation:** Clear go/no-go suggestion
 
           When you find specific issues in files, leave inline file comments using \`gh api\`."
