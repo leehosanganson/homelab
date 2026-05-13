@@ -39,4 +39,14 @@ nodes = {
     disk_size = 40
     datastore = "local-lvm"
   }
+  "matter-server" = {
+    node      = "pve01"
+    vm_id     = 302
+    cores     = 1
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+    bridge    = "vmbr0"
+    vlan_tag  = 30
+  }
 }

@@ -178,6 +178,8 @@ Add additional entries to `nodes` for each VM to provision.
 | `memory`    | `number` | RAM in MiB                                           |
 | `disk_size` | `number` | Root disk size in GiB (provisioned on `scsi0`)       |
 | `datastore` | `string` | Proxmox datastore for the disk (e.g. `local-lvm`)    |
+| `bridge`    | `string` | Proxmox bridge for the VM NIC (default: `vmbr0`)     |
+| `vlan_tag`  | `number` | Optional VLAN tag for the VM NIC                     |
 
 ---
 

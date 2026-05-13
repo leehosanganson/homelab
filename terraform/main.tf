@@ -37,8 +37,9 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   }
 
   network_device {
-    bridge = "vmbr0"
-    model  = "virtio"
+    bridge  = each.value.bridge
+    model   = "virtio"
+    vlan_id = try(each.value.vlan_tag, null)
   }
 
   # QEMU guest agent for Proxmox integration (start/stop, IP reporting)

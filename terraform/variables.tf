@@ -28,12 +28,14 @@ variable "use_host_instruction" {
 variable "nodes" {
   description = "Map of NixOS VM definitions. Hardware specs only — OS config (including networking) is handled by nixos-anywhere via the flake."
   type = map(object({
-    node      = string # Proxmox cluster node to host the VM (e.g. pve01)
-    vm_id     = number # Unique VM ID within the Proxmox cluster
-    cores     = number # Number of vCPU cores
-    memory    = number # RAM in MiB
-    disk_size = number # Root disk size in GiB
-    datastore = string # Proxmox storage pool for the disk (e.g. local-lvm)
+    node      = string        # Proxmox cluster node to host the VM (e.g. pve01)
+    vm_id     = number        # Unique VM ID within the Proxmox cluster
+    cores     = number        # Number of vCPU cores
+    memory    = number        # RAM in MiB
+    disk_size = number        # Root disk size in GiB
+    datastore = string        # Proxmox storage pool for the disk (e.g. local-lvm)
+    bridge    = optional(string, "vmbr0") # Proxmox bridge for VM NIC
+    vlan_tag  = optional(number) # Optional VLAN tag for VM NIC
   }))
 }
 

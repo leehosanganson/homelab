@@ -17,6 +17,7 @@ nixos/
 ├── flake.lock
 ├── hosts/             # Per-VM host configurations
 │   ├── opencode-1/
+│   ├── matter-server/
 │   ├── haproxy-{1,2,3}/
 │   └── ...
 ├── keys/              # Pre-generated SSH host keys for sops-nix Day-0 bootstrap
@@ -58,6 +59,15 @@ Before running `provision.sh`, pre-generate an SSH host key pair and place it un
 
 1. The target VM has its host keys ready on first boot.
 2. sops-nix can decrypt secrets immediately via the [`sops-bootstrap.nix`](../nixos/modules/sops-bootstrap.nix) module, which points `age.sshKeyPaths` at `/etc/ssh/bootstrap-vm` (injected by `provision.sh`).
+
+For the Matter Server host:
+
+```bash
+mkdir -p nixos/keys/matter-server/etc/ssh
+ssh-keygen -t ed25519 -N '' -f nixos/keys/matter-server/etc/ssh/bootstrap-vm
+```
+
+Then add `nixos/keys/matter-server/etc/ssh/bootstrap-vm.pub` as a recipient in your external `sops` repository before provisioning `matter-server`.
 
 ### 2. Rebuilding
 
