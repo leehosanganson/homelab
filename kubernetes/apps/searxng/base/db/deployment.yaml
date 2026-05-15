@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: searxng-redis
+  name: searxng-valkey
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: searxng-redis
+      app: searxng-valkey
   template:
     metadata:
       labels:
-        app: searxng-redis
+        app: searxng-valkey
     spec:
       securityContext:
         fsGroup: 999
       volumes:
-        - name: redis-data
+        - name: valkey-data
           emptyDir:
             sizeLimit: "512Mi"
       containers:
-        - name: redis
-          image: redis:latest@sha256:9ec28b9626938ae5dd565f3371fafd78d432cc049da5865726cd411dfb196c8d
+        - name: valkey
+          image: valkey/valkey:9.0.4@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193
           ports:
             - containerPort: 6379
           securityContext:
@@ -34,7 +34,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
-            - name: redis-data
+            - name: valkey-data
               mountPath: /data
           resources:
             requests:
@@ -46,14 +46,14 @@ spec:
           readinessProbe:
             exec:
               cmd:
-                - redis-cli
+                - valkey-cli
                 - ping
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             exec:
               cmd:
-                - redis-cli
+                - valkey-cli
                 - ping
             initialDelaySeconds: 10
             periodSeconds: 10

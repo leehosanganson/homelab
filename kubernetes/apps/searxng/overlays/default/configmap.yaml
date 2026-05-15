@@ -5,4 +5,4 @@ metadata:
 data:
   SEARXNG_BASE_URL: https://searxng.homelab.leehosanganson.dev/
   SEARXNG_INSTANCE_NAME: Homelab SearXNG
-  SEARXNG_REDIS_URL: redis://searxng-redis:6379/0
+  SEARXNG_VALKEY_URL: valkey://searxng-valkey:6379/0
