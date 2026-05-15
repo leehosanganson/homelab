@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: searxng-redis
+  template:
+    metadata:
+      labels:
+        app: searxng-redis
+    spec:
+      securityContext:
+        fsGroup: 999
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+      containers:
+        - name: redis
+          image: redis:latest@sha256:9ec28b9626938ae5dd565f3371fafd78d432cc049da5865726cd411dfb196c8d
+          ports:
+            - containerPort: 6379
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: searxng
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      containers:
+        - name: searxng
+          image: searxng/searxng:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: searxng-configmap
+            - secretRef:
+                name: searxng-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 977
+            runAsGroup: 977
+            seccompProfile:
+              type: RuntimeDefault

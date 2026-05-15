@@ -72,6 +72,7 @@ The entire homelab is provisioned and configured using a fully declarative IaC a
 |     <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/litlellm.png" height="32" />     | [LiteLLM](https://github.com/BerriAI/litellm)          | LLM Gateway for local LLM servers & other cloud providers. |
 | <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/light/opencode.png" height="32" /> | [OpenCode](https://opencode.ai/docs/web/)              | Browser-based remote coding agent server                   |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui-light.png" height="32" /> | [Open WebUI](https://github.com/open-webui/open-webui) | Frontend Chat interface connected to LiteLLM               |
+|               <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/searxng.png" height="32" />                | [SearXNG](https://github.com/searxng/searxng)          | Privacy-respecting metasearch engine for AI web search     |
 
 ### Infrastructure
 
