@@ -45,14 +45,14 @@ spec:
               cpu: "250m"
           readinessProbe:
             exec:
-              cmd:
+              command:
                 - valkey-cli
                 - ping
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             exec:
-              cmd:
+              command:
                 - valkey-cli
                 - ping
             initialDelaySeconds: 10
