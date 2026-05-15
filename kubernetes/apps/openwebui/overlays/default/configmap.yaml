@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openwebui-configmap
+  name: open-web-ui-configmap
 data:
   ENABLE_WEB_SEARCH: "True"
   WEB_SEARCH_ENGINE: searxng

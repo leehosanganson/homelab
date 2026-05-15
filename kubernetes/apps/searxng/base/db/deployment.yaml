@@ -16,7 +16,8 @@ spec:
         fsGroup: 999
       volumes:
         - name: redis-data
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: "512Mi"
       containers:
         - name: redis
           image: redis:latest@sha256:9ec28b9626938ae5dd565f3371fafd78d432cc049da5865726cd411dfb196c8d
@@ -35,3 +36,24 @@ spec:
           volumeMounts:
             - name: redis-data
               mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          readinessProbe:
+            exec:
+              cmd:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              cmd:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
