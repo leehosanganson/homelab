@@ -1,5 +1,11 @@
 namespace: searxng
 resources:
   - ../../base
-  - configmap.yaml
   - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - settings.yml
+    name: searxng-config
+    options:
+      disableNameSuffixHash: true

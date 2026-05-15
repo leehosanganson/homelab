@@ -1,0 +1,17 @@
+use_default_settings: true
+
+general:
+  instance_name: "Homelab SearXNG"
+
+server:
+  base_url: "https://searxng.homelab.leehosanganson.dev/"
+  port: "8080"
+  bind_address: "[::]"
+
+valkey:
+  url: "valkey://searxng-valkey:6379/0"
+
+search:
+  formats:
+    - html
+    - json

@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: searxng-configmap
-data:
-  SEARXNG_BASE_URL: https://searxng.homelab.leehosanganson.dev/
-  SEARXNG_INSTANCE_NAME: Homelab SearXNG
-  SEARXNG_PORT: "8080"
-  SEARXNG_VALKEY_URL: valkey://searxng-valkey:6379/0

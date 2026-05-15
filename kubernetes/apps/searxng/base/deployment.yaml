@@ -12,16 +12,24 @@ spec:
       labels:
         app: searxng
     spec:
+      enableServiceLinks: false
+
       initContainers:
-        - name: init-tmp
-          image: busybox:1.37@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
+        - name: setup-config
+          image: busybox
           command:
-            - sh
+            - "/bin/sh"
             - "-c"
-            - "chown -R 977:977 /tmp"
+            - "cp /tmp/config/settings.yml /etc/searxng/settings.yml && chown -R 977:977 /etc/searxng"
+          securityContext:
+            runAsUser: 0
+            privileged: true
           volumeMounts:
-            - name: tmp
-              mountPath: /tmp
+            - name: searxng-config-readonly
+              mountPath: /tmp/config
+            - name: searxng-config-dir
+              mountPath: /etc/searxng
+
       containers:
         - name: searxng
           image: searxng/searxng:latest@sha256:201c62d470abf1b3ccad42562b6a8310267fbb022962d8bd410c4b011ec4516e
@@ -29,23 +37,25 @@ spec:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: searxng-configmap
+                name: searxng-config
             - secretRef:
                 name: searxng-secrets
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 977
             runAsGroup: 977
             seccompProfile:
               type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: searxng-config-dir
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
           readinessProbe:
             httpGet:
               path: /healthz
@@ -58,6 +68,12 @@ spec:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: searxng-config-dir
+          emptyDir: {}
+        - name: searxng-config-readonly
+          configMap:
+            name: searxng-config
