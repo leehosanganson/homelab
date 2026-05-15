@@ -1,6 +1,7 @@
 namespace: llm
 resources:
   - ../../base
+  - configmap.yaml
 
 patches:
   - path: patch-velero.yaml

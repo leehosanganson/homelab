@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-web-ui-configmap
+data:
+  ENABLE_WEB_SEARCH: "True"
+  WEB_SEARCH_ENGINE: searxng
+  SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>

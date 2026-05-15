@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng-valkey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: searxng-valkey
+  template:
+    metadata:
+      labels:
+        app: searxng-valkey
+    spec:
+      securityContext:
+        fsGroup: 999
+      volumes:
+        - name: valkey-data
+          emptyDir:
+            sizeLimit: "512Mi"
+      containers:
+        - name: valkey
+          image: valkey/valkey:9.0.4@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193
+          ports:
+            - containerPort: 6379
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: valkey-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          readinessProbe:
+            exec:
+              command:
+                - valkey-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - valkey-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10

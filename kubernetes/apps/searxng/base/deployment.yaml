@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: searxng
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      initContainers:
+        - name: init-tmp
+          image: busybox:1.37@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
+          command:
+            - sh
+            - "-c"
+            - "chown -R 977:977 /tmp"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: searxng
+          image: searxng/searxng:latest@sha256:201c62d470abf1b3ccad42562b6a8310267fbb022962d8bd410c4b011ec4516e
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: searxng-configmap
+            - secretRef:
+                name: searxng-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 977
+            runAsGroup: 977
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: tmp
+          emptyDir: {}

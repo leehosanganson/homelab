@@ -25,6 +25,9 @@ spec:
           name: open-webui
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: open-web-ui-configmap
           volumeMounts:
             - name: webui-data
               mountPath: /app/backend/data

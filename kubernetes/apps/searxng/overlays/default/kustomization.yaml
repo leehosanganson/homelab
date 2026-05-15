@@ -1,0 +1,5 @@
+namespace: searxng
+resources:
+  - ../../base
+  - configmap.yaml
+  - secrets.yaml
