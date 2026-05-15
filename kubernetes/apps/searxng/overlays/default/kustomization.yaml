@@ -1,4 +1,4 @@
-namespace: llm
+namespace: searxng
 resources:
   - ../../base
   - configmap.yaml
