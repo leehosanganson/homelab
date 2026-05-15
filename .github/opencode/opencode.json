@@ -4,7 +4,7 @@
   "default_agent": "architect",
   "agent": {
     "architect": {
-      "description": "Architects work and delegates implementation to generator",
+      "description": "Orchestrates implementation by planning and delegating to generator. Uses explore for codebase context and scout for external docs research.",
       "mode": "primary",
       "prompt": "{file:../agents/architect.md}",
       "permission": {
@@ -13,12 +13,14 @@
         "grep": "allow",
         "list": "allow",
         "task": {
-          "generator": "allow"
+          "generator": "allow",
+          "explore": "allow",
+          "scout": "allow"
         }
       }
     },
     "generator": {
-      "description": "Implements architect steps and delegates validation",
+      "description": "Implements the architect's plan. Uses explore for understanding code context before making changes.",
       "mode": "subagent",
       "prompt": "{file:../agents/generator.md}",
       "permission": {
@@ -35,25 +37,23 @@
           "git diff *": "allow",
           "git log": "allow",
           "git log *": "allow",
-
           "git checkout -b *": "allow",
           "git switch -c *": "allow",
-
           "git add *": "allow",
           "git commit -m *": "allow",
           "git push -u origin feat/*": "allow",
           "git push -u origin fix/*": "allow",
           "git push -u origin chore/*": "allow",
-
           "gh pr create --draft *": "allow"
         },
         "task": {
-          "evaluator": "allow"
+          "evaluator": "allow",
+          "explore": "allow"
         }
       }
     },
     "evaluator": {
-      "description": "Validates generator output against plan and constraints",
+      "description": "Validates generator output against plan and constraints. Read-only review.",
       "mode": "subagent",
       "prompt": "{file:../agents/evaluator.md}",
       "permission": {
@@ -73,7 +73,6 @@
           "git show *": "allow",
           "git rev-parse": "allow",
           "git rev-parse *": "allow",
-
           "gh pr view": "allow",
           "gh pr view *": "allow",
           "gh issue view": "allow",
