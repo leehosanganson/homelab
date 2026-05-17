@@ -51,7 +51,8 @@
   ],
   "flux": {
     "managerFilePatterns": [
-      "/^fluxcd/clusters/production/.+\\.ya?ml$/"
+      "/^fluxcd/clusters/production/.+\\.ya?ml$/",
+      "/kubernetes/.+/base/release\\.ya?ml$/"
     ]
   },
   "kubernetes": {
