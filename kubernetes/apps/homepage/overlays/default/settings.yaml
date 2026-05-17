@@ -1,0 +1,74 @@
+title: Homelab
+theme: dark
+color: slate
+headerStyle: clean
+cardBlur: md
+target: _blank
+hideVersion: true
+useEqualHeights: true
+layout:
+  Main Dashboard:
+    tab: Main
+  DevOps & Infra:
+    tab: Infra
+  Maintenance:
+    tab: Maintenance
+
+  Links:
+    tab: Main
+    style: row
+    columns: 5
+  Home:
+    tab: Main
+    style: row
+    columns: 4
+  Productivity:
+    tab: Main
+    style: row
+    columns: 4
+  Dev:
+    tab: Main
+    style: row
+    columns: 4
+  Entertainment:
+    tab: Main
+    style: row
+    columns: 2
+
+  Cloud:      
+    tab: Infra
+    style: row
+    columns: 3
+  Monitoring:
+    tab: Infra
+    style: row
+    columns: 3
+  Networking:
+    tab: Infra
+    style: row
+    columns: 3
+  Virtual Machines:
+    tab: Infra
+    style: row
+    columns: 3
+  Infrastructure:
+    tab: Infra
+    style: row
+    columns: 2
+
+  Downloads:
+    tab: Maintenance
+    style: row
+    columns: 5
+  Music:
+    tab: Maintenance
+    style: row
+    columns: 4
+  AI:
+    tab: Maintenance
+    style: row
+    columns: 2
+  Storage:
+    tab: Maintenance
+    style: row
+    columns: 2

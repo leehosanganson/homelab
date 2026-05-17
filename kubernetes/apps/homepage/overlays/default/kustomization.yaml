@@ -2,3 +2,17 @@ namespace: utility
 resources:
   - ../../base
   - secrets.yaml
+configMapGenerator:
+  - name: homepage-config
+    files:
+      - kubernetes.yaml
+      - proxmox.yaml
+      - docker.yaml
+      - bookmarks.yaml
+      - settings.yaml
+      - widgets.yaml
+      - services.yaml
+      - custom.js
+      - custom.css
+generatorOptions:
+  disableNameSuffixHash: true
