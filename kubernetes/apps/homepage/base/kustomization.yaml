@@ -2,7 +2,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - configmap.yaml
   - rbac.yaml
 labels:
   - pairs:
