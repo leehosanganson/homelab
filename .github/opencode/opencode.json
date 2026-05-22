@@ -12,6 +12,8 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
         "task": {
           "generator": "allow",
           "explore": "allow",
