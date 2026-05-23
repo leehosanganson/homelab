@@ -97,7 +97,8 @@
         },
         "bash": {
           "gh pr comment *": "allow",
-          "gh api repos/*": "allow"
+          "gh api repos/*": "allow",
+          "gh search *": "allow"
         }
       }
     }
