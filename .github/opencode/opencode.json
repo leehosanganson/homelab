@@ -83,7 +83,7 @@
       }
     },
     "renovate-review": {
-      "description": "Automatically reviews Renovate dependency update pull requests. Uses explore subagent for codebase scanning and gh CLI for PR comment posting.",
+      "description": "Automatically reviews Renovate dependency update pull requests. Uses read/glob/grep/list for local K8s manifest scanning, webfetch/websearch/gh search for external research, and gh pr comment for posting.",
       "mode": "primary",
       "prompt": "{file:../agents/renovate-review.md}",
       "permission": {
@@ -92,12 +92,14 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
         "task": {
           "explore": "allow"
         },
         "bash": {
           "gh pr comment *": "allow",
-          "gh api repos/*": "allow"
+          "gh search *": "allow"
         }
       }
     }
