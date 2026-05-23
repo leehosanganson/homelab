@@ -84,33 +84,15 @@ jobs:
           3. Evaluate against the 6-category checklist defined in your agent prompt (Release Age Gate, Breaking Changes, Security Risk, Version Compatibility, Deployment Impact, Upgrade Rationale).
           4. Post a summary review comment using `gh pr comment` with this exact structure:
 
-          ## Renovate PR Review Summary
+          PROMPT_FOOTER
 
-          **Status:** PASS / NEEDS_REVISION
-          **PR:** <number> — <title>
+          # Append the markdown template for the review format (no shell variables to expand)
+          cat .github/PULL_REQUEST_TEMPLATE/renovate-review.md >> pr-prompt.txt
 
-          ### 1. Release Age Gate
-          [ ]/ [x] Confirmed version is ≥14 days old. (explain)
-
-          ### 2. Breaking Changes
-          <Findings or "None detected">
-
-          ### 3. Security Risk
-          <Findings or "No HIGH/CRITICAL vulnerabilities found">
-
-          ### 4. Version Compatibility
-          <Findings or "All dependencies in sync">
-
-          ### 5. Deployment Impact
-          <Findings or "No deployment impact expected">
-
-          ### 6. Upgrade Rationale
-          <Why Upgrade summary>
-
-          **Recommendation:** GO / NO-GO — <Reasoning>
+          cat >> pr-prompt.txt << 'PROMPT_INSTRUCTIONS'
 
           5. When you find specific issues in files, leave inline file comments using `gh api repos/<owner>/<repo>/pulls/<number>/comments` with method POST and JSON body containing path, side, line, and body fields.
-          PROMPT_FOOTER
+          PROMPT_INSTRUCTIONS
 
           # Pass prompt as positional argument (double-quoted preserves all special chars).
           PROMPT=$(cat pr-prompt.txt)
