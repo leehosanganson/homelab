@@ -12,6 +12,8 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
         "task": {
           "generator": "allow",
           "explore": "allow",
@@ -77,6 +79,26 @@
           "gh pr view *": "allow",
           "gh issue view": "allow",
           "gh issue view *": "allow"
+        }
+      }
+    },
+    "renovate-review": {
+      "description": "Automatically reviews Renovate dependency update pull requests. Uses explore subagent for codebase scanning and gh CLI for PR comment posting.",
+      "mode": "primary",
+      "prompt": "{file:../agents/renovate-review.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "task": {
+          "explore": "allow"
+        },
+        "bash": {
+          "gh pr comment *": "allow",
+          "gh api repos/*": "allow",
+          "gh search *": "allow"
         }
       }
     }
