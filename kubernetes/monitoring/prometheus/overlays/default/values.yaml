@@ -1,6 +1,6 @@
 server:
-  retention: 14d
-  retentionSize: 100GB
+  retention: 90d
+  retentionSize: 130GB
   securityContext:
     runAsUser: 65534
     runAsGroup: 65534
