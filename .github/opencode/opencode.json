@@ -82,10 +82,10 @@
         }
       }
     },
-    "renovate-review": {
+    "dependency-reviewer": {
       "description": "Automatically reviews Renovate dependency update pull requests. Uses read/glob/grep/list for local K8s manifest scanning, webfetch/websearch/gh search for external research, and gh pr comment for posting.",
       "mode": "primary",
-      "prompt": "{file:../agents/renovate-review.md}",
+      "prompt": "{file:../agents/dependency-reviewer.md}",
       "permission": {
         "*": "deny",
         "read": "allow",
