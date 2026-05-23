@@ -96,4 +96,4 @@ jobs:
 
           # Pass prompt as positional argument (double-quoted preserves all special chars).
           PROMPT=$(cat pr-prompt.txt)
-          opencode run -a renovate-review "$PROMPT"
+          opencode run --agent renovate-review "$PROMPT"
