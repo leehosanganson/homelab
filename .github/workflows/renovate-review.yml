@@ -50,9 +50,8 @@ jobs:
           # Build the prompt in a file to avoid shell quoting issues with PR body content.
           # Strategy: write static parts via single-quoted heredoc (no expansion),
           # append PR body directly from jq (never through bash variable interpolation).
-          # Replace placeholders using python3 (safe for all special characters).
 
-          cat > /tmp/pr-prompt.txt << 'PROMPT_HEADER'
+          cat > pr-prompt.txt << 'PROMPT_HEADER'
           Review the following Renovate dependency update pull request and post a summary comment.
 
           PR Number: __PR_NUM__
@@ -74,9 +73,9 @@ jobs:
 PROMPT_HEADER
 
           # Append PR body directly from jq — never passes through bash variable interpolation
-          jq -r '.body // ""' pr_data.json >> /tmp/pr-prompt.txt
+          jq -r '.body // ""' pr_data.json >> pr-prompt.txt
 
-          cat >> /tmp/pr-prompt.txt << 'PROMPT_FOOTER'
+          cat >> pr-prompt.txt << 'PROMPT_FOOTER'
 
           ----- END UNTRUSTED PR DESCRIPTION -----
 
@@ -115,16 +114,11 @@ PROMPT_HEADER
 PROMPT_FOOTER
 
           # Replace placeholders with actual PR values from env vars.
-          # Use python3 for safe string replacement — handles all special characters natively.
-          python3 -c "
-import sys
-content = open('/tmp/pr-prompt.txt').read()
-content = content.replace('__PR_NUM__', sys.argv[1])
-content = content.replace('__PR_TITLE__', sys.argv[2])
-content = content.replace('__PR_SHA__', sys.argv[3])
-open('/tmp/pr-prompt-final.txt', 'w').write(content)
-" "${PR_NUM}" "${PR_TITLE}" "${PR_SHA}"
+          # Using bash parameter expansion — safe for all special characters.
+          PROMPT=$(cat pr-prompt.txt)
+          PROMPT="${PROMPT//__PR_NUM__/${PR_NUM}}"
+          PROMPT="${PROMPT//__PR_TITLE__/${PR_TITLE}}"
+          PROMPT="${PROMPT//__PR_SHA__/${PR_SHA}}"
 
-          # Read prompt from file and pass as positional argument.
-          PROMPT=$(cat /tmp/pr-prompt-final.txt)
+          # Pass prompt as positional argument (double-quoted preserves all special chars).
           opencode run -a renovate-review "$PROMPT"
