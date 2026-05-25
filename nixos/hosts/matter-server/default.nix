@@ -1,9 +1,8 @@
-{ sops-secrets, ... }: {
+{ ... }: {
   imports = [
     ../../modules/users.nix
     ../../modules/matter-server.nix
     ../../modules/disko.nix
-    ../../modules/sops-bootstrap.nix
   ];
 
   system.stateVersion = "26.05";
@@ -14,7 +13,7 @@
     usePredictableInterfaceNames = false;
     interfaces.eth0.ipv4.addresses = [
       {
-        address = "192.168.1.254";
+        address = "192.168.1.162";
         prefixLength = 24;
       }
     ];
@@ -24,12 +23,6 @@
   };
 
   services.qemuGuest.enable = true;
-
-  # sops — no application secrets needed for Matter Server (self-contained)
-  sops = {
-    defaultSopsFile = "${sops-secrets}/secrets.yaml";
-    secrets = { };
-  };
 
   # ssh
   services.openssh = {

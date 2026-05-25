@@ -41,7 +41,7 @@ nodes = {
   }
   "matter-server" = {
     node      = "pve01"
-    vm_id     = 401
+    vm_id     = 302
     cores     = 1
     memory    = 2048
     disk_size = 15
