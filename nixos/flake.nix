@@ -64,6 +64,16 @@
       ];
     };
 
+    nixosConfigurations.matter-server = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/matter-server
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
     # Minimal NixOS installer ISO for Proxmox VM templates.
     # Build: nix build .#packages.x86_64-linux.installer
     # Upload the resulting ISO to Proxmox, then use provision.sh to install.
