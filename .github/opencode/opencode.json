@@ -98,6 +98,7 @@
           "explore": "allow"
         },
         "bash": {
+          "gh pr comment": "allow",
           "gh pr comment *": "allow",
           "gh search *": "allow"
         }
