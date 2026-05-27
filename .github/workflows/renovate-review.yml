@@ -43,10 +43,10 @@ jobs:
           PR_TITLE: "${{ steps.pr-details.outputs.title }}"
           PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          # Build the prompt. Static parts via single-quoted heredoc (no expansion),
-          # PR body appended directly from jq (bypasses shell variable interpolation).
+          # Build the prompt. PR metadata (${PR_NUM}, ${PR_TITLE}, ${PR_SHA}) expanded via
+          # unquoted heredoc; PR body appended separately via jq to avoid variable injection.
 
-          cat > pr-prompt.txt << 'PROMPT_HEADER'
+          cat > pr-prompt.txt << PROMPT_HEADER
           Review the following dependency update pull request and post a summary comment.
 
           Security rules:
