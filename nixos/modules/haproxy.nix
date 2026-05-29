@@ -11,25 +11,29 @@ let
   keepalivedPeerIps = [ "192.168.1.251" "192.168.1.252" "192.168.1.253" ];
   keepalivedPeers = builtins.filter (ip: ip != hostIp) keepalivedPeerIps;
 in {
-  # ACME Wildcard for *.infra.leehosanganson.dev
-  security.acme = {
-    acceptTerms = true;
-    maxConcurrentRenewals = 1;
-    defaults = {
-      email = "leehosanganson@gmail.com";
-      server = "https://acme-v02.api.letsencrypt.org/directory";
-    };
-    certs."infra.leehosanganson.dev" = {
-      domain = "*.infra.leehosanganson.dev";
-      dnsProvider = "cloudflare";
-      dnsResolver = "1.1.1.1:53";
-      environmentFile = config.sops.secrets."dns-provider-env".path;
-      group = "haproxy";
-      postRun = "systemctl reload haproxy";
+  # ACME Wildcard for *.infra.leehosanganson.dev (via acmetool + Cloudflare DNS)
+  services.acmetool = {
+    enable = true;
+    agree = true;
+    settings = {
+      accounts = {
+        "letsencrypt" = {
+          email = "leehosanganson@gmail.com";
+          newAccountContact = ["mailto:leehosanganson@gmail.com"];
+        };
+      };
+      certificates."infra.leehosanganson.dev" = {
+        domain = "*.infra.leehosanganson.dev";
+        provider = "cloudflare";
+        providerArgs = [
+          "-dns.cloudflare.api-token=$(CLOUDFLARE_API_TOKEN)"
+        ];
+        environmentFile = config.sops.secrets."dns-provider-env".path;
+      };
     };
   };
 
-  users.users.haproxy.extraGroups = [ "acme" ];
+  users.users.haproxy.extraGroups = [ "acmetool" ];
 
   services.keepalived = {
     enable = true;
@@ -109,7 +113,7 @@ in {
           default_backend local_ssl_termination 
 
       frontend tls_front
-          bind 127.0.0.1:8443 ssl crt /var/lib/acme/infra.leehosanganson.dev/full.pem accept-proxy
+          bind 127.0.0.1:8443 ssl crt /var/lib/acmetool/ca/infra.leehosanganson.dev/full.pem accept-proxy
           mode http
         
           acl is_nas hdr(host) -i nas-1.infra.leehosanganson.dev
@@ -178,5 +182,10 @@ in {
           server ctrl-02 192.168.1.152:6443 check inter 5
           server ctrl-03 192.168.1.153:6443 check inter 5
     '';
+  };
+
+  systemd.services.haproxy = {
+    wants = [ "acmetool-certificates.infra.leehosanganson.dev.service" ];
+    after = [ "acmetool-certificates.infra.leehosanganson.dev.service" ];
   };
 }
