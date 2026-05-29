@@ -147,9 +147,19 @@ in {
           mode http
           server pi1 192.168.1.132:80 check
 
+          http-request set-header Host pihole-1.infra.leehosanganson.dev
+          http-request set-header X-Forwarded-Proto https
+          http-request set-header X-Forwarded-For %[src]
+          http-request set-header X-Real-IP %[src]
+
       backend pihole_2
           mode http
           server pi2 192.168.1.133:80 check
+
+          http-request set-header Host pihole-2.infra.leehosanganson.dev
+          http-request set-header X-Forwarded-Proto https
+          http-request set-header X-Forwarded-For %[src]
+          http-request set-header X-Real-IP %[src]
 
       backend k3s
           mode tcp
