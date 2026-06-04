@@ -8,8 +8,18 @@ deployment:
 ports:
   web:
     exposedPort: 80
+    transport:
+      respondingTimeouts:
+        readTimeout: "3600"
+        writeTimeout: "3600"
+        idleTimeout: "3600"
   websecure:
     exposedPort: 443
+    transport:
+      respondingTimeouts:
+        readTimeout: "3600"
+        writeTimeout: "3600"
+        idleTimeout: "3600"
 service:
   ipFamilyPolicy: PreferDualStack
   spec:
@@ -37,6 +47,7 @@ tolerations:
   - effect: NoSchedule
     key: node-role.kubernetes.io/master
     operator: Exists
+
 env:
   - name: CF_DNS_API_TOKEN
     valueFrom:
