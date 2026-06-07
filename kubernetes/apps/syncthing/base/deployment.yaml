@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: syncthing
-          image: linuxserver/syncthing:2.1.0@sha256:833b349a4247d10c4740aa3264df289537e0091e778ceefc2998ec694770f706
+          image: linuxserver/syncthing:2.1.1@sha256:b1a5a0ea4b32ecf2672db7c4c56443c5e222cca12d397724ea93c07a6c7564d0
           imagePullPolicy: Always
           resources:
             limits:
