@@ -13,8 +13,7 @@
   "pinDigests": true,
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
-  "minimumReleaseAge": "14 days",
-  "minimumReleaseAgeBehaviour": "timestamp-optional",
+ 
   "internalChecksFilter": "flexible",
   "packageRules": [
     {
@@ -52,12 +51,15 @@
   "flux": {
     "managerFilePatterns": [
       "/^fluxcd/clusters/production/.+\\.ya?ml$/",
-      "/kubernetes/.+/base/release\\.ya?ml$/"
+      "/kubernetes/.+/base/release\\.ya?ml$/",
+      "/kubernetes/infra/helm/.*\\.ya?ml$/"
     ]
   },
   "kubernetes": {
     "managerFilePatterns": [
-      "/^kubernetes/.+\\.ya?ml$/"
+      "/^kubernetes/.+\\.ya?ml$/",
+      "!/kubernetes/.+/base/release\\.ya?ml$",
+      "!/kubernetes/infra/helm/.*\\.ya?ml$"
     ]
   },
   "helm-values": {
