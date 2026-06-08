@@ -1,8 +1,12 @@
 name: renovate-review
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
+
+concurrency:
+  group: renovate-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   review-renovate-pr:
@@ -34,6 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run OpenCode Review Agent
+        id: review
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,3 +84,4 @@ jobs:
           # Pass prompt as positional argument (double-quoted preserves all special chars).
           PROMPT=$(cat pr-prompt.txt)
           opencode run --agent dependency-reviewer "$PROMPT"
+        continue-on-error: true
