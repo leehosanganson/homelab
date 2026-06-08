@@ -13,10 +13,15 @@
   "pinDigests": true,
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
-  "minimumReleaseAge": "14 days",
-  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  
   "internalChecksFilter": "flexible",
+  "minimumReleaseAge": "14 days",
   "packageRules": [
+    {
+      "description": "Apply minimum release age only to github-releases (Docker/Helm lack reliable timestamps)",
+      "matchDatasources": ["github-releases"],
+      "minimumReleaseAge": "14 days"
+    },
     {
       "description": "Automatically merge non-breaking patch updates",
       "matchUpdateTypes": ["patch"],
@@ -52,12 +57,15 @@
   "flux": {
     "managerFilePatterns": [
       "/^fluxcd/clusters/production/.+\\.ya?ml$/",
-      "/kubernetes/.+/base/release\\.ya?ml$/"
+      "/kubernetes/.+/base/release\\.ya?ml$/",
+      "/kubernetes/infra/helm/.*\\.ya?ml$/"
     ]
   },
   "kubernetes": {
     "managerFilePatterns": [
-      "/^kubernetes/.+\\.ya?ml$/"
+      "/^kubernetes/.+\\.ya?ml$/",
+      "!/kubernetes/.+/base/release\\.ya?ml$",
+      "!/kubernetes/infra/helm/.*\\.ya?ml$"
     ]
   },
   "helm-values": {
