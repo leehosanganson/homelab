@@ -82,11 +82,11 @@ NixOS VMs are provisioned and configured using a fully declarative, two-layer Ia
 
 All branching, PR raising, and issue creation follow the standards documented in [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md). Every change goes through a Pull Request with squash-merge — **never commit directly to `main`**. There is one unified workflow regardless of context:
 
-1. **Create branch** — Branch off `main` using a name matching `<TYPE>/<PROJECT>/<kebab-case-desc>` (e.g., `feat/immich/add-backups`). Auto-detect the `TYPE` from the request (`feat`, `fix`, `chore`) and identify the `PROJECT` from context. For bot-triggered workflows, use `<TYPE>/<BOT>/<PROJECT>/<kebab-case-desc>` such as `feat/opencode/immich/add-backups`.
+1. **Create branch** — Branch off `main` using a name matching `<TYPE>/<PROJECT>/<kebab-case-desc>` (e.g., `feat/immich/add-backups`). Auto-detect the `TYPE` from the request (`feat`, `fix`, `chore`) and identify the `PROJECT` from context.
 2. **Make changes** — Implement the requested modifications on the branch.
-3. **Commit** — Create a commit with a descriptive message (e.g., `(feat)immich: add backup cron job`).
+3. **Commit** — Create a commit with a descriptive message (e.g., `feat(immich): add backup cron job`).
 4. **Push** — Push the branch to the remote repository.
-5. **Open draft PR** — Run `gh pr create --draft` using the template at `.github/PULL_REQUEST_TEMPLATE.md`, filling in the **What**, **How to Test**, and **Impact** sections. The PR title should follow `(TYPE)PROJECT: DESCRIPTION`.
+5. **Open draft PR** — Run `gh pr create --draft` using the template at `.github/PULL_REQUEST_TEMPLATE.md`, filling in the **What**, **How to Test**, and **Impact** sections. The PR title should follow `TYPE(PROJECT): DESCRIPTION`.
 
 ### Rules for all workflows
 

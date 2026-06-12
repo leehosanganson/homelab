@@ -32,21 +32,6 @@ fix/opencode/timeout-bug
 chore/monitoring/update-alerts
 ```
 
-### Bot-triggered workflows
-
-When a bot (GitHub Copilot, OpenCode, Renovate, etc.) triggers the workflow or creates changes on your behalf, include the bot name as a separate segment:
-
-```
-<TYPE>/<BOT>/<PROJECT>/<SHORT-DESCRIPTION>
-```
-
-### Examples
-
-```
-feat/copilot/immich/auto-updates
-chore/opencode/monitoring/renovate-pin
-```
-
 ---
 
 ## 3. Pull Requests
@@ -54,14 +39,14 @@ chore/opencode/monitoring/renovate-pin
 ### Title format
 
 ```
-(TYPE)PROJECT: DESCRIPTION
+TYPE(PROJECT): DESCRIPTION
 ```
 
 ### Examples
 
 ```
-(feat)immich: add backup cron job
-(fix)opencode: correct timeout config
+feat(immich): add backup cron job
+fix(opencode): correct timeout config
 ```
 
 ### PR Description template
@@ -105,6 +90,6 @@ Required sections:
 | Artifact    | Convention                           |
 | ----------- | ------------------------------------ |
 | Branch name | `<TYPE>/<PROJECT>/<kebab-case-desc>` |
-| PR title    | `(TYPE)PROJECT: Description` |
+| PR title    | `TYPE(PROJECT): Description`         |
 
 Keep changes small, titles descriptive, and templates filled out — this makes reviews faster and history cleaner.
