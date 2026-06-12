@@ -42,6 +42,9 @@ in
   systemd.tmpfiles.rules = [
     "d /home/opencode 0700 opencode opencode - -"
 
+    # Ensure .config is owned by opencode (sops-nix/secrets may create it as root)
+    "d /home/opencode/.config 0755 opencode opencode - -"
+
     # Lock down .ssh
     "d /home/opencode/.ssh 0700 opencode opencode - -"
     "f /home/opencode/.ssh/id_ed25519 0600 opencode opencode - -"
