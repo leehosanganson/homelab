@@ -1,7 +1,8 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 let
   opencodePkgs = with pkgs; [
+    stow
     opencode
     zsh
     vim
