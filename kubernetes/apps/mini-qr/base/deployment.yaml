@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: mini-qr
-          image: ghcr.io/lyqht/mini-qr:v0.30.2@sha256:616e30968a1e9e9f0c1a566364722e9140041f2748c83f6331399b6d105ab160
+          image: ghcr.io/lyqht/mini-qr:v0.31.0@sha256:b4d946254c8c724b0022d88dacd61765f6371fb69ebc6f09b77bc2b71c4a6494
           ports:
             - containerPort: 8080
           securityContext:
