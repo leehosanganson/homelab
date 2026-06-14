@@ -7,5 +7,6 @@ data:
     litellm_settings:
       cache: True
       callbacks: ["prometheus"]
+      request_timeout: 600
       cache_params:
         type: local
