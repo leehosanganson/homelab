@@ -19,9 +19,11 @@
       url = "git+ssh://git@github.com/leehosanganson/sops.git?ref=main";
       flake = false;
     };
+
+    hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
-  outputs = { nixpkgs, disko, nixos-anywhere, sops-nix, sops-secrets, ... }@inputs: {
+  outputs = { nixpkgs, disko, nixos-anywhere, sops-nix, sops-secrets, hermes-agent, ... }@inputs: {
     # NixOS host configurations — deployed via nixos-anywhere (initial) or
     # nixos-rebuild switch --target-host (updates). See scripts/ for usage.
     nixosConfigurations.haproxy-1 = nixpkgs.lib.nixosSystem {
@@ -69,6 +71,18 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/matter-server
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
+    nixosConfigurations.hermes-agent = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/hermes-agent
+        ../../modules/hermes-agent.nix
+        hermes-agent.nixosModules.default
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
