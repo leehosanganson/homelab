@@ -31,6 +31,9 @@ spec:
           args:
             - -c
             - sleep 5; n8n start
+          envFrom:
+            - configMapRef:
+                name: n8n-configmap
           env:
             - name: DB_POSTGRESDB_USER
               valueFrom:
