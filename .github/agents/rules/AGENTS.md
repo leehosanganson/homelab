@@ -45,3 +45,7 @@ If you think a convention is harmful, surface it. Don't fork it silently.
 
 After 3 attempts at running the same commands consecutively either failing or getting no response, switch to a different method.
 After switching for 5 times and still unable to make a breakthrough, stop.
+
+## Rule 10 — Project Awareness
+
+Use `pwd` or similar tools to find information about the current environment and avoid using chained commands like `cd * & ...`.
