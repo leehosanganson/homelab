@@ -37,7 +37,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 50Gi
+      storage: 5Gi
   volumeName: grimmory-books-pv
 ---
 apiVersion: v1
