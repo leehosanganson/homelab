@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: meilisearch
-          image: getmeili/meilisearch:v1.11.1@sha256:2ab0c8bdf58b7305e48af7372c47d5638d51dc1bb3a59c8e2b07eca6fe7176e9
+          image: getmeili/meilisearch:v1.49.0@sha256:bdc7d7e7939911c40d88d6bcd01f9c72c81f7293135916d48bce241569f721bd
           env:
             - name: MEILI_NO_ANALYTICS
               value: "true"
