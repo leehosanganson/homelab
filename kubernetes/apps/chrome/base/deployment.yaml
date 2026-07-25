@@ -17,7 +17,7 @@ spec:
       runtimeClassName: nvidia
       containers:
         - name: chrome
-          image: linuxserver/chrome:149.0.7827@sha256:a91b2c92227950539a83f03603c89835998db2bcfe376f18a73f0999b31df633
+          image: linuxserver/chrome:150.0.7871@sha256:c16b36cca732b27a18ea5badd10ccbb23935b686794648ec4ea341a502df8d4f
           envFrom:
             - configMapRef:
                 name: chrome-env
