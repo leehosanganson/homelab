@@ -64,4 +64,4 @@ jobs:
           OPENCODE_CONFIG: .github/opencode/opencode.json
           OPENCODE_ENABLE_EXA: 1
         with:
-          model: "litellm/unsloth/qwen-3.6"
+          model: "opencode-go/kimi-k2.7-code"
