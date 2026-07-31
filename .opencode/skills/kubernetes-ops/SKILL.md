@@ -29,7 +29,7 @@ You are running in a GitHub Actions runner without access to the homelab cluster
 
 Before proposing changes, validate where possible:
 
-- **Kustomize**: `kustomize build <overlay-path>` or `kubectl kustomize <overlay-path>` if available.
+- **Kustomize**: `kustomize build <overlay-path>` if `kustomize` is available.
 - **Helm**: `helm template <release> <chart-path> -f <values-file>`.
 - **NixOS**: `nix flake check` or `nix-instantiate --eval` on the relevant file.
 - **YAML**: Check for syntax errors; use `kubeconform` if available in the runner.
