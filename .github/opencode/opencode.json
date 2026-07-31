@@ -9,7 +9,9 @@
       "mode": "primary",
       "prompt": "{file:../agents/homelab.md}",
       "permission": {
-        "*": "deny",
+        "edit": "deny",
+        "lsp": "deny",
+        "doom_loop": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -26,6 +28,7 @@
           "scout": "allow"
         },
         "bash": {
+          "*": "deny",
           "git status": "allow",
           "git status *": "allow",
           "git diff": "allow",
@@ -49,7 +52,9 @@
       "mode": "primary",
       "prompt": "{file:../agents/dependency-reviewer.md}",
       "permission": {
-        "*": "deny",
+        "edit": "deny",
+        "lsp": "deny",
+        "doom_loop": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -57,12 +62,16 @@
         "webfetch": "allow",
         "websearch": "allow",
         "todowrite": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "external_directory": "allow",
         "task": {
+          "general": "allow",
           "explore": "allow",
-          "scout": "allow",
-          "general": "allow"
+          "scout": "allow"
         },
         "bash": {
+          "*": "deny",
           "gh pr comment": "allow",
           "gh pr comment *": "allow",
           "gh search *": "allow"
