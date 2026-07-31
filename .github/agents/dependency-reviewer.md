@@ -58,20 +58,54 @@ You are the Renovate Review agent. You automatically review Renovate dependency 
 
 ### Step A: Post the summary comment
 
-Allowed command shape only:
+Use this exact command shape to post the review summary:
 
-`gh pr comment <PR_NUMBER> --body "$(cat <<'EOF'
-@dependency-reviewer
+```bash
+gh pr comment <PR_NUMBER> --body-file /dev/stdin <<'EOF'
+## Renovate PR Review Summary
 
-<your markdown body>
+**Status:** PASS / NEEDS_REVISION
+**PR:** <PR number> — <PR title>
+
+---
+
+### 1. Release Age Gate
+
+- [ ]/ [x] Confirmed version is stable.
+
+### 2. Breaking Changes
+
+<Findings: list any breaking changes detected, or write "None detected">
+
+### 3. Security Risk
+
+<Findings: list CVEs found, or write "No HIGH/CRITICAL vulnerabilities found">
+
+### 4. Version Compatibility
+
+<Findings: list compatibility concerns, or write "All dependencies in sync">
+
+### 5. Deployment Impact
+
+<Findings: note DB migrations, volume changes, config changes, or write "No deployment impact expected">
+
+### 6. Upgrade Rationale
+
+<Why Upgrade: concise summary of key improvements, fixes, and benefits>
+
+---
+
+**Recommendation:** GO / NO-GO — <Reasoning>
 EOF
-)"`
+```
 
-Disallowed command shape:
+This uses `--body-file /dev/stdin` with a heredoc so the markdown body is passed to `gh` without invoking any disallowed subcommands like `cat`. It matches the permitted `gh pr comment *` bash pattern.
 
-- Do not use single-quoted multiline `--body '...'` payloads.
-- Do not use alternative comment posting commands if this allowed form fails.
-- Do not chain commands.
+Disallowed command shapes:
+
+- Do not use `--body "$(cat <<'EOF' ... EOF)"` — the `cat` subcommand is not permitted and the command will be rejected.
+- Do not use `--body-file <path-to-a-file-you-created>` — creating files via bash is not permitted.
+- Do not chain commands with `&&` or `;`.
 
 The body MUST follow this structure exactly:
 
