@@ -71,23 +71,15 @@
       "name": "LiteLLM",
       "options": {
         "baseURL": "https://litellm.homelab.leehosanganson.dev",
-        "apiKey": "{file:~/.config/sops-nix/secrets/litellm-api-key}",
-        "timeout": 600000,
-        "chunkTimeout": 60000,
-        "setCacheKey": true
+        "apiKey": "{env:LITELLM_KEY}"
       },
       "models": {
-        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
-        "gemini/gemini-2.5-flash-lite": {},
-        "gemini/gemini-3.1-pro": {},
-        "openrouter/openrouter/free": {},
-        "gemini/gemini-3.1-flash-lite-preview": {},
-        "gemini/gemini-3-flash-preview": {}
+        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } }
       }
     },
     "opencode-go": {
       "options": {
-        "apiKey": "{file:~/.config/sops-nix/secrets/opencode-api-key}"
+        "apiKey": "{env:OPENCODE_KEY}"
       }
     }
   }

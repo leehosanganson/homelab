@@ -25,15 +25,6 @@ jobs:
       - name: Install opencode
         run: curl -fsSL https://opencode.ai/install | bash
 
-      - name: Prepare OpenCode API secrets
-        run: |
-          mkdir -p ~/.config/sops-nix/secrets
-          printf '%s' "$LITELLM_KEY" > ~/.config/sops-nix/secrets/litellm-api-key
-          printf '%s' "$OPENCODE_API_KEY" > ~/.config/sops-nix/secrets/opencode-api-key
-        env:
-          LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-
       - name: Get PR details and body
         id: pr-details
         run: |
@@ -51,6 +42,7 @@ jobs:
         continue-on-error: true
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          OPENCODE_KEY: ${{ secrets.OPENCODE_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode/opencode.json
           OPENCODE_ENABLE_EXA: 1
