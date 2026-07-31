@@ -9,9 +9,7 @@
       "mode": "primary",
       "prompt": "{file:../agents/homelab.md}",
       "permission": {
-        "edit": "deny",
-        "lsp": "deny",
-        "doom_loop": "deny",
+        "edit": "allow",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
