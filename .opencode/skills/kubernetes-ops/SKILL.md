@@ -1,73 +1,66 @@
 ---
 name: kubernetes-ops
 description: >-
-  Work with Kubernetes, GitOps, NixOS, and homelab manifests in a CI/GitHub Actions environment without cluster access. Use this skill when the user asks to inspect, change, validate, or troubleshoot manifests in the repository. Emphasizes declarative GitOps, local validation, and escalation to humans for live cluster operations.
+  Work with Kubernetes, GitOps, NixOS, and homelab manifests. Load this skill when the user asks to inspect, change, validate, or troubleshoot infrastructure declarations in the repository. Covers local validation, declarative GitOps workflows, and safe cluster operations when kubectl is available.
 ---
 
 ## Overview
 
-You are running in a GitHub Actions runner without access to the homelab cluster. You cannot run `kubectl`, `helm` against the cluster, or any command that requires a live Kubernetes API. All cluster changes must be made declaratively in the repository and reconciled by the GitOps controller (e.g., Flux, Argo CD).
+This repository is managed declaratively. Kubernetes manifests live under `kubernetes/`, NixOS configuration under `nixos/`, and the cluster reconciles desired state from Git.
 
-## What you CAN do
+## Capabilities
 
-- Read and edit Kubernetes manifests in the repo.
-- Read and edit NixOS flakes and modules in the repo.
-- Read and edit Helm `values.yaml` and chart templates.
-- Validate manifests locally using available tools.
-- Open PRs and let the GitOps controller reconcile after merge.
-- Diagnose issues by reading manifests, docs, and runbooks in the repo.
-
-## What you CANNOT do
-
-- Run `kubectl` commands (`get`, `apply`, `logs`, `describe`, `exec`, etc.).
-- Access the cluster API, nodes, or pods directly.
-- Run `helm install`/`upgrade`/`rollback` against the cluster.
-- Perform imperative cluster changes.
-- Restart, delete, or scale workloads directly.
+- Read and edit Kubernetes manifests (Kustomize base/overlays, Deployments, Services, PVCs, Ingresses, ExternalSecrets, etc.).
+- Read and edit NixOS flakes and modules.
+- Read and edit Helm values and chart templates.
+- Validate manifests locally with available tools.
+- Propose changes as PRs and let the GitOps controller reconcile after merge.
+- Diagnose issues by reading manifests, docs, and runbooks.
+- When running in an environment with cluster access (e.g., local opencode on a trusted machine), use `kubectl` for inspection and safe imperative commands.
 
 ## Local Validation
 
 Before proposing changes, validate where possible:
 
-- **Kustomize**: `kustomize build <overlay-path>` if `kustomize` is available.
+- **Kustomize**: `kustomize build <overlay-path>` or `kubectl kustomize <overlay-path>`.
+- **Dry-run**: `kubectl apply --dry-run=client -f <manifest>` (does not require a cluster).
 - **Helm**: `helm template <release> <chart-path> -f <values-file>`.
 - **NixOS**: `nix flake check` or `nix-instantiate --eval` on the relevant file.
-- **YAML**: Check for syntax errors; use `kubeconform` if available in the runner.
+- **Manifest schema**: `kubeconform` if available.
 
-If a validation tool is not available, note that in your response and proceed with careful review.
+If a tool is not available, note it in your response and proceed with careful review.
 
-## Manifest Editing Workflow
+## GitOps Workflow
 
-1. Read the current manifest or flake.
-2. Make the smallest declarative change that achieves the goal.
-3. Validate locally if a tool is available.
-4. Commit the change and open a PR.
+1. Locate the relevant manifest or flake.
+2. Make the smallest declarative change.
+3. Validate locally if tools are available.
+4. Commit and open a PR.
 5. Let the GitOps controller reconcile after merge.
-6. Ask the user to verify the live cluster state if needed.
+6. If the user wants live verification, ask them to run the appropriate cluster command or check the GitOps dashboard.
 
-## Troubleshooting Without Cluster Access
+## Cluster Inspection (only when kubectl is available)
 
-When diagnosing issues:
+If the environment has a working kubeconfig and `kubectl`:
 
-- Read the relevant manifests, overlays, and secrets in the repo.
-- Check `docs/runbooks/` for operational procedures.
-- Check `README.md` and other docs for architecture and conventions.
-- Look for common misconfigurations: wrong image tags, missing env vars, incorrect PVC paths, mismatched selectors, invalid ConfigMap references.
-- Ask the user for live cluster state (pod status, logs, events) only when necessary.
+- Inspect workloads: `kubectl get pods`, `kubectl describe`, `kubectl logs`, `kubectl get events`.
+- Verify rollouts: `kubectl rollout status`.
+- Validate against server: `kubectl apply --dry-run=server -f <manifest>`.
 
-## Escalation to Humans
+When running in GitHub Actions, these commands are typically unavailable. Do not fabricate cluster state.
 
-Escalate to the user when any of these are needed:
+## Escalation
 
-- Live cluster state (`kubectl get`, `logs`, `describe`, `events`).
-- Imperative fixes (`kubectl apply`, `kubectl rollout`, `kubectl delete`).
-- Operations that may cause downtime or affect multiple workloads.
+Ask the user before:
+
+- Imperative cluster changes (`kubectl apply`, `kubectl delete`, `kubectl rollout`).
 - Cluster-wide changes (namespaces, CRDs, network policies, storage classes).
+- Operations that could cause downtime or restart workloads.
 - Emergency rollbacks or recovery.
 
 ## Safety Rules
 
-- Never pretend to have run a cluster command.
-- Never write `kubectl` commands in your response as if they were executed.
 - Prefer declarative changes committed to Git.
-- When unsure, ask the user to run the cluster command and report back.
+- Never fabricate cluster state.
+- When kubectl is unavailable, ask the user for live state or verification.
+- Always validate locally before proposing changes if validation tools are available.
