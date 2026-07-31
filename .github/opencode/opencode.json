@@ -88,26 +88,26 @@
     "reserved": 8192
   },
   "provider": {
-      "litellm": {
-        "npm": "@ai-sdk/openai-compatible",
-        "name": "LiteLLM",
-        "options": {
-          "baseURL": "https://litellm.homelab.leehosanganson.dev",
-          "apiKey": "{env:LITELLM_KEY}",
-          "timeout": 600000,
-          "chunkTimeout": 60000,
-          "setCacheKey": true
-        },
-        "models": {
-          "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
-          "gemini/gemini-2.5-flash-lite": {},
-          "gemini/gemini-3.1-pro": {},
-          "openrouter/openrouter/free": {},
-          "gemini/gemini-3.1-flash-preview": {},
-          "gemini/gemini-3-flash-preview": {}
-        }
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
+      "options": {
+        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "apiKey": "{env:LITELLM_KEY}",
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
       },
-      "opencode-go": {
+      "models": {
+        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
+        "gemini/gemini-2.5-flash-lite": {},
+        "gemini/gemini-3.1-pro": {},
+        "openrouter/openrouter/free": {},
+        "gemini/gemini-3.1-flash-preview": {},
+        "gemini/gemini-3-flash-preview": {}
+      }
+    },
+    "opencode-go": {
       "options": {
         "apiKey": "{env:OPENCODE_API_KEY}"
       }
