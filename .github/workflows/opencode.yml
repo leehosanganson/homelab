@@ -26,12 +26,42 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install validation tools
+        run: |
+          set -e
+          mkdir -p "$HOME/.local/bin"
+          export PATH="$HOME/.local/bin:$PATH"
+
+          # kubectl
+          curl -fsSL "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o "$HOME/.local/bin/kubectl"
+          chmod +x "$HOME/.local/bin/kubectl"
+
+          # helm
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+          # kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          mv kustomize "$HOME/.local/bin/kustomize"
+
+          # kubeconform
+          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar -xz -C "$HOME/.local/bin" kubeconform
+
+          # nix
+          curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
+          . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
+        shell: bash
+
       - name: Run OpenCode
         uses: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a # latest
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode/opencode.json
           OPENCODE_ENABLE_EXA: 1
         with:
-          model: "litellm/unsloth/qwen-3.6"
+          model: "opencode-go/kimi-k2.7-code"
