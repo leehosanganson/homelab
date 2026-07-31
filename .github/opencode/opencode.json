@@ -78,7 +78,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "LiteLLM",
       "options": {
-        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "baseURL": "https://litellm.leehosanganson.dev/v1",
         "apiKey": "{env:LITELLM_KEY}"
       },
       "models": {
