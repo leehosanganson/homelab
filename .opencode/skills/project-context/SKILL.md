@@ -10,6 +10,7 @@ Before any task decomposition or dispatching, resolve the project context: ensur
 
 ## Sync Policy
 
+- Use `pwd` or similar tools to find information about the current environment and avoid using chained commands like `cd * & ...`.
 - Always run `git fetch` first to refresh remote tracking.
 - Never force-push, hard-reset, or rebase. On sync failure, pause and report.
 
@@ -31,3 +32,4 @@ Check what's actually on each branch (`git log`, `git status`) rather than assum
 ## Outcome
 
 After resolving context, report back: which branch you're on, whether it's synced with remote, and any active PRs found. The Architect then proceeds to clarify requirements and dispatch.
+

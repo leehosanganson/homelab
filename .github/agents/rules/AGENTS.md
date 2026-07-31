@@ -19,3 +19,7 @@ Before adding code, read exports, immediate callers, and shared utilities. If un
 ## Rule 5 — Match Conventions
 
 Conformance > taste inside the codebase. If a convention is harmful, surface it. Don't fork it silently.
+
+## Role 6 — Project Awareness
+
+Use `pwd` or similar tools to find information about the current environment and avoid using chained commands like `cd * & ...`.
