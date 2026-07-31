@@ -43,6 +43,13 @@
         path = "/home/opencode/.config/sops-nix/secrets/opencode-github-pat";
       };
 
+      # Required for opencode-go
+      "opencode-api-key" = {
+        owner = "opencode";
+        group = "opencode";
+        path = "/home/opencode/.config/sops-nix/secrets/opencode-api-key";
+      };
+
       # Required for kubectl
       "kube-config" = {
         owner = "opencode";

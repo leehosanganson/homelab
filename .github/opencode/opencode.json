@@ -1,12 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["../../AGENTS.md", "../agents/rules/AGENTS.md"],
-  "default_agent": "architect",
+  "default_agent": "homelab",
   "agent": {
-    "architect": {
-      "description": "Orchestrates implementation by planning and delegating to generator. Uses explore for codebase context and scout for external docs research.",
+    "homelab": {
+      "description": "Main entry point for homelab operations. Orchestrates context gathering, planning, and delegates implementation to native agents.",
       "mode": "primary",
-      "prompt": "{file:../agents/architect.md}",
+      "prompt": "{file:../agents/homelab.md}",
       "permission": {
         "read": "allow",
         "glob": "allow",
@@ -15,23 +15,9 @@
         "webfetch": "allow",
         "websearch": "allow",
         "task": {
-          "generator": "allow",
-          "explore": "allow",
-          "scout": "allow"
-        }
-      }
-    },
-    "generator": {
-      "description": "Implements the architect's plan. Uses explore for understanding code context before making changes.",
-      "mode": "subagent",
-      "prompt": "{file:../agents/generator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
+          "dispatcher": "allow",
+          "explore": "allow"
+        },
         "bash": {
           "git status": "allow",
           "git status *": "allow",
@@ -47,43 +33,11 @@
           "git push -u origin fix/*": "allow",
           "git push -u origin chore/*": "allow",
           "gh pr create --draft *": "allow"
-        },
-        "task": {
-          "evaluator": "allow",
-          "explore": "allow"
-        }
-      }
-    },
-    "evaluator": {
-      "description": "Validates generator output against plan and constraints. Read-only review.",
-      "mode": "subagent",
-      "prompt": "{file:../agents/evaluator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "bash": {
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-          "git rev-parse": "allow",
-          "git rev-parse *": "allow",
-          "gh pr view": "allow",
-          "gh pr view *": "allow",
-          "gh issue view": "allow",
-          "gh issue view *": "allow"
         }
       }
     },
     "dependency-reviewer": {
-      "description": "Automatically reviews Renovate dependency update pull requests. Uses read/glob/grep/list for local K8s manifest scanning, webfetch/websearch/gh search for external research, and gh pr comment for posting.",
+      "description": "Reviews Renovate dependency update PRs. Uses native explore for local context and web tools for external research.",
       "mode": "primary",
       "prompt": "{file:../agents/dependency-reviewer.md}",
       "permission": {
@@ -95,7 +49,8 @@
         "webfetch": "allow",
         "websearch": "allow",
         "task": {
-          "explore": "allow"
+          "explore": "allow",
+          "dispatcher": "allow"
         },
         "bash": {
           "gh pr comment": "allow",
@@ -113,17 +68,26 @@
   "provider": {
     "litellm": {
       "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
       "options": {
-        "baseURL": "https://litellm.leehosanganson.dev/v1",
-        "apiKey": "{env:LITELLM_KEY}"
+        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "apiKey": "{file:~/.config/sops-nix/secrets/litellm-api-key}",
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
       },
       "models": {
-        "unsloth/qwen-3.6": {
-          "limit": {
-            "context": 131072,
-            "output": 8192
-          }
-        }
+        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
+        "gemini/gemini-2.5-flash-lite": {},
+        "gemini/gemini-3.1-pro": {},
+        "openrouter/openrouter/free": {},
+        "gemini/gemini-3.1-flash-lite-preview": {},
+        "gemini/gemini-3-flash-preview": {}
+      }
+    },
+    "opencode-go": {
+      "options": {
+        "apiKey": "{file:~/.config/sops-nix/secrets/opencode-api-key}"
       }
     }
   }
