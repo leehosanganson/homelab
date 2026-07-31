@@ -34,5 +34,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode/opencode.json
           OPENCODE_ENABLE_EXA: 1
-        with:
-          model: "litellm/unsloth/qwen-3.6"
