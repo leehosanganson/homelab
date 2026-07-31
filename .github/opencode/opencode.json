@@ -14,6 +14,10 @@
         "list": "allow",
         "webfetch": "allow",
         "websearch": "allow",
+        "todowrite": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "external_directory": "allow",
         "task": {
           "general": "allow",
           "explore": "allow",
@@ -47,13 +51,14 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
-        "webfetch": "allow",
+         "webfetch": "allow",
         "websearch": "allow",
+        "todowrite": "allow",
         "task": {
            "explore": "allow",
            "scout": "allow",
            "general": "allow"
-         },
+          },
         "bash": {
           "gh pr comment": "allow",
           "gh pr comment *": "allow",
