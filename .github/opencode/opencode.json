@@ -15,8 +15,9 @@
         "webfetch": "allow",
         "websearch": "allow",
         "task": {
-          "dispatcher": "allow",
-          "explore": "allow"
+          "general": "allow",
+          "explore": "allow",
+          "scout": "allow"
         },
         "bash": {
           "git status": "allow",
@@ -49,9 +50,10 @@
         "webfetch": "allow",
         "websearch": "allow",
         "task": {
-          "explore": "allow",
-          "dispatcher": "allow"
-        },
+           "explore": "allow",
+           "scout": "allow",
+           "general": "allow"
+         },
         "bash": {
           "gh pr comment": "allow",
           "gh pr comment *": "allow",
@@ -79,7 +81,7 @@
     },
     "opencode-go": {
       "options": {
-        "apiKey": "{env:OPENCODE_KEY}"
+         "apiKey": "{file:~/.config/sops-nix/secrets/opencode-api-key}"
       }
     }
   }

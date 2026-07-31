@@ -37,16 +37,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Prepare OpenCode API secrets
+        run: |
+          mkdir -p ~/.config/sops-nix/secrets
+          printf '%s' "$LITELLM_KEY" > ~/.config/sops-nix/secrets/litellm-api-key
+          printf '%s' "$OPENCODE_API_KEY" > ~/.config/sops-nix/secrets/opencode-api-key
+        env:
+          LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+
       - name: Run OpenCode Review Agent
         id: review
         continue-on-error: true
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
-          OPENCODE_KEY: ${{ secrets.OPENCODE_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_CONFIG: .github/opencode/opencode.json
           OPENCODE_ENABLE_EXA: 1
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           PR_NUM: ${{ github.event.pull_request.number }}
           PR_TITLE: "${{ steps.pr-details.outputs.title }}"
           PR_SHA: ${{ github.event.pull_request.head.sha }}
