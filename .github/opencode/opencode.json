@@ -79,10 +79,10 @@
         "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } }
       }
     },
-    "opencode-go": {
+     "opencode-go": {
       "options": {
-         "apiKey": "{file:~/.config/sops-nix/secrets/opencode-api-key}"
+         "apiKey": "{env:OPENCODE_API_KEY}"
+       }
       }
-    }
   }
 }
