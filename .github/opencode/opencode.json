@@ -8,6 +8,7 @@
       "mode": "primary",
       "prompt": "{file:../agents/homelab.md}",
       "permission": {
+        "*": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -51,14 +52,14 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
-         "webfetch": "allow",
+        "webfetch": "allow",
         "websearch": "allow",
         "todowrite": "allow",
         "task": {
-           "explore": "allow",
-           "scout": "allow",
-           "general": "allow"
-          },
+          "explore": "allow",
+          "scout": "allow",
+          "general": "allow"
+        },
         "bash": {
           "gh pr comment": "allow",
           "gh pr comment *": "allow",
@@ -84,10 +85,10 @@
         "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } }
       }
     },
-     "opencode-go": {
+    "opencode-go": {
       "options": {
-         "apiKey": "{env:OPENCODE_API_KEY}"
-       }
+        "apiKey": "{env:OPENCODE_API_KEY}"
       }
+    }
   }
 }
