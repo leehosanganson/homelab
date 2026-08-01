@@ -34,15 +34,16 @@ loki:
       accessKeyId: $(LOKI_S3_ACCESS_KEY_ID)
       secretAccessKey: $(LOKI_S3_SECRET_ACCESS_KEY)
 
-  extraEnvFrom:
-    - secretRef:
-        name: loki-garage-s3-credentials
-
   compactor:
     compaction_interval: 30m
     retention_enabled: true
     retention_delete_delay: 2h
     delete_request_store: s3
+
+defaults:
+  extraEnvFrom:
+    - secretRef:
+        name: loki-garage-s3-credentials
 
 # SingleBinary was renamed to Monolithic in chart v18.
 deploymentMode: Monolithic
