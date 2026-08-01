@@ -1,0 +1,51 @@
+garage:
+  # Use a single replica for the homelab deployment (no redundancy).
+  replicationMode: "1"
+
+  # Placeholder: the real RPC secret is injected via the GARAGE_RPC_SECRET
+  # environment variable from the garage-rpc-credentials secret.
+  rpcSecret: "REPLACE_ME_WITH_GARAGE_RPC_SECRET"
+
+  s3:
+    api:
+      region: garage
+    web:
+      rootDomain: ".web.garage.tld"
+
+  # Override the RPC secret from an ExternalSecret at runtime.
+  # The chart's own generated secret keeps the placeholder and is unused.
+environment:
+  - name: GARAGE_RPC_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: garage-rpc-credentials
+        key: rpc-secret
+
+# Single-node StatefulSet.
+deployment:
+  kind: StatefulSet
+  replicaCount: 1
+  podManagementPolicy: OrderedReady
+
+persistence:
+  enabled: true
+  meta:
+    storageClass: "nfs-csi-retain"
+    size: 5Gi
+  data:
+    storageClass: "nfs-csi-retain"
+    size: 50Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 2Gi
+
+# The prometheus chart in this repo uses annotations rather than ServiceMonitor.
+monitoring:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false

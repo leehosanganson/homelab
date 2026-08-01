@@ -5,7 +5,7 @@ loki:
     configs:
       - from: "2024-04-01"
         store: tsdb
-        object_store: azure
+        object_store: s3
         schema: v13
         index:
           prefix: loki_index_
@@ -20,39 +20,29 @@ loki:
     enable_api: true
   auth_enabled: false
 
-  # Migrate from the deprecated built-in MinIO subchart to Azure Blob Storage.
-  # The storage account key is injected from the loki-azure-storage-credentials
-  # secret via environment variable expansion.
+  # Use the in-cluster Garage S3-compatible object store instead of the
+  # deprecated built-in MinIO subchart.
   storage:
-    type: azure
+    type: s3
     bucketNames:
       chunks: loki
       ruler: loki-ruler
-    azure:
-      accountName: $(AZURE_STORAGE_ACCOUNT_NAME)
+    s3:
+      endpoint: http://garage.monitoring.svc.cluster.local:3900
+      s3ForcePathStyle: true
+      insecure: true
+      accessKeyId: $(LOKI_S3_ACCESS_KEY_ID)
+      secretAccessKey: $(LOKI_S3_SECRET_ACCESS_KEY)
 
   extraEnvFrom:
     - secretRef:
-        name: loki-azure-storage-credentials
-
-  structuredConfig:
-    common:
-      storage:
-        azure:
-          account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
-    ruler:
-      storage:
-        azure:
-          account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
-    storage_config:
-      azure:
-        account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
+        name: loki-garage-s3-credentials
 
   compactor:
     compaction_interval: 30m
     retention_enabled: true
     retention_delete_delay: 2h
-    delete_request_store: azure
+    delete_request_store: s3
     retention_period: 336h
 
 # SingleBinary was renamed to Monolithic in chart v18.

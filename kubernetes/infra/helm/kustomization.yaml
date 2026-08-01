@@ -16,4 +16,5 @@ resources:
   - traefik.yaml
   - grafana.yaml
   - grafana-community.yaml
+  - garage.yaml
   - prometheus-community.yaml

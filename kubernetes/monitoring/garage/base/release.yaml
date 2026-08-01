@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: garage
+      version: 1.1.1
+      sourceRef:
+        kind: HelmRepository
+        name: garage
+        namespace: flux-system
+  valuesFrom:
+    - kind: ConfigMap
+      name: garage-values
