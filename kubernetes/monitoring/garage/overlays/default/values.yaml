@@ -1,25 +1,16 @@
 garage:
-  # Use a single replica for the homelab deployment (no redundancy).
-  replicationMode: "1"
+  # Single-node homelab deployment (no redundancy).
+  replicationFactor: "1"
+  consistencyMode: "consistent"
 
-  # Placeholder: the real RPC secret is injected via the GARAGE_RPC_SECRET
-  # environment variable from the garage-rpc-credentials secret.
-  rpcSecret: "REPLACE_ME_WITH_GARAGE_RPC_SECRET"
+  # Use the ExternalSecret-created secret instead of the chart-generated one.
+  existingRpcSecret: garage-rpc-credentials
 
   s3:
     api:
       region: garage
     web:
       rootDomain: ".web.garage.tld"
-
-  # Override the RPC secret from an ExternalSecret at runtime.
-  # The chart's own generated secret keeps the placeholder and is unused.
-environment:
-  - name: GARAGE_RPC_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: garage-rpc-credentials
-        key: rpc-secret
 
 # Single-node StatefulSet.
 deployment:

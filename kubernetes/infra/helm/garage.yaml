@@ -1,7 +1,9 @@
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+kind: GitRepository
 metadata:
   name: garage
 spec:
   interval: 1h
-  url: https://geekxflood.github.io/helm-charts
+  url: https://git.deuxfleurs.fr/Deuxfleurs/garage.git
+  ref:
+    tag: v2.3.0
