@@ -47,4 +47,12 @@ nodes = {
     disk_size = 15
     datastore = "local-lvm"
   }
+  "hermes-agent" = {
+    node      = "pve01"
+    vm_id     = 303
+    cores     = 2
+    memory    = 4096
+    disk_size = 30
+    datastore = "local-lvm"
+  }
 }
