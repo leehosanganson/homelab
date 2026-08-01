@@ -5,7 +5,7 @@ loki:
     configs:
       - from: "2024-04-01"
         store: tsdb
-        object_store: s3
+        object_store: azure
         schema: v13
         index:
           prefix: loki_index_
@@ -20,15 +20,48 @@ loki:
     enable_api: true
   auth_enabled: false
 
-minio:
-  enabled: true
+  # Migrate from the deprecated built-in MinIO subchart to Azure Blob Storage.
+  # The storage account key is injected from the loki-azure-storage-credentials
+  # secret via environment variable expansion.
+  storage:
+    type: azure
+    bucketNames:
+      chunks: loki
+      ruler: loki-ruler
+    azure:
+      accountName: $(AZURE_STORAGE_ACCOUNT_NAME)
 
-deploymentMode: SingleBinary
+  extraEnvFrom:
+    - secretRef:
+        name: loki-azure-storage-credentials
+
+  structuredConfig:
+    common:
+      storage:
+        azure:
+          account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
+    ruler:
+      storage:
+        azure:
+          account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
+    storage_config:
+      azure:
+        account_key: $(AZURE_STORAGE_ACCOUNT_KEY)
+
+  compactor:
+    compaction_interval: 30m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: azure
+    retention_period: 336h
+
+# SingleBinary was renamed to Monolithic in chart v18.
+deploymentMode: Monolithic
 
 singleBinary:
   replicas: 1
 
-# Zero out replica counts of other deployment modes
+# Zero out replica counts of other deployment modes.
 backend:
   replicas: 0
 read:
@@ -47,13 +80,10 @@ queryScheduler:
 distributor:
   replicas: 0
 
+# In Monolithic mode the compactor runs inside the single-binary pod; disable the
+# standalone distributed component.
 compactor:
-  enabled: true
-  compaction_interval: 30m
-  retention_enabled: true
-  retention_delete_delay: 2h
-  delete_request_store: s3
-  retention_period: 336h
+  enabled: false
 
 indexGateway:
   replicas: 0
