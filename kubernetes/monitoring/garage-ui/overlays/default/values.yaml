@@ -14,8 +14,10 @@ config:
     region: "garage"
     # Use the headless metrics service Garage already creates for the admin API.
     admin_endpoint: "http://garage-metrics.monitoring.svc.cluster.local:3903"
-    # Leave empty so Garage UI prompts for the Garage admin token at login.
-    admin_token: ""
+    # Admin API token is loaded from the garage-ui-admin-token secret.
+    existingSecret:
+      name: "garage-ui-admin-token"
+      key: "admin-token"
 
   # Token auth is enabled when no other auth method is configured.
   auth:
