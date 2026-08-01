@@ -43,7 +43,6 @@ loki:
     retention_enabled: true
     retention_delete_delay: 2h
     delete_request_store: s3
-    retention_period: 336h
 
 # SingleBinary was renamed to Monolithic in chart v18.
 deploymentMode: Monolithic
