@@ -17,4 +17,5 @@ resources:
   - grafana.yaml
   - grafana-community.yaml
   - garage.yaml
+  - garage-ui.yaml
   - prometheus-community.yaml
