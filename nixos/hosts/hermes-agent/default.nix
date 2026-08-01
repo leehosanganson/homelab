@@ -12,6 +12,13 @@
   # service so `hermes` over SSH works without switching users.
   users.users.ansonlee.extraGroups = [ "hermes" ];
 
+  # The cron/skill system writes executable scripts under ~/.hermes/scripts.
+  # Ensure it is created with the right ownership so the gateway service can
+  # write cron scripts and the interactive user can inspect them.
+  systemd.tmpfiles.rules = [
+    "d /var/lib/hermes/.hermes/scripts 2770 hermes hermes - -"
+  ];
+
   networking = {
     hostName = "hermes-agent";
     useDHCP = false;
