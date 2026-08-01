@@ -20,7 +20,7 @@ spec:
       #   fsGroup: 1000
       containers:
         - name: grimmory
-          image: ghcr.io/grimmory-tools/grimmory:v3.1.0@sha256:c83dcb59975c9a680ecdf84d60e7e5c9b05200818bab8794f4d84a7e008a549a
+          image: ghcr.io/grimmory-tools/grimmory:v3.2.4@sha256:dfa7afdfcf25d649fd664497a62385dd00cd9678c37546e182c172e41c8e80cb
           ports:
             - containerPort: 6060
               protocol: TCP

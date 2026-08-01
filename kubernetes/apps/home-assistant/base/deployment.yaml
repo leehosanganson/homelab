@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: home-assistant-app
-          image: ghcr.io/home-assistant/home-assistant:2026.6.2@sha256:b82fab7973fa1ba5eb69a8aaab3a830d56d986d495d894faf0ee969ad27839a6
+          image: ghcr.io/home-assistant/home-assistant:2026.7.4@sha256:5a531753cea96444200158fc2b0ac7ccd739291ec50414877b396de6e0bb29b3
           securityContext:
             capabilities:
               add:

@@ -22,7 +22,7 @@ spec:
             - name: n8n-pvc
               mountPath: /data
       containers:
-        - image: n8nio/n8n:2.23.1@sha256:a0aa4012094eec804c17ef8014b1e397a337d33f63faebf33b439388ada93289
+        - image: n8nio/n8n:2.33.3@sha256:769d3a624534ff8b5f3316ef71d4653f48794c47e4339436be7a308d6d6a1cc9
           name: n8n
           ports:
             - containerPort: 5678
@@ -31,6 +31,9 @@ spec:
           args:
             - -c
             - sleep 5; n8n start
+          envFrom:
+            - configMapRef:
+                name: n8n-configmap
           env:
             - name: DB_POSTGRESDB_USER
               valueFrom:

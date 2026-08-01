@@ -1,38 +1,32 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["../../AGENTS.md", "../agents/rules/AGENTS.md"],
-  "default_agent": "architect",
+  "default_agent": "homelab",
   "agent": {
-    "architect": {
-      "description": "Orchestrates implementation by planning and delegating to generator. Uses explore for codebase context and scout for external docs research.",
+    "homelab": {
+      "model": "opencode-go/kimi-k2.7-code",
+      "description": "Main entry point for homelab operations. Orchestrates context gathering, planning, and delegates implementation to native agents.",
       "mode": "primary",
-      "prompt": "{file:../agents/architect.md}",
+      "prompt": "{file:../agents/homelab.md}",
       "permission": {
+        "edit": "allow",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
         "webfetch": "allow",
         "websearch": "allow",
+        "todowrite": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "external_directory": "allow",
         "task": {
-          "generator": "allow",
+          "general": "allow",
           "explore": "allow",
           "scout": "allow"
-        }
-      }
-    },
-    "generator": {
-      "description": "Implements the architect's plan. Uses explore for understanding code context before making changes.",
-      "mode": "subagent",
-      "prompt": "{file:../agents/generator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
+        },
         "bash": {
+          "*": "deny",
           "git status": "allow",
           "git status *": "allow",
           "git diff": "allow",
@@ -47,62 +41,52 @@
           "git push -u origin fix/*": "allow",
           "git push -u origin chore/*": "allow",
           "gh pr create --draft *": "allow"
-        },
-        "task": {
-          "evaluator": "allow",
-          "explore": "allow"
-        }
-      }
-    },
-    "evaluator": {
-      "description": "Validates generator output against plan and constraints. Read-only review.",
-      "mode": "subagent",
-      "prompt": "{file:../agents/evaluator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "bash": {
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-          "git rev-parse": "allow",
-          "git rev-parse *": "allow",
-          "gh pr view": "allow",
-          "gh pr view *": "allow",
-          "gh issue view": "allow",
-          "gh issue view *": "allow"
         }
       }
     },
     "dependency-reviewer": {
-      "description": "Automatically reviews Renovate dependency update pull requests. Uses read/glob/grep/list for local K8s manifest scanning, webfetch/websearch/gh search for external research, and gh pr comment for posting.",
+      "model": "opencode-go/kimi-k2.7-code",
+      "description": "Reviews Renovate dependency update PRs. Uses native explore for local context and web tools for external research.",
       "mode": "primary",
       "prompt": "{file:../agents/dependency-reviewer.md}",
       "permission": {
-        "*": "deny",
+        "edit": "deny",
+        "lsp": "deny",
+        "doom_loop": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
         "webfetch": "allow",
         "websearch": "allow",
+        "todowrite": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "external_directory": "allow",
         "task": {
-          "explore": "allow"
+          "general": "allow",
+          "explore": "allow",
+          "scout": "allow"
         },
         "bash": {
+          "*": "deny",
           "gh pr comment": "allow",
           "gh pr comment *": "allow",
           "gh search *": "allow"
         }
       }
+    },
+    "general": {
+      "model": "litellm/unsloth/qwen-3.6",
+      "mode": "subagent"
+    },
+    "explore": {
+      "model": "litellm/unsloth/qwen-3.6",
+      "mode": "subagent"
+    },
+    "scout": {
+      "model": "litellm/unsloth/qwen-3.6",
+      "mode": "subagent"
     }
   },
   "compaction": {
@@ -113,17 +97,26 @@
   "provider": {
     "litellm": {
       "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
       "options": {
-        "baseURL": "https://litellm.leehosanganson.dev/v1",
-        "apiKey": "{env:LITELLM_KEY}"
+        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "apiKey": "{env:LITELLM_KEY}",
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
       },
       "models": {
-        "unsloth/qwen-3.6": {
-          "limit": {
-            "context": 131072,
-            "output": 8192
-          }
-        }
+        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
+        "gemini/gemini-2.5-flash-lite": {},
+        "gemini/gemini-3.1-pro": {},
+        "openrouter/openrouter/free": {},
+        "gemini/gemini-3.1-flash-preview": {},
+        "gemini/gemini-3-flash-preview": {}
+      }
+    },
+    "opencode-go": {
+      "options": {
+        "apiKey": "{env:OPENCODE_API_KEY}"
       }
     }
   }

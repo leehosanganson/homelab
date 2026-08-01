@@ -12,21 +12,32 @@
   ],
   "pinDigests": true,
   "prHourlyLimit": 0,
-  "prConcurrentLimit": 10,
+  "prConcurrentLimit": 20,
   
   "internalChecksFilter": "flexible",
   "minimumReleaseAge": "14 days",
   "packageRules": [
     {
-      "description": "Apply minimum release age only to github-releases (Docker/Helm lack reliable timestamps)",
+      "description": "Apply minimum 14-day release age to github-releases (prevents merging unreleased or broken packages)",
       "matchDatasources": ["github-releases"],
       "minimumReleaseAge": "14 days"
     },
     {
-      "description": "Automatically merge non-breaking patch updates",
+      "description": "Apply minimum 7-day release age to Docker images (allows faster updates but avoids immediately after release)",
+      "matchDatasources": ["docker"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Apply minimum 7-day release age to Helm charts",
+      "matchDatasources": ["helm"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Auto-approve and auto-merge non-breaking patch updates",
       "matchUpdateTypes": ["patch"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "autoApprove": true
     },
     {
       "description": "Group all FluxCD system component updates together to avoid PR spam",
@@ -48,10 +59,11 @@
       "enabled": false
     },
     {
-      "description": "Digest Updates Schedule",
+      "description": "Auto-approve and auto-merge digest updates on Sunday schedule (low-risk, same tag)",
       "matchUpdateTypes": ["digest"],
       "schedule": ["on Sunday"],
-      "enabled": true
+      "automerge": true,
+      "autoApprove": true
     }
   ],
   "flux": {

@@ -17,7 +17,7 @@ spec:
       runtimeClassName: nvidia
       initContainers:
         - name: download-model
-          image: python:3.14-slim@sha256:c845af9399020c7e562969a13689e929074a10fd057acd1b1fad06a2fb068e97
+          image: python:3.14-slim@sha256:b877e50bd90de10af8d82c57a022fc2e0dc731c5320d762a27986facfc3355c1
           command:
             - sh
             - -c
@@ -48,7 +48,7 @@ spec:
               memory: 4Gi
       containers:
         - name: llama-cpp
-          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:4de40a877d283ce380213c2c48c1de3ceb9441c0669fbbc1caf50135b22c329c
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:4c0ece468721077a8bff8c114f8b0a92a8604ed310c91939fadfe37595a53b9e
           args:
             - -m
             - /models/Qwen3.6-35B-A3B-UD-IQ2_M.gguf
