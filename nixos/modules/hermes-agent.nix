@@ -61,7 +61,7 @@ in
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
       model.provider = "opencode-go";
-      model.default = "deepseek-v4-flash";
+      model.default = "kimi-k2.7-code";
       toolsets = [ "all" ];
     };
 
