@@ -33,6 +33,12 @@
         group = "hermes";
         path = "/var/lib/hermes/.hermes/.env";
       };
+      "kube-config" = {
+        owner = "hermes";
+        group = "hermes";
+        mode = "0400";
+        path = "/var/lib/hermes/.kube/config";
+      };
     };
   };
 
