@@ -67,6 +67,17 @@ in
 
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
 
+    # GitHub MCP server — token is loaded from the sops-managed hermes-env.
+    mcpServers = {
+      github = {
+        command = "npx";
+        args = [ "-y" "@modelcontextprotocol/server-github" ];
+        env = {
+          GITHUB_PERSONAL_ACCESS_TOKEN = "\${GITHUB_PERSONAL_ACCESS_TOKEN}";
+        };
+      };
+    };
+
     # Common tools available to the agent's terminal backend.
     extraPackages = with pkgs; [ git jq ripgrep ffmpeg nodejs kubectl kubernetes-helm ];
   };
