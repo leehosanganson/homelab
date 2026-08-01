@@ -63,6 +63,13 @@ in
       model.provider = "opencode-go";
       model.default = "kimi-k2.7-code";
       toolsets = [ "all" ];
+      model_aliases = {
+        litellm-qwen = {
+          model = "unsloth/qwen-3.6";
+          provider = "custom";
+          base_url = "https://litellm.homelab.leehosanganson.dev/v1";
+        };
+      };
     };
 
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
