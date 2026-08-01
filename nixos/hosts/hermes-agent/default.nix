@@ -8,6 +8,10 @@
 
   system.stateVersion = "26.05";
 
+  # Let the interactive admin account share HERMES_HOME with the gateway
+  # service so `hermes` over SSH works without switching users.
+  users.users.ansonlee.extraGroups = [ "hermes" ];
+
   networking = {
     hostName = "hermes-agent";
     useDHCP = false;
@@ -31,7 +35,9 @@
       "hermes-env" = {
         owner = "hermes";
         group = "hermes";
-        path = "/var/lib/hermes/.hermes/.env";
+        # Let sops-nix use the default /run/secrets path; the Hermes NixOS
+        # module activation script merges environmentFiles into .env, so the
+        # secret file must not already be .env.
       };
       "kube-config" = {
         owner = "hermes";
