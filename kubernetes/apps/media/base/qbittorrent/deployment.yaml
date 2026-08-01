@@ -14,6 +14,9 @@ spec:
       labels:
         app: qbittorrent
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       dnsPolicy: None
       dnsConfig:
         nameservers:
@@ -100,6 +103,8 @@ spec:
             - name: downloads
               mountPath: /app/downloads
               subPath: music
+            - name: slskd-app
+              mountPath: /app
       volumes:
         - name: downloads
           persistentVolumeClaim:
@@ -107,3 +112,6 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: qbit-pvc
+        - name: slskd-app
+          emptyDir:
+            sizeLimit: 1Gi
