@@ -57,17 +57,20 @@ in
 
     # Declarative base config (secret-free). Discord credentials and API keys
     # come from the sops-managed `hermes-env` secret.
-    # Default model: cheapest reasonable option for experimenting with Hermes.
+    # Default model: unsloth/qwen-3.6 via LiteLLM for cost-effective experimentation.
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
-      model.provider = "opencode-go";
-      model.default = "kimi-k2.7-code";
+      model.default = "unsloth/qwen-3.6";
       toolsets = [ "all" ];
       model_aliases = {
-        litellm-qwen = {
+        qwen = {
           model = "unsloth/qwen-3.6";
           provider = "custom";
           base_url = "https://litellm.homelab.leehosanganson.dev/v1";
+        };
+        kimi = {
+          model = "kimi-k2.7-code";
+          provider = "opencode-go";
         };
       };
     };
