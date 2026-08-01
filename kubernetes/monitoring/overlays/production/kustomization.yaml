@@ -1,6 +1,7 @@
 resources:
   - namespace.yaml
   - ../../garage/overlays/default
+  - ../../garage-ui/overlays/default
   - ../../uptime-kuma/overlays/default
   - ../../prometheus/overlays/default
   - ../../loki/overlays/default

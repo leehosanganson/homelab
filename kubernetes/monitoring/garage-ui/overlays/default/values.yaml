@@ -1,0 +1,63 @@
+replicaCount: 1
+
+config:
+  server:
+    host: "0.0.0.0"
+    port: 8080
+    environment: "production"
+    domain: "garage-ui.homelab.leehosanganson.dev"
+    protocol: "https"
+    root_url: "https://garage-ui.homelab.leehosanganson.dev"
+
+  garage:
+    endpoint: "http://garage.monitoring.svc.cluster.local:3900"
+    region: "garage"
+    # Use the headless metrics service Garage already creates for the admin API.
+    admin_endpoint: "http://garage-metrics.monitoring.svc.cluster.local:3903"
+    # Leave empty so Garage UI prompts for the Garage admin token at login.
+    admin_token: ""
+
+  # Token auth is enabled when no other auth method is configured.
+  auth:
+    metrics_public: false
+    admin:
+      enabled: false
+    oidc:
+      enabled: false
+
+  logging:
+    level: "info"
+    format: "json"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-cloudflare"
+  hosts:
+    - host: garage-ui.homelab.leehosanganson.dev
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: garage-ui-tls
+      hosts:
+        - garage-ui.homelab.leehosanganson.dev
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceMonitor:
+  enabled: false
+
+networkPolicy:
+  enabled: false
