@@ -94,11 +94,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1785606754,
-        "narHash": "sha256-Cdu1VL//5Z0dJljVNRWWb2kqQBb3jxeX8B4YYf4qD1w=",
+        "lastModified": 1785609659,
+        "narHash": "sha256-bh8DR/8Azdu7hwhSRetl02BdfOxtJ2XAlRKmVGbwO3c=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "003af7f85ce2ebe24b38556d735a0d7678a4a8dd",
+        "rev": "87bc710609f8b89b6e6b4aa418dde8ee30ec6873",
         "type": "github"
       },
       "original": {
@@ -346,11 +346,11 @@
     "sops-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1785454057,
-        "narHash": "sha256-l9xj9gxXkztenb+uuiPXsYutdC9rzaH0tiO8OUVpI2w=",
+        "lastModified": 1785611643,
+        "narHash": "sha256-6bEnjMSve5NSQPjAqrF/YsC5hGjwL/KDC3Z2sFfz5cY=",
         "ref": "main",
-        "rev": "bac5aa0ae79fbfddda3b725ead781830d61045ff",
-        "revCount": 31,
+        "rev": "6292cf1310f38bad740317bc058edd813d79d733",
+        "revCount": 32,
         "type": "git",
         "url": "ssh://git@github.com/leehosanganson/sops.git"
       },
