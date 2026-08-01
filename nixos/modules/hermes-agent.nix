@@ -60,13 +60,17 @@ in
     # Default model: unsloth/qwen-3.6 via LiteLLM for cost-effective experimentation.
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
-      model.default = "unsloth/qwen-3.6";
+      model = {
+        default = "unsloth/qwen-3.6";
+        provider = "custom";
+        base_url = "https://litellm.homelab.leehosanganson.dev";
+      };
       toolsets = [ "all" ];
       model_aliases = {
         qwen = {
           model = "unsloth/qwen-3.6";
           provider = "custom";
-          base_url = "https://litellm.homelab.leehosanganson.dev/v1";
+          base_url = "https://litellm.homelab.leehosanganson.dev";
         };
         kimi = {
           model = "kimi-k2.7-code";
