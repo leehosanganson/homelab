@@ -20,15 +20,38 @@ loki:
     enable_api: true
   auth_enabled: false
 
-minio:
-  enabled: true
+  # Use the in-cluster Garage S3-compatible object store instead of the
+  # deprecated built-in MinIO subchart.
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki
+      ruler: loki-ruler
+    s3:
+      endpoint: http://garage.monitoring.svc.cluster.local:3900
+      s3ForcePathStyle: true
+      insecure: true
+      accessKeyId: $(LOKI_S3_ACCESS_KEY_ID)
+      secretAccessKey: $(LOKI_S3_SECRET_ACCESS_KEY)
 
-deploymentMode: SingleBinary
+  extraEnvFrom:
+    - secretRef:
+        name: loki-garage-s3-credentials
+
+  compactor:
+    compaction_interval: 30m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: s3
+    retention_period: 336h
+
+# SingleBinary was renamed to Monolithic in chart v18.
+deploymentMode: Monolithic
 
 singleBinary:
   replicas: 1
 
-# Zero out replica counts of other deployment modes
+# Zero out replica counts of other deployment modes.
 backend:
   replicas: 0
 read:
@@ -47,13 +70,10 @@ queryScheduler:
 distributor:
   replicas: 0
 
+# In Monolithic mode the compactor runs inside the single-binary pod; disable the
+# standalone distributed component.
 compactor:
-  enabled: true
-  compaction_interval: 30m
-  retention_enabled: true
-  retention_delete_delay: 2h
-  delete_request_store: s3
-  retention_period: 336h
+  enabled: false
 
 indexGateway:
   replicas: 0

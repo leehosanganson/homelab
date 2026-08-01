@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: garage
+spec:
+  interval: 1h
+  url: https://geekxflood.github.io/helm-charts

@@ -1,17 +1,17 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: loki
+  name: garage
 spec:
   interval: 1h
   chart:
     spec:
-      chart: loki
-      version: 18.5.1
+      chart: garage
+      version: 1.1.1
       sourceRef:
         kind: HelmRepository
-        name: grafana-community
+        name: garage
         namespace: flux-system
   valuesFrom:
     - kind: ConfigMap
-      name: loki-values
+      name: garage-values
