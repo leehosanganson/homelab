@@ -32,8 +32,8 @@ loki:
       s3ForcePathStyle: true
       insecure: true
       region: garage
-      accessKeyId: $(LOKI_S3_ACCESS_KEY_ID)
-      secretAccessKey: $(LOKI_S3_SECRET_ACCESS_KEY)
+      accessKeyId: ${LOKI_S3_ACCESS_KEY_ID}
+      secretAccessKey: ${LOKI_S3_SECRET_ACCESS_KEY}
 
   compactor:
     compaction_interval: 30m
