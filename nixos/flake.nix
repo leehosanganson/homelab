@@ -81,7 +81,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/hermes-agent
-        ../../modules/hermes-agent.nix
         hermes-agent.nixosModules.default
         disko.nixosModules.disko
         sops-nix.nixosModules.sops

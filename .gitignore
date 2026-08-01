@@ -2,3 +2,7 @@
 
 .direnv
 
+# Bootstrap SSH host keys for sops-nix Day-0 provisioning
+nixos/keys/*/etc/ssh/bootstrap-vm
+nixos/keys/*/home/*/.ssh/id_ed25519
+
