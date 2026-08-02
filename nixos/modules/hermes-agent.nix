@@ -62,15 +62,21 @@ in
     settings = {
       model = {
         default = "unsloth/qwen-3.6";
-        provider = "custom";
-        base_url = "https://litellm.homelab.leehosanganson.dev";
+        provider = "litellm";
       };
       toolsets = [ "all" ];
+      providers = {
+        litellm = {
+          name = "litellm";
+          api = "https://litellm.homelab.leehosanganson.dev/v1";
+          key_env = "OPENAI_API_KEY";
+          default_model = "unsloth/qwen-3.6";
+        };
+      };
       model_aliases = {
         qwen = {
           model = "unsloth/qwen-3.6";
-          provider = "custom";
-          base_url = "https://litellm.homelab.leehosanganson.dev";
+          provider = "litellm";
         };
         kimi = {
           model = "kimi-k2.7-code";
