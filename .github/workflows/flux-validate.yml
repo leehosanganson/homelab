@@ -36,8 +36,8 @@ jobs:
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
-          # Use 'kustomize build' with --load-restrictor=LoadFilesOnly to catch errors
-          # without rendering manifests. This validates syntax and references.
+          # Use 'kustomize build --load-restrictor=LoadFilesOnly' to validate
+          # kustomization syntax and references without rendering manifests.
           find kubernetes -name 'kustomization.yaml' | while read -r f; do
             dir=$(dirname "$f")
             echo "Validating $dir ..."
@@ -61,38 +61,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Install kustomize
-        run: |
-          mkdir -p "$HOME/.local/bin"
-          export PATH="$HOME/.local/bin:$PATH"
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          mv kustomize "$HOME/.local/bin/kustomize"
+      - name: Setup Flux Schema CLI
+        uses: fluxcd/flux-schema/actions/setup@main
 
-      - name: Render production overlay
+      - name: Render production overlays
         run: |
           set -e
-          export PATH="$HOME/.local/bin:$PATH"
+          mkdir -p /tmp/bundle
           # Build the production overlays that Flux references
-          kustomize build kubernetes/apps/overlays/production -o /tmp/apps-prod.yaml || true
-          kustomize build kubernetes/infra/overlays/production -o /tmp/infra-prod.yaml || true
-          kustomize build kubernetes/monitoring/overlays/production -o /tmp/mon-prod.yaml || true
+          kustomize build kubernetes/apps/overlays/production > /tmp/bundle/apps.yaml || true
+          kustomize build kubernetes/infra/overlays/production > /tmp/bundle/infra.yaml || true
+          kustomize build kubernetes/monitoring/overlays/production > /tmp/bundle/mon.yaml || true
 
-      - name: Install kubeconform
-        if: always()
-        run: |
-          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
-          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar -xz -C "$HOME/.local/bin" kubeconform
-
-      - name: Validate rendered manifests with kubeconform
-        if: always()
+      - name: Validate rendered manifests with Flux Schema CLI
         run: |
           set -e
-          export PATH="$HOME/.local/bin:$PATH"
-          for f in /tmp/apps-prod.yaml /tmp/infra-prod.yaml /tmp/mon-prod.yaml; do
+          # Validate all rendered YAML files against the ecosystem catalog.
+          # The ecosystem catalog covers hundreds of CNCF project CRDs including:
+          #   external-secrets.io, cert-manager.io, postgresql.cnpg.io, velero.io, traefik.io
+          # Combined with the built-in default catalog (Kubernetes + Flux CRDs),
+          # this provides comprehensive schema coverage.
+          for f in /tmp/bundle/*.yaml; do
             if [ -s "$f" ]; then
               echo "Validating $f ..."
-              kubeconform -strict -summary -skip HelmRelease,ExternalSecret,ObjectStore,Cluster,ScheduledBackup "$f" || exit 1
+              flux schema validate "$f" \
+                --schema-location default \
+                --schema-location ecosystem \
+                --verbose \
+                --output=text || exit 1
             else
-              echo "SKIP: $f is empty or missing (expected when cluster has no apps in that overlay)"
+              echo "SKIP: $f is empty or missing"
             fi
           done
