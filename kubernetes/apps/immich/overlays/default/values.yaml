@@ -31,6 +31,7 @@ valkey:
       enabled: true
       type: persistentVolumeClaim
       size: 1Gi
+      accessMode: ReadWriteOnce
 
 server:
   enabled: true
@@ -39,7 +40,6 @@ server:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-cloudflare
-      ingressClassName: traefik
       hosts:
         - host: immich.homelab.leehosanganson.dev
           paths:
