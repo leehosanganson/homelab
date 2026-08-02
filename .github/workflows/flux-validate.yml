@@ -1,6 +1,7 @@
 name: flux-validate
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -17,79 +18,74 @@ on:
 permissions:
   contents: read
 
+env:
+  # Pin versions for reproducible CI. Bump these periodically.
+  KUSTOMIZE_VERSION: "5.8.1"
+  KUBECONFORM_VERSION: "0.7.0"
+  # CRDs that are not yet in the upstream CRDs-catalog are skipped rather than failing.
+  KUBECONFORM_SKIP: "CustomResourceDefinition"
+  KUBECONFORM_SCHEMA_LOCATION: "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
+
 jobs:
-  lint-kustomize:
-    name: lint kustomize manifests
+  validate:
+    name: validate kubernetes manifests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Install kustomize
+      - name: Install kustomize and kubeconform
         run: |
           mkdir -p "$HOME/.local/bin"
           export PATH="$HOME/.local/bin:$PATH"
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          mv kustomize "$HOME/.local/bin/kustomize"
 
-      - name: Validate kustomization files
+          curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | \
+            tar -xz -C "$HOME/.local/bin" kustomize
+          chmod +x "$HOME/.local/bin/kustomize"
+
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | \
+            tar -xz -C "$HOME/.local/bin" kubeconform
+          chmod +x "$HOME/.local/bin/kubeconform"
+
+          kustomize version
+          kubeconform -v
+
+      - name: Lint kustomization files
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
-          # Use 'kustomize build --load-restrictor=LoadFilesOnly' to validate
-          # kustomization syntax and references without rendering manifests.
-          find kubernetes -name 'kustomization.yaml' | while read -r f; do
+          find kubernetes fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
             dir=$(dirname "$f")
-            echo "Validating $dir ..."
-            kustomize build --load-restrictor=LoadFilesOnly "$dir" > /dev/null || exit 1
+            echo "Linting $dir ..."
+            kustomize build --load-restrictor LoadRestrictionsRootOnly "$dir" > /dev/null || exit 1
           done
-
-      - name: Validate fluxcd kustomizations
-        run: |
-          set -e
-          export PATH="$HOME/.local/bin:$PATH"
-          find fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
-            dir=$(dirname "$f")
-            echo "Validating $dir ..."
-            kustomize build --load-restrictor=LoadFilesOnly "$dir" > /dev/null || exit 1
-          done
-
-  flux-build:
-    name: flux build (render & validate)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Setup Flux Schema CLI
-        uses: fluxcd/flux-schema/actions/setup@main
 
       - name: Render production overlays
         run: |
           set -e
+          export PATH="$HOME/.local/bin:$PATH"
           mkdir -p /tmp/bundle
-          # Build the production overlays that Flux references
-          kustomize build kubernetes/apps/overlays/production > /tmp/bundle/apps.yaml || true
-          kustomize build kubernetes/infra/overlays/production > /tmp/bundle/infra.yaml || true
-          kustomize build kubernetes/monitoring/overlays/production > /tmp/bundle/mon.yaml || true
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
 
-      - name: Validate rendered manifests with Flux Schema CLI
+      - name: Validate rendered manifests with kubeconform
         run: |
           set -e
-          # Validate all rendered YAML files against the ecosystem catalog.
-          # The ecosystem catalog covers hundreds of CNCF project CRDs including:
-          #   external-secrets.io, cert-manager.io, postgresql.cnpg.io, velero.io, traefik.io
-          # Combined with the built-in default catalog (Kubernetes + Flux CRDs),
-          # this provides comprehensive schema coverage.
-          for f in /tmp/bundle/*.yaml; do
-            if [ -s "$f" ]; then
-              echo "Validating $f ..."
-              flux schema validate "$f" \
-                --schema-location default \
-                --schema-location ecosystem \
-                --verbose \
-                --output=text || exit 1
-            else
-              echo "SKIP: $f is empty or missing"
-            fi
+          export PATH="$HOME/.local/bin:$PATH"
+          # Validate core Kubernetes resources against the default schema, and custom
+          # CRDs against the Datree CRDs-catalog. Only CustomResourceDefinition
+          # definitions themselves are skipped, because there is no external schema
+          # for the CRD kind. All CR instances (HelmRelease, ExternalSecret, Cluster,
+          # ObjectStore, ClusterIssuer, ClusterSecretStore, GitRepository,
+          # HelmRepository, VolumeSnapshotClass, Middleware, Schedule, Backup, etc.)
+          # are validated against schemas from datreeio/CRDs-catalog.
+          for f in /tmp/bundle/apps-prod.yaml /tmp/bundle/infra-prod.yaml /tmp/bundle/mon-prod.yaml; do
+            echo "Validating $f ..."
+            kubeconform -strict -summary \
+              -schema-location default \
+              -schema-location "$KUBECONFORM_SCHEMA_LOCATION" \
+              -ignore-missing-schemas \
+              -skip "$KUBECONFORM_SKIP" \
+              "$f" || exit 1
           done

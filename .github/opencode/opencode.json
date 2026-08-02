@@ -45,7 +45,7 @@
       }
     },
     "dependency-reviewer": {
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "litellm/unsloth/qwen-3.6",
       "description": "Reviews Renovate dependency update PRs. Uses native explore for local context and web tools for external research.",
       "mode": "primary",
       "prompt": "{file:../agents/dependency-reviewer.md}",
@@ -99,7 +99,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "LiteLLM",
       "options": {
-        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "baseURL": "https://litellm.leehosanganson.dev",
         "apiKey": "{env:LITELLM_KEY}",
         "timeout": 600000,
         "chunkTimeout": 60000,
