@@ -48,7 +48,8 @@ nodes = {
     datastore = "local-lvm"
     network_devices = [
       {
-        bridge = "vmbr30"
+        bridge      = "vmbr30"
+        mac_address = "bc:24:11:47:87:e9" # thread0 — matches NixOS systemd.network.links
       }
     ]
   }

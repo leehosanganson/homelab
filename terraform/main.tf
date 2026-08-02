@@ -37,16 +37,18 @@ resource "proxmox_virtual_environment_vm" "nixos" {
   }
 
   network_device {
-    bridge = "vmbr0"
-    model  = "virtio"
+    bridge      = "vmbr0"
+    mac_address = "bc:24:11:6e:3e:c3" # mgmt0 — matches NixOS systemd.network.links
+    model       = "virtio"
   }
 
   # Additional NICs (optional) — e.g., matter-server thread0 on vmbr30
   dynamic "network_device" {
     for_each = try(each.value.network_devices, [])
     content {
-      bridge  = network_device.value.bridge
-      model   = try(network_device.value.model, "virtio")
+      bridge      = network_device.value.bridge
+      mac_address = try(network_device.value.mac_address, null) # Explicit MAC to match NixOS systemd.network.links
+      model       = try(network_device.value.model, "virtio")
     }
   }
 

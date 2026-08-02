@@ -35,8 +35,9 @@ variable "nodes" {
     disk_size         = number # Root disk size in GiB
     datastore         = string # Proxmox storage pool for the disk (e.g. local-lvm)
     network_devices   = optional(list(object({
-      bridge  = string
-      model   = optional(string, "virtio")
+      bridge      = string
+      mac_address = optional(string)       # Explicit MAC to match systemd.network.links (prevent random assignment)
+      model       = optional(string, "virtio")
     })), []) # Optional additional NICs beyond the default vmbr0 NIC
   }))
 }
