@@ -34,6 +34,12 @@ variable "nodes" {
     memory    = number # RAM in MiB
     disk_size = number # Root disk size in GiB
     datastore = string # Proxmox storage pool for the disk (e.g. local-lvm)
+    additional_network_devices = optional(list(object({
+      bridge      = string # Proxmox network bridge (e.g. vmbr30 or vmbr0v30)
+      model       = string # NIC model (e.g. virtio)
+      vlan_id     = optional(number, 0) # VLAN ID (0 = untagged)
+      mac_address = optional(string, "") # MAC address (optional)
+    })), [])                  # Defaults to none; the primary NIC is always vmbr0
   }))
 }
 

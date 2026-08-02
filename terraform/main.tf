@@ -36,9 +36,24 @@ resource "proxmox_virtual_environment_vm" "nixos" {
     interface = "ide2"
   }
 
+  # Primary NIC — always present on vmbr0
   network_device {
-    bridge = "vmbr0"
-    model  = "virtio"
+    bridge      = "vmbr0"
+    model       = "virtio"
+    vlan_id     = 0
+    mac_address = null
+  }
+
+  # Additional NICs — optional, defined per-VM in terraform.tfvars via additional_network_devices
+  dynamic "network_device" {
+    for_each = var.nodes[each.key].additional_network_devices
+
+    content {
+      bridge      = network_device.value.bridge
+      model       = network_device.value.model
+      vlan_id     = network_device.value.vlan_id
+      mac_address = network_device.value.mac_address != "" ? network_device.value.mac_address : null
+    }
   }
 
   # QEMU guest agent for Proxmox integration (start/stop, IP reporting)
