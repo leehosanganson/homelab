@@ -99,7 +99,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "LiteLLM",
       "options": {
-        "baseURL": "https://litellm.homelab.leehosanganson.dev",
+        "baseURL": "https://litellm.leehosanganson.dev",
         "apiKey": "{env:LITELLM_KEY}",
         "timeout": 600000,
         "chunkTimeout": 60000,
