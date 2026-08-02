@@ -1,7 +1,7 @@
 _:
 
 {
-  networking.firewall.allowedTCPPorts = [ 5580 ];
+  networking.firewall.allowedTCPPorts = [ 22 5580 ];
 
   # IPv6 settings for Thread Border Router support — required for Matter device discovery
   # NOTE: IPv6 forwarding MUST be disabled (0) for Thread reachability probing (RFC 4191).
@@ -33,9 +33,6 @@ _:
       addresses = true;
     };
   };
-
-  # Keep NetworkManager DNS integration enabled; this setting is known to work for this host.
-  networking.networkmanager.dns = true;
 
   services.matter-server = {
     enable = true;

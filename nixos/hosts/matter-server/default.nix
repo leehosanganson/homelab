@@ -3,6 +3,7 @@
     ../../modules/users.nix
     ../../modules/matter-server.nix
     ../../modules/disko.nix
+    ../../modules/sops-bootstrap.nix
   ];
 
   system.stateVersion = "26.05";
@@ -10,18 +11,10 @@
   networking = {
     hostName = "matter-server";
     useDHCP = false;
+
+    # vmbr0 NIC → mgmt0 (management / SSH access)
     interfaces.mgmt0.ipv4.addresses = [
-      {
-        address = "192.168.1.162";
-        prefixLength = 24;
-      }
-    ];
-    # Apple Thread VLAN30 data path (secondary NIC, no default route)
-    interfaces.thread0.ipv4.addresses = [
-      {
-        address = "192.168.30.162";
-        prefixLength = 24;
-      }
+      { address = "192.168.1.162"; prefixLength = 24; }
     ];
     defaultGateway = {
       address = "192.168.1.1";
@@ -30,12 +23,14 @@
     nameservers = [ "192.168.1.132" ];
     firewall.enable = true;
 
-    # IPv6 — static ULA address for stable local connectivity; Thread routes are learned via RA/RIO.
+    # vmbr30 NIC → thread0 (Thread VLAN30 data path — no default route or DNS)
+    interfaces.thread0.ipv4.addresses = [
+      { address = "192.168.30.162"; prefixLength = 24; }
+    ];
+
+    # IPv6 — static ULA address for stable local connectivity
     interfaces.mgmt0.ipv6.addresses = [
-      {
-        address = "fd00:1:0:162::162";
-        prefixLength = 64;
-      }
+      { address = "fd00:1:0:162::162"; prefixLength = 64; }
     ];
     defaultGateway6 = {
       address = "fd00:1::1";
