@@ -1,6 +1,7 @@
 name: flux-validate
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -83,10 +84,12 @@ jobs:
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
+          # Skip CRDs that kubeconform has no upstream schemas for.
+          KUBECONFORM_SKIP="HelmRelease,ExternalSecret,ObjectStore,Cluster,ScheduledBackup,CustomResourceDefinition,ClusterIssuer,ClusterSecretStore,GitRepository,HelmRepository,VolumeSnapshotClass,Middleware,Schedule,Backup,VolumeSnapshot,VolumeSnapshotContent"
           for f in /tmp/apps-prod.yaml /tmp/infra-prod.yaml /tmp/mon-prod.yaml; do
             if [ -s "$f" ]; then
               echo "Validating $f ..."
-              kubeconform -strict -summary -skip HelmRelease,ExternalSecret,ObjectStore,Cluster,ScheduledBackup "$f" || exit 1
+              kubeconform -strict -summary -ignore-missing-schemas -skip "$KUBECONFORM_SKIP" "$f" || exit 1
             else
               echo "SKIP: $f is empty or missing (expected when cluster has no apps in that overlay)"
             fi
