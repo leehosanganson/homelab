@@ -86,10 +86,11 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           # Validate core K8s resources against the default schema, and custom
           # CRDs using the Datree CRDs catalog.
-          KUBECONFORM_SCHEMA_LOCATIONS="default"
-          KUBECONFORM_SCHEMA_LOCATIONS="${KUBECONFORM_SCHEMA_LOCATIONS} -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
-          # Only skip CRDs that are not (yet) in the catalog, so we still validate
-          # the known ones (HelmRelease, ExternalSecret, Cluster, ObjectStore, etc.)
+          # Only skip CustomResourceDefinition resources themselves, since there
+          # is no external schema for the CRD kind. All CR instances (HelmRelease,
+          # ExternalSecret, Cluster, ObjectStore, ClusterIssuer, ClusterSecretStore,
+          # GitRepository, HelmRepository, VolumeSnapshotClass, Middleware, Schedule,
+          # Backup, etc.) are validated against schemas from datreeio/CRDs-catalog.
           KUBECONFORM_SKIP="CustomResourceDefinition"
           for f in /tmp/apps-prod.yaml /tmp/infra-prod.yaml /tmp/mon-prod.yaml; do
             if [ -s "$f" ]; then
