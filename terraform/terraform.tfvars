@@ -11,7 +11,7 @@ nodes = {
     node      = "pve01"
     vm_id     = 201
     cores     = 2
-    memory    = 2048
+    memory    = 1024
     disk_size = 20
     datastore = "local-lvm"
   }
@@ -19,7 +19,7 @@ nodes = {
     node      = "pve02"
     vm_id     = 202
     cores     = 2
-    memory    = 2048
+    memory    = 1024
     disk_size = 20
     datastore = "local-lvm"
   }
@@ -27,7 +27,7 @@ nodes = {
     node      = "pve03"
     vm_id     = 203
     cores     = 2
-    memory    = 2048
+    memory    = 1024
     disk_size = 20
     datastore = "local-lvm"
   }
@@ -35,7 +35,7 @@ nodes = {
     node      = "pve01"
     vm_id     = 301
     cores     = 4
-    memory    = 4096
+    memory    = 2048
     disk_size = 40
     datastore = "local-lvm"
   }
@@ -43,9 +43,14 @@ nodes = {
     node      = "pve01"
     vm_id     = 302
     cores     = 1
-    memory    = 2048
+    memory    = 1024
     disk_size = 15
     datastore = "local-lvm"
+    network_devices = [
+      {
+        bridge = "vmbr30"
+      }
+    ]
   }
   "hermes-agent" = {
     node      = "pve01"

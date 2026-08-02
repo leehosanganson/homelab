@@ -41,6 +41,15 @@ resource "proxmox_virtual_environment_vm" "nixos" {
     model  = "virtio"
   }
 
+  # Additional NICs (optional) — e.g., matter-server thread0 on vmbr30
+  dynamic "network_device" {
+    for_each = try(each.value.network_devices, [])
+    content {
+      bridge  = network_device.value.bridge
+      model   = try(network_device.value.model, "virtio")
+    }
+  }
+
   # QEMU guest agent for Proxmox integration (start/stop, IP reporting)
   agent {
     enabled = true
@@ -114,7 +123,7 @@ resource "terraform_data" "wait_for_guest_ssh" {
   # Confirm the VM is fully booted and ready for provisioning before running the local provisioning script
   provisioner "remote-exec" {
     inline = [
-      "echo 'VM ${each.value.vm_id} has fully booted NixOS and is ready for provisioning!'"
+      "echo 'VM ${each.key} has fully booted NixOS and is ready for provisioning!'"
     ]
   }
 
