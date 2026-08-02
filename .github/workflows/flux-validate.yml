@@ -84,12 +84,22 @@ jobs:
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
-          # Skip CRDs that kubeconform has no upstream schemas for.
-          KUBECONFORM_SKIP="HelmRelease,ExternalSecret,ObjectStore,Cluster,ScheduledBackup,CustomResourceDefinition,ClusterIssuer,ClusterSecretStore,GitRepository,HelmRepository,VolumeSnapshotClass,Middleware,Schedule,Backup,VolumeSnapshot,VolumeSnapshotContent"
+          # Validate core K8s resources against the default schema, and custom
+          # CRDs using the Datree CRDs catalog.
+          KUBECONFORM_SCHEMA_LOCATIONS="default"
+          KUBECONFORM_SCHEMA_LOCATIONS="${KUBECONFORM_SCHEMA_LOCATIONS} -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
+          # Only skip CRDs that are not (yet) in the catalog, so we still validate
+          # the known ones (HelmRelease, ExternalSecret, Cluster, ObjectStore, etc.)
+          KUBECONFORM_SKIP="CustomResourceDefinition"
           for f in /tmp/apps-prod.yaml /tmp/infra-prod.yaml /tmp/mon-prod.yaml; do
             if [ -s "$f" ]; then
               echo "Validating $f ..."
-              kubeconform -strict -summary -ignore-missing-schemas -skip "$KUBECONFORM_SKIP" "$f" || exit 1
+              kubeconform -strict -summary \
+                -schema-location default \
+                -schema-location "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json" \
+                -ignore-missing-schemas \
+                -skip "$KUBECONFORM_SKIP" \
+                "$f" || exit 1
             else
               echo "SKIP: $f is empty or missing (expected when cluster has no apps in that overlay)"
             fi
