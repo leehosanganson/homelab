@@ -29,8 +29,7 @@ valkey:
   persistence:
     data:
       enabled: true
-      type: persistentVolumeClaim
-      size: 1Gi
+      type: emptyDir
 
 server:
   enabled: true
@@ -39,7 +38,6 @@ server:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-cloudflare
-      ingressClassName: traefik
       hosts:
         - host: immich.homelab.leehosanganson.dev
           paths:
@@ -56,6 +54,4 @@ machine-learning:
   persistence:
     cache:
       enabled: true
-      type: persistentVolumeClaim
-      size: 10Gi
-      accessMode: ReadWriteOnce
+      type: emptyDir
