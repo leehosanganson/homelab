@@ -30,5 +30,5 @@ spec:
                 name: karakeep-configuration
       volumes:
         - name: meilisearch
-          persistentVolumeClaim:
-            claimName: meilisearch-pvc
+          emptyDir:
+            sizeLimit: 500Mi

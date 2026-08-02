@@ -5,6 +5,5 @@ resources:
   - chrome-service.yaml
   - meilisearch-deployment.yaml
   - meilisearch-service.yaml
-  - meilisearch-pvc.yaml
   - pvc.yaml
   - ingress.yaml
