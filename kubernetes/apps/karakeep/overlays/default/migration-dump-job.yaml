@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: meilisearch-migration-dump
+  namespace: karakeep
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: getmeili/meilisearch:v1.11.1
+          command:
+            - bash
+            - -c
+            - |
+              meilisearch --dump-dir=/data/dumps --mode=export
+          env:
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: karakeep-secrets
+                  key: MEILI_MASTER_KEY
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+          volumeMounts:
+            - name: meilisearch-data
+              mountPath: /meili_data
+      restartPolicy: Never
+      volumes:
+        - name: meilisearch-data
+          persistentVolumeClaim:
+            claimName: meilisearch-pvc
+  backoffLimit: 1
