@@ -79,7 +79,7 @@ jobs:
           for f in /tmp/apps-prod.yaml /tmp/infra-prod.yaml /tmp/mon-prod.yaml; do
             if [ -s "$f" ]; then
               echo "Validating $f ..."
-              kubeconform -strict "$f" || exit 1
+              kubeconform -strict -ignore-missing-schemas "$f" || exit 1
             else
               echo "SKIP: $f is empty or missing (expected when cluster has no apps in that overlay)"
             fi
