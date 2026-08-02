@@ -22,6 +22,25 @@
   # QEMU guest agent so Proxmox can report IP addresses and manage power state
   services.qemuGuest.enable = true;
 
+  # Networking
+  networking = {
+    usePredictableInterfaceNames = false;
+    nameservers = [ "192.168.1.132" ];
+    defaultGateway = {
+      address = "192.168.1.1";
+      interface = "eth0";
+    };
+    defaultGateway6 = {
+      address = "fd00:1::1";
+      interface = "eth0";
+    };
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [ 22 80 ];
+      checkReversePath = "loose";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     git
     parted

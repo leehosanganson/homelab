@@ -29,16 +29,16 @@ nodes = {
     cores     = 2
     memory    = 2048
     disk_size = 20
-    datastore = "local-lvm"
+    datastore = "local-lvm",
   }
-  "opencode-1" = {
-    node      = "pve01"
-    vm_id     = 301
-    cores     = 4
-    memory    = 4096
-    disk_size = 40
-    datastore = "local-lvm"
-  }
+  # "opencode-1" = {
+  #  node      = "pve01"
+  #  vm_id     = 301
+  #  cores     = 4
+  #  memory    = 4096
+  #  disk_size = 40
+  #  datastore = "local-lvm"
+  # }
   "matter-server" = {
     node      = "pve01"
     vm_id     = 302
@@ -46,6 +46,13 @@ nodes = {
     memory    = 2048
     disk_size = 15
     datastore = "local-lvm"
+    additional_network_devices = [
+      {
+        bridge    = "vmbr0"
+        model   = "virtio"
+        vlan_id = 30
+      },
+    ]
   }
   "hermes-agent" = {
     node      = "pve01"
