@@ -32,14 +32,26 @@ jobs:
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           mv kustomize "$HOME/.local/bin/kustomize"
 
-      - name: Lint kustomization files
+      - name: Validate kustomization files
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
-          # Walk every kustomization.yaml under kubernetes/ and lint it
+          # Use 'kustomize build' with --load-restrictor=LoadFilesOnly to catch errors
+          # without rendering manifests. This validates syntax and references.
           find kubernetes -name 'kustomization.yaml' | while read -r f; do
-            echo "Linting $f ..."
-            kustomize lint "$f" || exit 1
+            dir=$(dirname "$f")
+            echo "Validating $dir ..."
+            kustomize build --load-restrictor=LoadFilesOnly "$dir" > /dev/null || exit 1
+          done
+
+      - name: Validate fluxcd kustomizations
+        run: |
+          set -e
+          export PATH="$HOME/.local/bin:$PATH"
+          find fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
+            dir=$(dirname "$f")
+            echo "Validating $dir ..."
+            kustomize build --load-restrictor=LoadFilesOnly "$dir" > /dev/null || exit 1
           done
 
   flux-build:
@@ -83,14 +95,4 @@ jobs:
             else
               echo "SKIP: $f is empty or missing (expected when cluster has no apps in that overlay)"
             fi
-          done
-
-      - name: Validate fluxcd kustomizations
-        run: |
-          set -e
-          export PATH="$HOME/.local/bin:$PATH"
-          # Lint the Flux Kustomization manifests themselves
-          find fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
-            echo "Linting $f ..."
-            kustomize lint "$f" || exit 1
           done
