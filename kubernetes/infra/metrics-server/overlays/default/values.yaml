@@ -1,6 +1,9 @@
 args:
-  - --kubelet-insecure-tls
   - --kubelet-preferred-address-types=InternalIP
   - --metric-resolution=15s
+apiService:
+  insecureSkipTLSVerify: false
 extraArgs:
   - --kubelet-use-node-status-port
+tls:
+  type: cert-manager
