@@ -99,6 +99,6 @@ in
     };
 
     # Common tools available to the agent's terminal backend.
-    extraPackages = with pkgs; [ git jq ripgrep ffmpeg nodejs kubectl kubernetes-helm ];
+    extraPackages = with pkgs; [ git jq ripgrep ffmpeg nodejs kubectl kubernetes-helm fluxcd kustomize uv ];
   };
 }
