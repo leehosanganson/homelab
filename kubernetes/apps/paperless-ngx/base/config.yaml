@@ -13,6 +13,7 @@ data:
   PAPERLESS_PORT: "8000"
   PAPERLESS_DB_HOST: paperless-db
   PAPERLESS_DB_PORT: "5432"
+  PAPERLESS_DBENGINE: postgresql
   PAPERLESS_REDIS: "redis://broker:6379"
   PAPERLESS_TIME_ZONE: "Europe/London"
   PAPERLESS_URL: "https://paperless.homelab.leehosanganson.dev"
