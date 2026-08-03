@@ -49,8 +49,12 @@ _:
     };
   };
 
-  services.matter-server = {
+  # matterjs-server (matter.js-based implementation)
+  # Replaced python-matter-server which was archived and EOL.
+  services.matterjs-server = {
     enable = true;
-    extraArgs = { primary-interface = "eth1"; };
+    listenAddress = "0.0.0.0";
+    openFirewall = true;
+    extraArgs = [ "--primary-interface=eth1" ];
   };
 }
