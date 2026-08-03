@@ -11,11 +11,6 @@ data:
   S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
 
   PAPERLESS_PORT: "8000"
-  PAPERLESS_DBHOST: paperless-db-rw
-  PAPERLESS_DBPORT: "5432"
-  PAPERLESS_DBNAME: paperless
-  PAPERLESS_DBENGINE: postgresql
-  PAPERLESS_REDIS: "redis://broker:6379"
   PAPERLESS_TIME_ZONE: "Europe/London"
   PAPERLESS_URL: "https://paperless.homelab.leehosanganson.dev"
   PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
