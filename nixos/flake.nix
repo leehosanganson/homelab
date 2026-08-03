@@ -66,6 +66,8 @@
       ];
     };
 
+    # Matter-server configuration using matterjs-server (matter.js-based implementation)
+    # Replaced python-matter-server which was archived and EOL.
     nixosConfigurations.matter-server = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; inherit sops-secrets; };
