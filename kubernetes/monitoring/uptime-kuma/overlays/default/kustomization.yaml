@@ -9,3 +9,5 @@ configMapGenerator:
     name: uptime-kuma-values
     options:
       disableNameSuffixHash: true
+      labels:
+        helm.toolkit.fluxcd.io/watch: "true"

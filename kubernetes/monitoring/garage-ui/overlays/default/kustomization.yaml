@@ -10,3 +10,5 @@ configMapGenerator:
     name: garage-ui-values
     options:
       disableNameSuffixHash: true
+      labels:
+        helm.toolkit.fluxcd.io/watch: "true"
