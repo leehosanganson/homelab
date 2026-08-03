@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   name: gpu-operator
 spec:
-  interval: 1h
+  interval: 1m
   chart:
     spec:
       chart: gpu-operator
