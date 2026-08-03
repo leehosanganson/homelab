@@ -13,6 +13,7 @@ data:
   PAPERLESS_PORT: "8000"
   PAPERLESS_DB_HOST: paperless-db-rw
   PAPERLESS_DB_PORT: "5432"
+  PAPERLESS_DBENGINE: postgresql
   PAPERLESS_REDIS: "redis://broker:6379"
   PAPERLESS_TIME_ZONE: "Europe/London"
   PAPERLESS_URL: "https://paperless.homelab.leehosanganson.dev"
@@ -25,6 +26,6 @@ data:
   PAPERLESS_EXPORT_DIR: /usr/src/paperless-ngx/export
   PAPERLESS_MEDIA_ROOT: /usr/src/paperless-ngx/media
 
-  PAPERLESS_CONSUMER_POLLING: "60"
+  PAPERLESS_CONSUMER_POLLING_INTERVAL: "60"
   PAPERLESS_CONSUMER_RECURSIVE: "true"
   PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"
