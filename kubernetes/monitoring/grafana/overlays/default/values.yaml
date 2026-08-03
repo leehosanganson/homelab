@@ -19,7 +19,7 @@ datasources:
       - name: Prometheus
         type: prometheus
         uid: prometheus
-        url: http://prometheus-server.monitoring.svc.cluster.local
+        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
         access: proxy
         isDefault: true
         jsonData:
