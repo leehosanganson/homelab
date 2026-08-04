@@ -57,11 +57,10 @@ in
 
     # Declarative base config (secret-free). Discord credentials and API keys
     # come from the sops-managed `hermes-env` secret.
-    # Default model: unsloth/qwen-3.6 via LiteLLM for cost-effective experimentation.
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
       model = {
-        default = "unsloth/qwen-3.6";
+        default = "openrouter/deepseek-v4-flash";
         provider = "litellm";
       };
       toolsets = [ "all" ];
@@ -70,7 +69,7 @@ in
           name = "litellm";
           api = "https://litellm.homelab.leehosanganson.dev/v1";
           key_env = "OPENAI_API_KEY";
-          default_model = "unsloth/qwen-3.6";
+          default_model = "openrouter/deepseek-v4-flash";
         };
       };
       model_aliases = {
@@ -99,6 +98,17 @@ in
     };
 
     # Common tools available to the agent's terminal backend.
-    extraPackages = with pkgs; [ git jq ripgrep ffmpeg nodejs kubectl kubernetes-helm fluxcd kustomize uv ];
+    extraPackages = with pkgs; [
+      git
+      jq
+      ripgrep
+      ffmpeg
+      nodejs
+      kubectl
+      kubernetes-helm
+      fluxcd
+      kustomize
+      uv
+    ];
   };
 }
