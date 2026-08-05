@@ -48,7 +48,7 @@ nodes = {
     datastore = "local-lvm"
     additional_network_devices = [
       {
-        bridge  = "vmbr0"
+        bridge    = "vmbr0"
         model   = "virtio"
         vlan_id = 30
       },
