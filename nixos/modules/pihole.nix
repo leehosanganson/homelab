@@ -1,59 +1,50 @@
-# Shared Pi-hole configuration for the homelab DNS VMs (pihole-1, pihole-2).
-#
-# Both Pi-hole VMs are provisioned from this single module — the only
-# differences between them (hostname + static IP) live in their own
-# `nixos/hosts/<name>/default.nix`. Everything else is shared so the two
-# resolvers stay in lock-step and either can replace the other.
-#
-# The web UI is served on port 80 inside the VM; external HTTPS access goes
-# through HAProxy (`.infra.leehosanganson.dev`) which reverse-proxies to
-# 192.168.1.132:80 / 192.168.1.133:80.
+# Shared Pi-hole config for the DNS VMs (pihole-1/pihole-2).
+# Per-host difference is only hostname + IP; web UI served on :80, fronted by HAProxy.
 {
   config,
-  lib,
   ...
-}: let
-  hostIp =
-    (builtins.elemAt config.networking.interfaces.eth0.ipv4.addresses 0).address;
-in {
+}: {
   services.pihole-ftl = {
     enable = true;
-
-    # The Pi-hole DNS server (UDP/TCP 53) is the whole point of these VMs.
     openFirewallDNS = true;
-    # pihole-web binds 80 which HAProxy fronts. Keep the VM's own firewall open
-    # for it so direct http://<ip>/admin also works for troubleshooting.
     openFirewallWebserver = true;
 
     settings = {
-      # Upstream resolvers — change to taste. These are what Pi-hole forwards
-      # non-blocked queries to.
       dns = {
         upstreams = [
           "1.1.1.1"
           "9.9.9.9"
         ];
         listeningMode = "ALL";
+        # Local DNS records (shared "Local DNS" / custom.list).
+        hosts = [
+          "192.168.1.250 haproxy-1.home.lab"
+          "192.168.1.151 k3s-ctrl-01.home.lab"
+          "192.168.1.152 k3s-ctrl-02.home.lab"
+          "192.168.1.153 k3s-ctrl-03.home.lab"
+          "192.168.1.154 k3s-ctrl-04.home.lab"
+          "192.168.1.131 k3s-gpu-01.home.lab"
+          "192.168.1.240 mac-mini.home.lab"
+          "192.168.1.197 nas1.home.lab"
+          "192.168.1.132 pihole-1.home.lab"
+          "192.168.1.133 pihole-2.home.lab"
+          "192.168.1.193 pve01.home.lab"
+          "192.168.1.143 pve02.home.lab"
+          "192.168.1.168 pve03.home.lab"
+        ];
       };
-
-      # Needed so the declarative `lists` below can be loaded via the API on boot.
-      webserver.api.cli_pw = true;
+      webserver.api.cli_pw = true; # required so `lists` load on boot
     };
 
-    # Declarative blocklists. On a fresh provision `pihole-ftl-setup` downloads
-    # and loads these automatically. For migration, mirror the adlists from the
-    # current VM — see docs/runbooks/pihole-vm-migration.md.
     lists = [
       {
         url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt";
         type = "block";
-        enabled = true;
         description = "hagezi pro blocklist";
       }
       {
         url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
         type = "block";
-        enabled = true;
         description = "StevenBlack hosts";
       }
     ];
@@ -64,10 +55,7 @@ in {
     ports = ["80"];
   };
 
-  # Web UI admin password is NOT stored in the repo. Set it on first boot:
-  #   pihole setpassword
-  # (or push it via sops-nix if you want it managed declaratively).
-
+  # Web/API password set on first boot via `pihole setpasswd`; not stored in repo.
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;

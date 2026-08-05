@@ -114,15 +114,25 @@ The code is the deliverable of this PR:
 
 | Path | Purpose |
 | ---- | ------- |
-| `nixos/modules/pihole.nix` | **Shared** Pi-hole config used by both VMs (service, upstream DNS, blocklists, firewall). |
-| `nixos/hosts/pihole-1/default.nix` | pihole-1 host: imports module, sets **192.168.1.132**. |
-| `nixos/hosts/pihole-2/default.nix` | pihole-2 host: imports module, sets **192.168.1.133**. |
+| `nixos/modules/pihole.nix` | **Shared** Pi-hole config used by both VMs (service, upstream DNS, local DNS records, blocklists, firewall). |
+| `nixos/modules/hardening.nix` | **Shared** kernel/network hardening applied to both VMs. |
+| `nixos/hosts/pihole-1/default.nix` | pihole-1 host: imports modules, sets **192.168.1.132**, resolver = peer pihole-2. |
+| `nixos/hosts/pihole-2/default.nix` | pihole-2 host: imports modules, sets **192.168.1.133**, resolver = peer pihole-1. |
 | `nixos/flake.nix` | Registers `nixosConfigurations.pihole-1` and `pihole-2`. |
 | `terraform/terraform.tfvars` | Adds `pihole-1` (vm 102) and `pihole-2` (vm 103) to the `nodes` map. |
 | `docs/runbooks/pihole-vm-migration.md` | This runbook. |
 
-Both hosts share `pihole.nix`; the only per-host difference is hostname + IP.
-That is what makes the two resolvers interchangeable and node-portable.
+Both hosts share `pihole.nix` + `hardening.nix`; the only per-host difference is
+hostname + IP (+ which peer each uses as its resolver). That is what makes the
+two resolvers interchangeable and node-portable.
+
+### DNS redundancy
+
+Each Pi-hole points at the **other** as its resolver with a public fallback, so
+hosts keep resolving if either Pi-hole goes down:
+
+- `pihole-1` → `nameservers = [ "192.168.1.133" "1.1.1.1" ]`
+- `pihole-2` → `nameservers = [ "192.168.1.132" "1.1.1.1" ]`
 
 ### Secrets (web admin + API password)
 

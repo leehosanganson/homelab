@@ -62,11 +62,9 @@ nodes = {
     disk_size = 30
     datastore = "local-lvm"
   }
-  # Pi-hole DNS resolvers — migrated from native PVE VMs to this NixOS framework.
-  # IPs kept the same as the original VMs (192.168.1.132 / 192.168.1.133).
-  # NOTE: node placement below is a seed — confirm the current host with
-  # `qm config <id> | grep node` before applying. See
-  # docs/runbooks/pihole-vm-migration.md for the full cutover procedure.
+  # Pi-hole DNS resolvers (migrated from native PVE VMs; IPs/VM IDs preserved).
+  # Node IP last-octets: pve01=.193 pve02=.143 pve03=.168 pve04=.194.
+  # Two separate nodes for redundancy. See docs/runbooks/pihole-vm-migration.md.
   "pihole-1" = {
     node      = "pve01"
     vm_id     = 102

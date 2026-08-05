@@ -1,6 +1,7 @@
 { sops-secrets, ... }: {
   imports = [
     ../../modules/users.nix
+    ../../modules/hardening.nix
     ../../modules/pihole.nix
     ../../modules/disko.nix
     ../../modules/sops-bootstrap.nix
@@ -19,6 +20,7 @@
       }
     ];
     defaultGateway = "192.168.1.1";
-    nameservers = [ "1.1.1.1" "9.9.9.9" ];
+    # Use the peer Pi-hole as the resolver, with a public fallback.
+    nameservers = [ "192.168.1.132" "1.1.1.1" ];
   };
 }
