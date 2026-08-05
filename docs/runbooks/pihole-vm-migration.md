@@ -114,10 +114,10 @@ The code is the deliverable of this PR:
 
 | Path | Purpose |
 | ---- | ------- |
-| `nixos/modules/pihole.nix` | **Shared** Pi-hole config used by both VMs (service, upstream DNS, local DNS records, blocklists, firewall). |
-| `nixos/modules/hardening.nix` | **Shared** kernel/network hardening applied to both VMs. |
-| `nixos/hosts/pihole-1/default.nix` | pihole-1 host: imports modules, sets **192.168.1.132**, resolver = peer pihole-2. |
-| `nixos/hosts/pihole-2/default.nix` | pihole-2 host: imports modules, sets **192.168.1.133**, resolver = peer pihole-1. |
+| `nixos/modules/pihole.nix` | **Shared** Pi-hole config: services, upstream DNS, local DNS records, and the `homelab.pihole.blocklists` option (set per host). |
+| `nixos/modules/hardening.nix` | **Shared** Linux hardening: SSH (key-only, root prohibit-password), host firewall (port 22), kernel/network sysctls. |
+| `nixos/hosts/pihole-1/default.nix` | pihole-1 host: imports modules, sets **192.168.1.132**, resolver = peer pihole-2, 4 blocklists. |
+| `nixos/hosts/pihole-2/default.nix` | pihole-2 host: imports modules, sets **192.168.1.133**, resolver = peer pihole-1, 2 blocklists. |
 | `nixos/flake.nix` | Registers `nixosConfigurations.pihole-1` and `pihole-2`. |
 | `terraform/terraform.tfvars` | Adds `pihole-1` (vm 102) and `pihole-2` (vm 103) to the `nodes` map. |
 | `docs/runbooks/pihole-vm-migration.md` | This runbook. |
