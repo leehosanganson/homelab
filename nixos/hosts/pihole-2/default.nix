@@ -24,6 +24,9 @@
     nameservers = [ "1.1.1.1" "9.9.9.9" ];
   };
 
+  # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
+  sops.defaultSopsFile = "${sops-secrets}/secrets.yaml";
+
   # pihole-2 subscribes to a smaller set than pihole-1 (per-host blocklists).
   homelab.pihole.blocklists = [
     {

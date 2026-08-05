@@ -87,15 +87,32 @@ Repeat per VM (for Pi-hole: pihole-2 first, then pihole-1).
 
 ### Day-0 secrets
 
-Set any runtime-only secrets on the freshly built VM (web/API password, etc.):
+Runtime secrets are provided via **sops-nix** (encrypted in the external secrets
+repo, decrypted at boot). For Pi-hole, the web/API admin password is injected
+into the `pihole-ftl` service as the environment variable
+`FTLCONF_webserver_api_pwhash` — so the generated `pihole.toml` stays read-only
+(whether `readOnly` is on) and the password never lands in the repo.
+
+**To add the Pi-hole password to sops:**
 
 ```bash
-ssh root@<ip>
-# e.g. pihole: pihole setpasswd
+# 1. On any existing Pi-hole, generate the bcrypt hash of the password:
+pihole setpassword        # or: pihole setpassword <secret>
+# then read it back (it's stored under webserver.api.pwhash):
+grep -E "pwhash" /etc/pihole/pihole.toml
+
+# 2. Add a secret `pihole-web-pwhash` to the sops secrets repo containing the
+#    env line that FTL expects:
+#      FTLCONF_webserver_api_pwhash=<the-bcrypt-hash>
+#    and push it (the `sops-secrets` flake input will pick it up on the next
+#    `rebuild.sh --update-secrets`).
 ```
 
-Then regenerate any downstream API keys (e.g. Homepage `HOMEPAGE_VAR_PIHOLE_*`)
-to match. sops-nix declarative secrets are a possible follow-up.
+Then on the VM the `pihole-ftl` unit reads `/run/secrets/pihole-web-pwhash` via
+`EnvironmentFile`, so no manual per-boot step is needed.
+
+Also regenerate any downstream API keys (e.g. Homepage `HOMEPAGE_VAR_PIHOLE_*`)
+to match the configured password.
 
 ---
 

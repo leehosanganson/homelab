@@ -27,6 +27,21 @@ in {
   };
 
   config = {
+    # Admin password: injected at boot via sops-nix + FTL env override, so the
+    # store-generated pihole.toml stays read-only (readOnly=true) and the
+    # password never lives in the repo.
+    # The sops secret must be an env line:  FTLCONF_webserver_api_pwhash=<bcrypt-hash>
+    # (generate the hash with: pihole setpassword, then read it back).
+    sops.secrets."pihole-web-pwhash" = {
+      mode = "0400";
+    };
+
+    systemd.services.pihole-ftl = {
+      serviceConfig.EnvironmentFile = [
+        config.sops.secrets."pihole-web-pwhash".path
+      ];
+    };
+
     services.pihole-ftl = {
       enable = true;
       openFirewallDNS = true;
@@ -66,8 +81,5 @@ in {
       enable = true;
       ports = ["80"];
     };
-
-    # Web/API password set on first boot via `pihole setpasswd`; not stored in repo.
-    # NOTE: no services.resolved here — FTL is the resolver on these VMs.
   };
 }
