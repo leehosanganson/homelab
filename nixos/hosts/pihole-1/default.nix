@@ -20,8 +20,8 @@
       }
     ];
     defaultGateway = "192.168.1.1";
-    # Use the peer Pi-hole as the resolver, with a public fallback.
-    nameservers = [ "192.168.1.133" "1.1.1.1" ];
+    # Host OS resolver: public upstream (FTL serves the network, not this host).
+    nameservers = [ "1.1.1.1" "9.9.9.9" ];
   };
 
   homelab.pihole.blocklists = [
