@@ -1,5 +1,21 @@
-# Shared hardening for NixOS VMs.
+# Shared hardening for NixOS VMs (kernel, network, and SSH/firewall baseline).
 { ... }: {
+  # SSH — key-only auth, no passwords.
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+    };
+  };
+
+  # Basic host firewall; SSH allowed here, app ports added by services.
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [22];
+  };
+
   security = {
     lockKernelModules = true;
     protectKernelImage = true;

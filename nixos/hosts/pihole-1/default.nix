@@ -23,4 +23,23 @@
     # Use the peer Pi-hole as the resolver, with a public fallback.
     nameservers = [ "192.168.1.133" "1.1.1.1" ];
   };
+
+  homelab.pihole.blocklists = [
+    {
+      url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt";
+      description = "hagezi pro";
+    }
+    {
+      url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/popupads.txt";
+      description = "hagezi popup ads";
+    }
+    {
+      url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/fake.txt";
+      description = "hagezi fakes";
+    }
+    {
+      url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/nsfw.txt";
+      description = "hagezi nsfw";
+    }
+  ];
 }
