@@ -36,16 +36,27 @@
       webserver.api.cli_pw = true; # required so `lists` load on boot
     };
 
+    # Subscribed blocklists (jsdelivr CDN mirrors of hagezi).
     lists = [
       {
-        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt";
+        url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt";
         type = "block";
-        description = "hagezi pro blocklist";
+        description = "hagezi pro";
       }
       {
-        url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
+        url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/popupads.txt";
         type = "block";
-        description = "StevenBlack hosts";
+        description = "hagezi popup ads";
+      }
+      {
+        url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/fake.txt";
+        type = "block";
+        description = "hagezi fakes";
+      }
+      {
+        url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/nsfw.txt";
+        type = "block";
+        description = "hagezi nsfw";
       }
     ];
   };
