@@ -21,4 +21,4 @@ Then any staged `.dot` file is automatically re-rendered to SVG on commit. Requi
 - [runbooks/workflows-testing-validation.md](runbooks/workflows-testing-validation.md) — Testing & Validation procedures for PR branches in-cluster via FluxCD
 - [runbooks/iac-terraform-opentofu-provisioning.md](runbooks/iac-terraform-opentofu-provisioning.md) — Terraform/OpenTofu provisioning of NixOS VMs on Proxmox
 - [runbooks/iac-nixos-configurations.md](runbooks/iac-nixos-configurations.md) — NixOS configurations, provisioning and rebuilding VMs
-- [runbooks/pihole-vm-migration.md](runbooks/pihole-vm-migration.md) — Migrating the Pi-hole VMs from native Ubuntu VMs to the NixOS IaC framework (stateless teardown/rebuild, peer-redundancy uptime, k3s next)
+- [runbooks/pve-migration-to-nixos.md](runbooks/pve-migration-to-nixos.md) — Migrating native Ubuntu PVE VMs to the NixOS IaC framework (stateless teardown/rebuild, peer-redundancy uptime; Pi-hole as the worked example)

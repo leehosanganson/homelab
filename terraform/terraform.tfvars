@@ -64,7 +64,7 @@ nodes = {
   }
   # Pi-hole DNS resolvers (migrated from native PVE VMs; IPs/VM IDs preserved).
   # Node IP last-octets: pve01=.193 pve02=.143 pve03=.168 pve04=.194.
-  # Two separate nodes for redundancy. See docs/runbooks/pihole-vm-migration.md.
+  # Two separate nodes for redundancy. See docs/runbooks/pve-migration-to-nixos.md.
   "pihole-1" = {
     node      = "pve01"
     vm_id     = 102
