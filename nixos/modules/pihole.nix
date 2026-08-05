@@ -68,9 +68,6 @@ in {
     };
 
     # Web/API password set on first boot via `pihole setpasswd`; not stored in repo.
-    services.resolved = {
-      enable = true;
-      settings.Resolve.DNSSEC = "false";
-    };
+    # NOTE: no services.resolved here — FTL is the resolver on these VMs.
   };
 }

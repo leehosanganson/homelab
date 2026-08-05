@@ -19,7 +19,6 @@
   security = {
     lockKernelModules = true;
     protectKernelImage = true;
-    virtualisation.flushL1DataCache = "always";
   };
 
   boot.kernel.sysctl = {
