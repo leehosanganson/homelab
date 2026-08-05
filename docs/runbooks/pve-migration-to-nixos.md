@@ -51,10 +51,10 @@ its module.
 Do not accept downtime. Before touching the target, ensure a **backup of the
 service is already serving**. For Pi-hole, redundancy is built in:
 
-- Machines/routers already list **both** Pi-holes (or the second one) as
-  resolvers, and each Pi-hole points at the **other** as its own resolver
-  (`pihole-1` → `.133`, `pihole-2` → `.132`).
-- Migrate **one at a time**: while VM 102 is rebuilt, `.133` keeps serving.
+- **All machines/routers configure redundant nameservers** — they list **both**
+  `192.168.1.132` and `192.168.1.133`, so DNS keeps resolving if either
+  Pi-hole goes down.
+- Migrate **one at a time**: while VM 102 is rebuilt, `.133` still serves.
   Order: **secondary first, then primary last** (`.132` is the more commonly
   configured resolver, so keep it up until the end).
 
