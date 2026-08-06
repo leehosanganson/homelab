@@ -4,7 +4,7 @@ proxmox_insecure       = true
 
 pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 
-nixos_iso = "local:iso/nixos-minimal-26.05.20260505.549bd84-x86_64-linux.iso"
+nixos_iso = "local:iso/nixos-minimal-26.11.20260802.6438090-x86_64-linux.iso"
 
 nodes = {
   "haproxy-1" = {
@@ -48,7 +48,7 @@ nodes = {
     datastore = "local-lvm"
     additional_network_devices = [
       {
-        bridge    = "vmbr0"
+        bridge  = "vmbr0"
         model   = "virtio"
         vlan_id = 30
       },
@@ -62,11 +62,8 @@ nodes = {
     disk_size = 30
     datastore = "local-lvm"
   }
-  # Pi-hole DNS resolvers (migrated from native PVE VMs; IPs/VM IDs preserved).
-  # Node IP last-octets: pve01=.193 pve02=.143 pve03=.168 pve04=.194.
-  # Two separate nodes for redundancy. See docs/runbooks/pve-migration-to-nixos.md.
   "pihole-1" = {
-    node      = "pve01"
+    node      = "pve04"
     vm_id     = 102
     cores     = 2
     memory    = 2048

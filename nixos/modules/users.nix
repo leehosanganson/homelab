@@ -27,4 +27,7 @@
   # The default NixOS channel profile sets require-sigs=true, which blocks
   # nixos-rebuild --target-host because locally-built closures aren't signed.
   nix.settings.require-sigs = false;
+
+  # Guess Agent
+  services.qemuGuest.enable = true;
 }
