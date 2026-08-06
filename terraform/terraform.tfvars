@@ -78,4 +78,23 @@ nodes = {
     disk_size = 20
     datastore = "local-lvm"
   }
+  # NixOS k3s nodes — first of the rollout replacing the existing Ubuntu k3s
+  # cluster. Both on pve04 (192.168.1.194); ctrl-04 is the control plane,
+  # work-01 the worker. Join via existing cluster token (sops: k3s-token).
+  "k3s-ctrl-04" = {
+    node      = "pve04"
+    vm_id     = 104
+    cores     = 4
+    memory    = 4096
+    disk_size = 40
+    datastore = "local-lvm"
+  }
+  "k3s-work-01" = {
+    node      = "pve04"
+    vm_id     = 105
+    cores     = 8
+    memory    = 8192
+    disk_size = 40
+    datastore = "local-lvm"
+  }
 }
