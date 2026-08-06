@@ -67,6 +67,11 @@ in
             "192.168.1.194 pve04.home.lab"
           ];
         };
+        # Local DNS rewrite: resolve the homelab domain and all its subdomains
+        # to the HAProxy
+        misc.dnsmasq_lines = [
+          "address=/homelab.leehosanganson.dev/192.168.1.250"
+        ];
         webserver.api.cli_pw = true; # required so `lists` load on boot
       };
 
