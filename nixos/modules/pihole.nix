@@ -67,6 +67,13 @@ in
             "192.168.1.194 pve04.home.lab"
           ];
         };
+        # Local DNS rewrite: resolve the homelab domain and all its subdomains
+        # to the HAProxy ingress VIP. dnsmasq_lines is injected into FTL's
+        # generated dnsmasq config — no /etc/dnsmasq.d drop-in required
+        # (equivalent to misc.etc_dnsmasq_d + address= entry, but declarative).
+        misc.dnsmasq_lines = [
+          "address=/homelab.leehosanganson.dev/192.168.1.250"
+        ];
         webserver.api.cli_pw = true; # required so `lists` load on boot
       };
 
