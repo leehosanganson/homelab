@@ -11,16 +11,11 @@ let
   # /var/lib/rancher/k3s/server/manifests/k3s-kube-flannel.yml / --flannel-backend).
   # Opening both UDP ports works regardless of which backend is in use; narrow to a single
   # backend after confirming the live cluster's setting.
-  flannelBackendPorts = lib.unique (
-    lib.concatLists (
-      lib.genList (
-        idx: if cfg.flannelBackend[idx] == "vxlan" then [ 8472 ]
-             else if cfg.flannelBackend[idx] == "wireguard-native" then [ 51820 ]
-             else [ ]
-        )
-        (length cfg.flannelBackend)
-    )
-  );
+  flannelBackendPorts = lib.unique (lib.concatMap (backend:
+    if backend == "vxlan" then [ 8472 ]
+    else if backend == "wireguard-native" then [ 51820 ]
+    else [ ]
+  ) cfg.flannelBackend);
 
 in
 {
