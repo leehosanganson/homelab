@@ -20,8 +20,7 @@
       }
     ];
     defaultGateway = "192.168.1.1";
-    # Host OS resolver: public upstream.
-    nameservers = [ "1.1.1.1" "9.9.9.9" ];
+    nameservers = [ "192.168.1.133" "1.1.1.1" "9.9.9.9" ];
   };
 
   # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
@@ -30,7 +29,6 @@
   homelab.k3s = {
     enable = true;
     role = "agent";
-    # Join the cluster via the HAProxy API VIP (load-balanced across ctrl nodes).
-    serverAddr = "https://192.168.1.250:6443"; # HAProxy VIP
+    serverAddr = "https://192.168.1.151:6443";
   };
 }
