@@ -4,7 +4,7 @@ proxmox_insecure       = true
 
 pve_ssh_private_key_file = "~/.ssh/id_ed25519"
 
-nixos_iso = "local:iso/nixos-minimal-26.05.20260505.549bd84-x86_64-linux.iso"
+nixos_iso = "local:iso/nixos-minimal-26.11.20260802.6438090-x86_64-linux.iso"
 
 nodes = {
   "haproxy-1" = {
@@ -48,7 +48,7 @@ nodes = {
     datastore = "local-lvm"
     additional_network_devices = [
       {
-        bridge    = "vmbr0"
+        bridge  = "vmbr0"
         model   = "virtio"
         vlan_id = 30
       },
@@ -60,6 +60,22 @@ nodes = {
     cores     = 2
     memory    = 4096
     disk_size = 30
+    datastore = "local-lvm"
+  }
+  "pihole-1" = {
+    node      = "pve04"
+    vm_id     = 102
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+  }
+  "pihole-2" = {
+    node      = "pve02"
+    vm_id     = 103
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
     datastore = "local-lvm"
   }
 }
