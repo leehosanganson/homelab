@@ -74,20 +74,20 @@
         href: https://jellyfin.homelab.leehosanganson.dev
         description: Media server
         widget:
-            type: jellyfin
-            url: https://jellyfin.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
-            version: 2
-            enableBlocks: true
-            enableNowPlaying: true
+          type: jellyfin
+          url: https://jellyfin.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
+          version: 2
+          enableBlocks: true
+          enableNowPlaying: true
     - Jellyseerr:
         icon: jellyseerr.png
         href: https://jellyseerr.homelab.leehosanganson.dev
         description: Media request management
         widget:
-            type: seerr
-            url: https://jellyseerr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
+          type: seerr
+          url: https://jellyseerr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
 
 - Music:
     - Navidrome:
@@ -99,9 +99,9 @@
         href: https://lidarr.homelab.leehosanganson.dev
         description: Music management
         widget:
-            type: lidarr
-            url: https://lidarr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
+          type: lidarr
+          url: https://lidarr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
     - LRCGet:
         icon: lrcget.png
         href: https://lrcget.homelab.leehosanganson.dev
@@ -167,15 +167,15 @@
     - Grafana Logs:
         icon: grafana.png
         href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
-        description: Logs 
+        description: Logs
     - Uptime Kuma:
         icon: uptime-kuma.png
         href: https://uptime-kuma.homelab.leehosanganson.dev
         description: Uptime monitoring for homelab services
         widget:
-            type: uptimekuma
-            url: https://uptime-kuma.homelab.leehosanganson.dev
-            slug: public
+          type: uptimekuma
+          url: https://uptime-kuma.homelab.leehosanganson.dev
+          slug: public
 
 - Networking:
     - UniFi:
@@ -183,27 +183,27 @@
         href: http://unifi.ui.com
         description: UniFi Network controller
         widget:
-            type: unifi
-            url: https://192.168.1.1
-            key: "{{HOMEPAGE_VAR_UNIFI_API_KEY}}"
+          type: unifi
+          url: https://192.168.1.1
+          key: "{{HOMEPAGE_VAR_UNIFI_API_KEY}}"
     - Pi-hole 1:
         icon: pi-hole.png
-        href: https://pihole-1.infra.leehosanganson.dev/admin/login
+        href: https://pihole-1.infra.leehosanganson.dev
         description: Pi-hole DNS (primary)
         widget:
-            type: pihole
-            url: https://pihole-1.infra.leehosanganson.dev
-            version: 6
-            key: "{{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}"
+          type: pihole
+          url: https://pihole-1.infra.leehosanganson.dev
+          version: 6
+          key: "{{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}"
     - Pi-hole 2:
         icon: pi-hole.png
-        href: https://pihole-2.infra.leehosanganson.dev/admin/login
+        href: https://pihole-2.infra.leehosanganson.dev
         description: Pi-hole DNS (secondary)
         widget:
-            type: pihole
-            url: https://pihole-2.infra.leehosanganson.dev
-            version: 6
-            key: "{{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}"
+          type: pihole
+          url: https://pihole-2.infra.leehosanganson.dev
+          version: 6
+          key: "{{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}"
 
 - Virtual Machines:
     - Proxmox 1:
@@ -211,31 +211,31 @@
         href: https://pve01.home.lab:8006
         description: Proxmox VE node 1
         widget:
-            type: proxmox
-            url: https://pve01.home.lab:8006
-            username: api@pam!homepage
-            password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-            node: pve01
+          type: proxmox
+          url: https://pve01.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve01
     - Proxmox 2:
         icon: proxmox.png
         href: https://pve02.home.lab:8006
         description: Proxmox VE node 2
         widget:
-            type: proxmox
-            url: https://pve02.home.lab:8006
-            username: api@pam!homepage
-            password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-            node: pve02
+          type: proxmox
+          url: https://pve02.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve02
     - Proxmox 3:
         icon: proxmox.png
         href: https://pve03.home.lab:8006
         description: Proxmox VE node 3
         widget:
-            type: proxmox
-            url: https://pve03.home.lab:8006
-            username: api@pam!homepage
-            password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-            node: pve03
+          type: proxmox
+          url: https://pve03.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve03
 
 - Infrastructure:
     - Cloudflare:
@@ -253,44 +253,44 @@
         href: https://sonarr.homelab.leehosanganson.dev
         description: TV series management
         widget:
-            type: sonarr
-            url: https://sonarr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
-            enableQueue: true
+          type: sonarr
+          url: https://sonarr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+          enableQueue: true
     - Radarr:
         icon: radarr.png
         href: https://radarr.homelab.leehosanganson.dev
         description: Movie management
         widget:
-            type: radarr
-            url: https://radarr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
-            enableQueue: true
+          type: radarr
+          url: https://radarr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+          enableQueue: true
     - Bazarr:
         icon: bazarr.png
         href: https://bazarr.homelab.leehosanganson.dev
         description: Subtitle management
         widget:
-            type: bazarr
-            url: https://bazarr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+          type: bazarr
+          url: https://bazarr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
     - Prowlarr:
         icon: prowlarr.png
         href: https://prowlarr.homelab.leehosanganson.dev
         description: Indexer management
         widget:
-            type: prowlarr
-            url: https://prowlarr.homelab.leehosanganson.dev
-            key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+          type: prowlarr
+          url: https://prowlarr.homelab.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
     - qBittorrent:
         icon: qbittorrent.png
         href: https://qbittorrent.homelab.leehosanganson.dev
         description: Torrent client
         widget:
-            type: qbittorrent
-            url: https://qbittorrent.homelab.leehosanganson.dev
-            username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
-            password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
+          type: qbittorrent
+          url: https://qbittorrent.homelab.leehosanganson.dev
+          username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
 
 - AI:
     - Open WebUI:
@@ -308,11 +308,11 @@
         href: https://nas-1.infra.leehosanganson.dev/#/signin
         description: Synology NAS
         widget:
-            type: diskstation
-            url: https://nas-1.infra.leehosanganson.dev
-            username: "{{HOMEPAGE_VAR_SYNOLOGY_USERNAME}}"
-            password: "{{HOMEPAGE_VAR_SYNOLOGY_PASSWORD}}"
-            volume: volume_1
+          type: diskstation
+          url: https://nas-1.infra.leehosanganson.dev
+          username: "{{HOMEPAGE_VAR_SYNOLOGY_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_SYNOLOGY_PASSWORD}}"
+          volume: volume_1
     - Syncthing:
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev

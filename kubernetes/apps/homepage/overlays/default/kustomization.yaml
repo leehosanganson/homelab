@@ -14,5 +14,9 @@ configMapGenerator:
       - services.yaml
       - custom.js
       - custom.css
+    options:
+      disableNameSuffixHash: true
+      labels:
+        helm.toolkit.fluxcd.io/watch: "true"
 generatorOptions:
   disableNameSuffixHash: true
