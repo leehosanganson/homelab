@@ -25,6 +25,10 @@
         icon: karakeep.png
         href: https://karakeep.leehosanganson.dev
         description: Bookmark manager
+    - Grimmory:
+        icon: mdi-book-open-page-variant
+        href: https://grimmory.leehosanganson.dev
+        description: Digital library
     - Zotero WebDAV:
         icon: zotero.png
         href: https://zotero.leehosanganson.dev
@@ -313,3 +317,7 @@
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev
         description: Syncthing
+    - Garage UI:
+        icon: garage.png
+        href: https://garage-ui.homelab.leehosanganson.dev
+        description: S3 object storage manager

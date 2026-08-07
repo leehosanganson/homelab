@@ -11,8 +11,8 @@ layout:
     tab: Main
   DevOps & Infra:
     tab: Infra
-  Maintenance:
-    tab: Maintenance
+  Monitoring & Health:
+    tab: Monitoring
 
   Links:
     tab: Main
@@ -34,12 +34,20 @@ layout:
     tab: Main
     style: row
     columns: 2
-
-  Cloud:      
-    tab: Infra
+  Music:
+    tab: Main
     style: row
-    columns: 3
-  Monitoring:
+    columns: 4
+  Downloads:
+    tab: Main
+    style: row
+    columns: 5
+  AI:
+    tab: Main
+    style: row
+    columns: 2
+
+  Cloud:
     tab: Infra
     style: row
     columns: 3
@@ -55,20 +63,12 @@ layout:
     tab: Infra
     style: row
     columns: 2
-
-  Downloads:
-    tab: Maintenance
-    style: row
-    columns: 5
-  Music:
-    tab: Maintenance
-    style: row
-    columns: 4
-  AI:
-    tab: Maintenance
-    style: row
-    columns: 2
   Storage:
-    tab: Maintenance
+    tab: Infra
     style: row
     columns: 2
+
+  Monitoring:
+    tab: Monitoring
+    style: row
+    columns: 3
