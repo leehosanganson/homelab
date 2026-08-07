@@ -301,14 +301,6 @@
         icon: litellm.png
         href: https://litellm.homelab.leehosanganson.dev
         description: LLM proxy and gateway
-    - vLLM:
-        icon: vllm.png
-        href: https://vllm.homelab.leehosanganson.dev
-        description: LLM inference backend
-    - llama.cpp:
-        icon: mdi-brain
-        href: https://llm.homelab.leehosanganson.dev
-        description: Local LLM inference
 
 - Storage:
     - Synology NAS:
@@ -325,3 +317,7 @@
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev
         description: Syncthing
+    - Garage UI:
+        icon: garage.png
+        href: https://garage-ui.homelab.leehosanganson.dev
+        description: S3 object storage manager
