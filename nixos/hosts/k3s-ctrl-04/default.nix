@@ -31,5 +31,6 @@
     enable = true;
     role = "server";
     serverAddr = "https://192.168.1.250:6443";
+    extraFlags = [ "--tls-san" "192.168.1.250" ];
   };
 }

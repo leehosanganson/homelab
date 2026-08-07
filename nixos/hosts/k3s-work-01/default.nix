@@ -29,6 +29,6 @@
   homelab.k3s = {
     enable = true;
     role = "agent";
-    serverAddr = "https://192.168.1.151:6443";
+    serverAddr = "https://192.168.1.250:6443";
   };
 }
