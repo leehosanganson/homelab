@@ -36,27 +36,27 @@ in
     # plus the bridge/netfilter stack for kube-proxy. Load all at boot because
     # security.lockKernelModules (hardening module) disables runtime loading.
     boot.kernelModules = [
-      "overlay"      # containerd overlayfs snapshotter
-      "vxlan"        # flannel VXLAN CNI backend
-      "veth"         # flannel CNI pod<->bridge veth pairs
-      "bridge"       # CNI bridge
+      "overlay" # containerd overlayfs snapshotter
+      "vxlan" # flannel VXLAN CNI backend
+      "veth" # flannel CNI pod<->bridge veth pairs
+      "bridge" # CNI bridge
       "br_netfilter" # iptables/bridge filter for kube-proxy
       "nf_conntrack" # connection tracking
-      "nf_nat"       # NAT for kube-proxy
+      "nf_nat" # NAT for kube-proxy
       # netfilter/iptables extension modules the flannel CNI plugins need
       # (portmap/-m comment, MASQUERADE, addrtype, MARK).
-      "xt_comment"    # CNI portmap plugin -m comment
+      "xt_comment" # CNI portmap plugin -m comment
       "xt_MASQUERADE" # pod<->external SNAT masquerade
-      "xt_multiport"  # CNI portmap plugin -m multiport match
-      "xt_statistic"  # kube-proxy -m statistic random (round-robin across multiple endpoints)
-      "xt_addrtype"   # CNI addrtype rules
-      "xt_mark"       # CNI MARK rules
+      "xt_multiport" # CNI portmap plugin -m multiport match
+      "xt_statistic" # kube-proxy -m statistic random (round-robin across multiple endpoints)
+      "xt_addrtype" # CNI addrtype rules
+      "xt_mark" # CNI MARK rules
       "nft_chain_nat" # registers nat table chains (PREROUTING/POSTROUTING) for iptables-nft/DNAT
-      "xt_nat"        # DNAT/SNAT target for iptables-nft compat (CNI portmap)
-      "ipt_REJECT"    # REJECT target (IPv4) used by kube-proxy KUBE rules (ClusterIP reachability)
-      "ip6t_REJECT"   # REJECT target (IPv6) — token/parity module required if IPv6 is enabled
-      "ip_tables"     # IPv4 rule infrastructure (legacy iptables compat for CNI)
-      "ip6_tables"    # IPv6 rule infrastructure (legacy iptables compat for CNI)
+      "xt_nat" # DNAT/SNAT target for iptables-nft compat (CNI portmap)
+      "ipt_REJECT" # REJECT target (IPv4) used by kube-proxy KUBE rules (ClusterIP reachability)
+      "ip6t_REJECT" # REJECT target (IPv6) — token/parity module required if IPv6 is enabled
+      "ip_tables" # IPv4 rule infrastructure (legacy iptables compat for CNI)
+      "ip6_tables" # IPv6 rule infrastructure (legacy iptables compat for CNI)
       # NFS client modules for the csi-nfs driver (mounts happen from the host
       # kernel; runtime module loading is locked by hardening).
       "nfs"
@@ -74,13 +74,11 @@ in
     services.k3s = {
       enable = true;
       inherit (cfg) role serverAddr extraFlags;
-      # Disable the k3s built-in traefik addon on server nodes: the cluster runs
-      # its own Flux-managed Traefik (kube-system/traefik). Leaving the k3s
-      # addon enabled on servers leaves stuck helm-install/delete traefik jobs
-      # in kube-system and conflicts with the Flux Traefik. Traefik only runs
-      # on servers, so this is guarded by isServer. `--disable traefik` also
-      # uninstalls its child traefik-crd chart.
-      disable = lib.optionals isServer [ "traefik" ];
+      disable = lib.optionals isServer [
+        # Will be managed by FluxCD
+        "metrics-server"
+        "traefik"
+      ];
       tokenFile = config.sops.secrets."k3s-token".path;
     };
 
