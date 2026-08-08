@@ -1,10 +1,33 @@
 { config
 , lib
+, pkgs
 , ...
 }:
 let
   cfg = config.homelab.k3s;
   isServer = cfg.role == "server";
+
+  # Wrapper for the Synology CSI node plugin's `chroot /host env iscsiadm ...`
+  # invocations. synology-csi v1.2.1's parseSessions() does an unguarded
+  # `strings.Split(e[3], ":")[1]` on each line of `iscsiadm -m session` output,
+  # which panics with "index out of range [1] with length 1" whenever a line's
+  # 4th whitespace field (the IQN position) contains no colon. On NixOS with
+  # open-iscsi 2.1.12 a session can be caught mid-teardown (no IQN yet), so the
+  # node plugin crash-loops, which also leaves the node without a stable volume
+  # dataset (NodeStageVolume then fails with "Volume[..] is not found"). Filtering
+  # `-m session` output to well-formed lines (4th field has a colon => an IQN)
+  # prevents the panic while preserving every legitimate session line.
+  iscsiadmWrapper = pkgs.writeShellScriptBin "iscsiadm" ''
+    real="${config.services.openiscsi.package}/bin/iscsiadm"
+    gawk="${pkgs.gawk}/bin/awk"
+    if [ "''${1:-}" = "-m" ] && [ "''${2:-}" = "session" ]; then
+      # CombinedOutput() merges stderr; normalise like the driver does and drop
+      # any line the parser would choke on, while preserving the real exit code.
+      "$real" "$@" 2>&1 | "$gawk" 'NF < 4 || $4 ~ /:/'
+      exit "''${PIPESTATUS[0]}"
+    fi
+    exec "$real" "$@"
+  '';
 in
 {
   options.homelab.k3s = {
@@ -90,12 +113,31 @@ in
       name = "iqn.2026-08.com.homelab.k3s:${config.networking.hostName}";
     };
 
+    # In-tree NFS PVs (spec.nfs, e.g. media-pv / qbit-download) are mounted by
+    # kubelet on the host, which needs the userspace NFS mount helper + client
+    # daemons (idmapd/statd) for NFSv4. Without them, kubelet's mount fails with
+    # "fsconfig() failed: NFS: mount program didn't pass remote address." (exit 32).
+    # In this nixpkgs snapshot, NFS *client* support is enabled by declaring nfs /
+    # nfs4 as supported filesystems: the tasks/filesystems/nfs module then adds
+    # nfs-utils to system.fsPackages and starts rpcbind/idmapd/statd. (The older
+    # services.nfs.client option no longer exists here.) kubelet already reaches
+    # mount(8) (the failure is at the helper stage), and mount(8) resolves
+    # type-specific helpers from /sbin and /usr/sbin even when those are absent
+    # from its PATH, so the tmpfiles rules below place mount.nfs in those FHS
+    # paths to make in-tree NFS mounts succeed.
+    boot.supportedFilesystems = [ "nfs" "nfs4" ];
+
     # The synology-csi node plugin runs `chroot /host env iscsiadm ...`; env
     # resolves via a FHS PATH (e.g. /usr/sbin, /sbin), which doesn't exist on
-    # NixOS. Expose iscsiadm there via symlinks into the Nix store.
+    # NixOS. Expose the wrapped iscsiadm there via symlinks into the Nix store.
+    # mount.nfs is exposed the same way for kubelet's in-tree NFS mounts.
     systemd.tmpfiles.rules = [
-      "L+ /usr/sbin/iscsiadm - - - - ${config.services.openiscsi.package}/bin/iscsiadm"
-      "L+ /sbin/iscsiadm - - - - ${config.services.openiscsi.package}/bin/iscsiadm"
+      "L+ /usr/sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
+      "L+ /sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
+      "L+ /sbin/mount.nfs - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
+      "L+ /sbin/mount.nfs4 - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
+      "L+ /usr/sbin/mount.nfs - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
+      "L+ /usr/sbin/mount.nfs4 - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
     ];
 
     # Open the ports k3s uses between nodes.
