@@ -105,6 +105,22 @@ in
       tokenFile = config.sops.secrets."k3s-token".path;
     };
 
+    # kubelet mounts in-tree NFS PVs (spec.nfs) by running `mount -t nfs` on the
+    # host, and util-linux resolves the type-specific helper (mount.nfs) from the
+    # k3s unit's PATH. Upstream defaults the k3s unit PATH to only the (usually
+    # unset) zfs package, so the FHS sbin dirs where tmpfiles places mount.nfs
+    # (/sbin, /usr/sbin) are omitted and the helper is never found. The systemd
+    # `path` option appends `/bin` and `/sbin` to each entry, so the entries "/"
+    # and "/usr" here resolve to /bin:/sbin and /usr/bin:/usr/sbin respectively,
+    # injecting exactly those helper directories into the unit's
+    # Environment=PATH=.... Because this changes the unit's Environment=PATH=...,
+    # a later `nixos-rebuild switch` restarts k3s, so the fix activates without
+    # a manual `systemctl restart k3s`.
+    systemd.services.k3s.path = [
+      "/"
+      "/usr"
+    ];
+
     # Synology CSI (iSCSI) attaches need a host-side iscsid + config. The
     # nixpkgs openiscsi module also pulls "iscsi_tcp" into boot.kernelModules
     # (required at boot since hardening locks runtime module loading).
@@ -121,10 +137,11 @@ in
     # nfs4 as supported filesystems: the tasks/filesystems/nfs module then adds
     # nfs-utils to system.fsPackages and starts rpcbind/idmapd/statd. (The older
     # services.nfs.client option no longer exists here.) kubelet already reaches
-    # mount(8) (the failure is at the helper stage), and mount(8) resolves
-    # type-specific helpers from /sbin and /usr/sbin even when those are absent
-    # from its PATH, so the tmpfiles rules below place mount.nfs in those FHS
-    # paths to make in-tree NFS mounts succeed.
+    # mount(8) (the failure is at the helper stage), so the tmpfiles rules below
+    # symlink util-linux's type-specific mount helpers (mount.nfs/mount.nfs4) into
+    # /sbin and /usr/sbin. For kubelet to find them, the k3s unit's PATH must also
+    # include those FHS directories — see the systemd.services.k3s.path override
+    # above.
     boot.supportedFilesystems = [ "nfs" "nfs4" ];
 
     # The synology-csi node plugin runs `chroot /host env iscsiadm ...`; env
