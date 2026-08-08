@@ -86,6 +86,26 @@
       ];
     };
 
+    nixosConfigurations.k3s-ctrl-04 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/k3s-ctrl-04
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
+    nixosConfigurations.k3s-work-01 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; inherit sops-secrets; };
+      modules = [
+        ./hosts/k3s-work-01
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+      ];
+    };
+
     # Matter-server configuration using matterjs-server (matter.js-based implementation)
     # Replaced python-matter-server which was archived and EOL.
     nixosConfigurations.matter-server = nixpkgs.lib.nixosSystem {
