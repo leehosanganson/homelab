@@ -1,6 +1,7 @@
 args:
   - --kubelet-preferred-address-types=InternalIP
   - --metric-resolution=15s
+  - --kubelet-insecure-tls=true
 apiService:
   insecureSkipTLSVerify: false
 extraArgs:
