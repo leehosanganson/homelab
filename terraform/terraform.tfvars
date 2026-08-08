@@ -97,4 +97,12 @@ nodes = {
     disk_size = 250
     datastore = "local-lvm"
   }
+  "k3s-work-02" = {
+    node      = "pve04"
+    vm_id     = 106
+    cores     = 8
+    memory    = 8192
+    disk_size = 250
+    datastore = "local-lvm"
+  }
 }
