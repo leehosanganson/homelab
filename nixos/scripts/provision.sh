@@ -41,6 +41,26 @@ TARGET_IP="${2:-}"
 [[ -z "$HOSTNAME" ]] && usage
 [[ -z "$TARGET_IP" ]] && usage
 
+# Guard: skip provisioning if the target already boots an installed system.
+# Rationale: nixos-anywhere wipes the disk via disko, and hardened hosts reject
+# kexec anyway (security.protectKernelImage -> kernel.kexec_load_disabled=1 ->
+# "kexec_file_load failed: Operation not permitted"). The tainted
+# terraform_data.wait_for_guest_ssh resource re-runs this script on every apply,
+# so without this guard the apply loops forever (or wipes a production host if
+# it ever boots the ISO).
+# Detection: the installer environment has root on overlay/tmpfs; an installed
+# system has root on a block device (/dev/...).
+# Exit 0 is intentional: it lets the tainted terraform_data resource converge on
+# the next apply instead of failing. If SSH fails (host blank/unreachable), the
+# guard passes through and nixos-anywhere runs as before.
+if ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new \
+     "root@$TARGET_IP" 'findmnt -n -o SOURCE / | grep -q "^/dev/"' 2>/dev/null; then
+  echo "provision.sh: $HOSTNAME ($TARGET_IP) already boots an installed system - skipping nixos-anywhere."
+  echo "provision.sh: to force a reinstall, boot the VM from the installer ISO, then run:"
+  echo "  tofu taint 'terraform_data.wait_for_guest_ssh[\"$HOSTNAME\"]' && tofu apply"
+  exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_ROOT="$SCRIPT_DIR/.."
 KEYS_DIR="$FLAKE_ROOT/keys"

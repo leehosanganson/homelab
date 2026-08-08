@@ -215,3 +215,39 @@ pveum aclmod / --token terraform@pam!homelab --role TerraformProv
 ## Use pam Realm, Not pve Realm
 
 Create the Terraform user in the `pam` realm (`terraform@pam`), not `pve` (`terraform@pve`). In Proxmox 8.4, `pve` realm token ACLs are not evaluated correctly, causing persistent 403 errors even with correct ACL entries.
+
+## Troubleshooting
+
+### `kexec_file_load failed: Operation not permitted` / `Kexec failed` from the local-exec provisioner
+
+**Symptom:** `tofu apply` fails on `terraform_data.wait_for_guest_ssh["<host>"]`; the local-exec provisioner output shows nixos-anywhere failing with `kexec_file_load failed: Operation not permitted` or `Kexec failed`.
+
+**Root cause:** The target host is **already installed and running NixOS**, not booted from the installer ISO (the VM uses disk-first `boot_order` and the ISO is detached after install). The installed system imports `nixos/modules/hardening.nix`, which sets `security.protectKernelImage = true` → `kernel.kexec_load_disabled=1`, so the kexec that nixos-anywhere needs is rejected by the kernel. The problem is amplified by a tainted `terraform_data.wait_for_guest_ssh` resource, which re-runs `nixos/scripts/provision.sh` (→ nixos-anywhere → kexec) on every apply.
+
+**Recovery:**
+
+1. Verify the host is actually installed and healthy:
+
+   ```bash
+   ssh root@<ip> 'nixos-rebuild list-generations'
+   ```
+
+2. With the guard in `provision.sh` (skips hosts whose `/` mounts a block device), just re-run `tofu apply` — provisioning is skipped and the tainted resource converges. Alternatively, clear the taint manually:
+
+   ```bash
+   tofu untaint 'terraform_data.wait_for_guest_ssh["<host>"]'
+   ```
+
+**Forced reinstall (destructive):** Boot the VM from the installer ISO, then:
+
+```bash
+tofu taint 'terraform_data.wait_for_guest_ssh["<host>"]' && tofu apply
+```
+
+> **WARNING:** nixos-anywhere wipes the disk via disko. Only do this when you genuinely intend to reinstall the host.
+
+### `error: Path 'nixos/hosts/<name>' in the repository ... is not tracked by Git`
+
+**Symptom:** The flake pre-build in `provision.sh` fails with `error: Path 'nixos/hosts/<name>' in the repository ... is not tracked by Git`.
+
+**Fix:** `git add` the new host directory (e.g. `git add nixos/hosts/<name>`) and commit it. Nix flakes only see git-tracked files, so an untracked host directory is invisible to `nix build`. See also gotcha #1 in [pve-migration-to-nixos.md](pve-migration-to-nixos.md).
