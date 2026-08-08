@@ -74,6 +74,13 @@ in
     services.k3s = {
       enable = true;
       inherit (cfg) role serverAddr extraFlags;
+      # Disable the k3s built-in traefik addon on server nodes: the cluster runs
+      # its own Flux-managed Traefik (kube-system/traefik). Leaving the k3s
+      # addon enabled on servers leaves stuck helm-install/delete traefik jobs
+      # in kube-system and conflicts with the Flux Traefik. Traefik only runs
+      # on servers, so this is guarded by isServer. `--disable traefik` also
+      # uninstalls its child traefik-crd chart.
+      disable = lib.optionals isServer [ "traefik" ];
       tokenFile = config.sops.secrets."k3s-token".path;
     };
 
