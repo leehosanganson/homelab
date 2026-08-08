@@ -86,7 +86,7 @@ nodes = {
     vm_id     = 104
     cores     = 4
     memory    = 4096
-    disk_size = 40
+    disk_size = 250
     datastore = "local-lvm"
   }
   "k3s-work-01" = {
@@ -94,7 +94,7 @@ nodes = {
     vm_id     = 105
     cores     = 8
     memory    = 8192
-    disk_size = 40
+    disk_size = 250
     datastore = "local-lvm"
   }
 }

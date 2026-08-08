@@ -57,6 +57,17 @@ in
       "ip6t_REJECT"   # REJECT target (IPv6) — token/parity module required if IPv6 is enabled
       "ip_tables"     # IPv4 rule infrastructure (legacy iptables compat for CNI)
       "ip6_tables"    # IPv6 rule infrastructure (legacy iptables compat for CNI)
+      # NFS client modules for the csi-nfs driver (mounts happen from the host
+      # kernel; runtime module loading is locked by hardening).
+      "nfs"
+      "nfsv4"
+      # Filesystem modules for CSI-provisioned volumes (Synology CSI volumes
+      # are formatted ext4/btrfs/xfs; ext4 is already loaded for the rootfs).
+      "btrfs"
+      "xfs"
+      # btrfs checksums need crc32c via the crypto API at mount time; runtime
+      # module loading is locked by hardening, so it must load at boot.
+      "crc32c_cryptoapi"
     ];
 
     # k3s needs the cluster token for joins (server<->server and agent<->server).
@@ -65,6 +76,22 @@ in
       inherit (cfg) role serverAddr extraFlags;
       tokenFile = config.sops.secrets."k3s-token".path;
     };
+
+    # Synology CSI (iSCSI) attaches need a host-side iscsid + config. The
+    # nixpkgs openiscsi module also pulls "iscsi_tcp" into boot.kernelModules
+    # (required at boot since hardening locks runtime module loading).
+    services.openiscsi = {
+      enable = true;
+      name = "iqn.2026-08.com.homelab.k3s:${config.networking.hostName}";
+    };
+
+    # The synology-csi node plugin runs `chroot /host env iscsiadm ...`; env
+    # resolves via a FHS PATH (e.g. /usr/sbin, /sbin), which doesn't exist on
+    # NixOS. Expose iscsiadm there via symlinks into the Nix store.
+    systemd.tmpfiles.rules = [
+      "L+ /usr/sbin/iscsiadm - - - - ${config.services.openiscsi.package}/bin/iscsiadm"
+      "L+ /sbin/iscsiadm - - - - ${config.services.openiscsi.package}/bin/iscsiadm"
+    ];
 
     # Open the ports k3s uses between nodes.
     networking.firewall = {
