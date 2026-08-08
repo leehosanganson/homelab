@@ -32,6 +32,33 @@ in
       mode = "0400";
     };
 
+    # k3s's containerd needs overlayfs, and flannel needs the vxlan CNI backend
+    # plus the bridge/netfilter stack for kube-proxy. Load all at boot because
+    # security.lockKernelModules (hardening module) disables runtime loading.
+    boot.kernelModules = [
+      "overlay"      # containerd overlayfs snapshotter
+      "vxlan"        # flannel VXLAN CNI backend
+      "veth"         # flannel CNI pod<->bridge veth pairs
+      "bridge"       # CNI bridge
+      "br_netfilter" # iptables/bridge filter for kube-proxy
+      "nf_conntrack" # connection tracking
+      "nf_nat"       # NAT for kube-proxy
+      # netfilter/iptables extension modules the flannel CNI plugins need
+      # (portmap/-m comment, MASQUERADE, addrtype, MARK).
+      "xt_comment"    # CNI portmap plugin -m comment
+      "xt_MASQUERADE" # pod<->external SNAT masquerade
+      "xt_multiport"  # CNI portmap plugin -m multiport match
+      "xt_statistic"  # kube-proxy -m statistic random (round-robin across multiple endpoints)
+      "xt_addrtype"   # CNI addrtype rules
+      "xt_mark"       # CNI MARK rules
+      "nft_chain_nat" # registers nat table chains (PREROUTING/POSTROUTING) for iptables-nft/DNAT
+      "xt_nat"        # DNAT/SNAT target for iptables-nft compat (CNI portmap)
+      "ipt_REJECT"    # REJECT target (IPv4) used by kube-proxy KUBE rules (ClusterIP reachability)
+      "ip6t_REJECT"   # REJECT target (IPv6) — token/parity module required if IPv6 is enabled
+      "ip_tables"     # IPv4 rule infrastructure (legacy iptables compat for CNI)
+      "ip6_tables"    # IPv6 rule infrastructure (legacy iptables compat for CNI)
+    ];
+
     # k3s needs the cluster token for joins (server<->server and agent<->server).
     services.k3s = {
       enable = true;
@@ -43,8 +70,7 @@ in
     networking.firewall = {
       enable = true;
       allowedTCPPorts =
-        [ ]
-        ++ [ 22 ] # ssh (see hardening module)
+        [ 22 ] # ssh (see hardening module)
         ++ [ 6443 ] # Kubernetes API server (server only; harmless on agents)
         ++ (lib.optionals isServer [ 2379 2380 ]) # etcd client/peer (server)
         ++ [ 10250 ]; # kubelet port required by the metrics server (all nodes must be reachable)
