@@ -15,6 +15,8 @@ spec:
         app: chrome
     spec:
       runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
       containers:
         - name: chrome
           image: linuxserver/chrome:151.0.7922@sha256:9c90abd6458bf149152571aed65a8988916a1cdceb72d3690ba5e293bc16df9a
