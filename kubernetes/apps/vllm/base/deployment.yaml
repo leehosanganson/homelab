@@ -15,6 +15,8 @@ spec:
         app: llm-backend
     spec:
       runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
       volumes:
         - name: vllm-config-volume
           configMap:
