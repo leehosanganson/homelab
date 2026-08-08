@@ -251,3 +251,72 @@ tofu taint 'terraform_data.wait_for_guest_ssh["<host>"]' && tofu apply
 **Symptom:** The flake pre-build in `provision.sh` fails with `error: Path 'nixos/hosts/<name>' in the repository ... is not tracked by Git`.
 
 **Fix:** `git add` the new host directory (e.g. `git add nixos/hosts/<name>`) and commit it. Nix flakes only see git-tracked files, so an untracked host directory is invisible to `nix build`. See also gotcha #1 in [pve-migration-to-nixos.md](pve-migration-to-nixos.md).
+
+### Reinstalling a node that's already part of the k3s cluster → node won't rejoin
+
+**Symptom:** After a NixOS k3s node is reinstalled via nixos-anywhere, it stays `NotReady,SchedulingDisabled` (or just `NotReady`) in `kubectl get nodes`. For a **control-plane/server** node the local `k3s.service` crash-loops (systemd `Result: protocol`) with:
+
+```
+etcd cluster join failed: duplicate node name found, please use a unique name for this node
+```
+
+For an **agent** node the `k3s.service` runs, but loops with:
+
+```
+Node password rejected, duplicate hostname or contents of '/etc/rancher/node/password' may not match server node-passwd entry
+```
+
+**Root cause:** nixos-anywhere wipes the disk, destroying the node's cluster identity, but the cluster still holds the stale pre-reinstall identity:
+
+- **server node:** a stale **etcd member** entry named after the node still exists in the cluster, so the reinstalled server can't rejoin as a duplicate name;
+- **agent node:** the cluster still has the old **node-password** hash for the node's name, so the reinstalled agent's new password is rejected.
+
+**Prevention:** `nixos/scripts/provision.sh` now skips provisioning (and lets `tofu apply` converge) when the target already boots an installed system, so an accidental re-provision of a clustered node should not happen. If it still does, recover as below.
+
+**Recovery — agent node (e.g. `work-01`):**
+
+1. Remove the stale Node object so the agent can re-register with its new password:
+
+   ```bash
+   kubectl delete node <agent-name>
+   ```
+
+2. Restart the agent on the host to re-register promptly (it may also do so on its own):
+
+   ```bash
+   ssh root@<ip> 'systemctl restart k3s'
+   ```
+
+3. Confirm it rejoins as `Ready`; a freshly re-registered node is schedulable by default.
+
+**Recovery — control-plane/server node (e.g. `ctrl-04`):**
+
+1. On a **healthy** surviving server (e.g. `ctrl-01`), list the etcd members to find the stale `k3s-<name>-<id>` member for the reinstalled node:
+
+   ```bash
+   sudo ETCDCTL_API=3 \
+     ETCDCTL_CACERT=/var/lib/rancher/k3s/server/tls/etcd/server-ca.crt \
+     ETCDCTL_CERT=/var/lib/rancher/k3s/server/tls/etcd/server-client.crt \
+     ETCDCTL_KEY=/var/lib/rancher/k3s/server/tls/etcd/server-client.key \
+     etcdctl --endpoints=https://127.0.0.1:2379 member list
+   ```
+
+2. Remove the stale member by ID. This is non-destructive to data and safe **as long as the remaining members still form a quorum** (e.g. at least 2 of a 3-member cluster are healthy — verify with `etcdctl endpoint health` afterwards):
+
+   ```bash
+   sudo ETCDCTL_API=3 \
+     ETCDCTL_CACERT=/var/lib/rancher/k3s/server/tls/etcd/server-ca.crt \
+     ETCDCTL_CERT=/var/lib/rancher/k3s/server/tls/etcd/server-client.crt \
+     ETCDCTL_KEY=/var/lib/rancher/k3s/server/tls/etcd/server-client.key \
+     etcdctl --endpoints=https://127.0.0.1:2379 member remove <MEMBER_ID>
+   ```
+
+3. The reinstalled server re-joins on its next startup (restart if needed: `ssh root@<ip> 'systemctl restart k3s'`), is added as a new etcd member and promoted to a voting (non-learner) member automatically.
+
+4. If it comes back `SchedulingDisabled` (previously cordoned), uncordon it:
+
+   ```bash
+   kubectl uncordon <server-name>
+   ```
+
+5. Verify: `kubectl get nodes` shows all nodes `Ready`, and `kubectl get node <server-name> -o jsonpath='{.spec.unschedulable}'` is empty, with `etcdctl member list` showing the node as a `started` member.
