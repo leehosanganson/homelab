@@ -164,7 +164,8 @@ in
         [ 22 ] # ssh (see hardening module)
         ++ [ 6443 ] # Kubernetes API server (server only; harmless on agents)
         ++ (lib.optionals isServer [ 2379 2380 ]) # etcd client/peer (server)
-        ++ [ 10250 ]; # kubelet port required by the metrics server (all nodes must be reachable)
+        ++ [ 10250 ] # kubelet port required by the metrics server (all nodes must be reachable)
+        ++ [ 9100 ]; # node-exporter: Prometheus host scrape (hostNetwork)
       allowedUDPPorts = [ 8472 ]; # Flannel VXLAN overlay (the existing cluster's CNI backend; k3s default)
     };
   };
