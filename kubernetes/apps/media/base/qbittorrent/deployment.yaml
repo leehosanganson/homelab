@@ -26,7 +26,7 @@ spec:
             value: "1"
       containers:
         - name: qbittorrent
-          image: linuxserver/qbittorrent:5.2.3@sha256:b6ab43fe86039e5bdd3cc0b59b946414fcff0c8183e93636e6cb438fdac45028
+          image: linuxserver/qbittorrent:20.04.1@sha256:fc98c8af048936d0070dc5e5992feab08664f8a61a860d91be02f782f8721485
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
