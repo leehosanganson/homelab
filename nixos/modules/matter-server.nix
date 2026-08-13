@@ -37,6 +37,20 @@ _:
         prefixLength = 24;
       }
     ];
+
+    # Thread on-mesh prefix reached through the Thread Border Router on VLAN30 (eth1).
+    # ETH1 has only link-local IPv6, so the next-hop must be the border router's
+    # link-local address on this segment; GatewayOnLink is required for a link-local
+    # gateway. Static route makes Thread reachability durable — it no longer depends
+    # on flaky RIO/RA renewal (no RAs are observed on eth1).
+    interfaces.eth1.ipv6.routes = [
+      {
+        address = "fd60:6d9c:7edd::";
+        prefixLength = 64;
+        via = "fe80::80f:9c40:ee1e:a70b";
+        options = { onlink = true; };
+      }
+    ];
   };
 
   # Avahi mDNS responder — required for Matter device discovery during commissioning
