@@ -1,4 +1,4 @@
-_:
+{ pkgs, ... }:
 
 {
   # IPv6 settings for Thread Border Router support — required for Matter device discovery
@@ -49,6 +49,32 @@ _:
         via = "fe80::80f:9c40:ee1e:a70b";
       }
     ];
+  };
+
+  # Give eth1 a source address in the Thread on-mesh prefix (fd60:6d9c:7edd::/64) so
+  # that commissioning PASE the kernel sources from eth1 within the on-mesh prefix, and
+  # the Thread Border Router can route replies back to us directly through the mesh/BDR.
+  # Without this, the kernel sources IPv6 from eth0's VLAN1 ULA (a different L3 segment)
+  # and the BDR cannot route the reply back -> bidirectional IPv6 fails -> "unreachable".
+  #
+  # Applied via a oneshot unit rather than networking.interfaces.*.ipv6.addresses because
+  # a plain static /64 there would (a) run Duplicate Address Detection (the address is a
+  # ROUTED member of the on-mesh prefix served by the BDR, not an on-link address, so DAD
+  # hangs in "tentative" and fails) and (b) install an on-link fd60::/64 connected route
+  # that shadows the static route via the Border Router, making the kernel try to reach the
+  # (off-link) Thread device directly -> "unreachable". `nodad` skips DAD and `noprefixroute`
+  # keeps the connected on-link route out, so the static via-BDR route below stays in effect.
+  systemd.services.matter-thread-omr-addr = {
+    description = "Configure eth1 source address in the Thread on-mesh prefix";
+    after = [ "network-setup.service" "network-addresses-eth1.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = [
+        "${pkgs.iproute2}/bin/ip -6 address replace fd60:6d9c:7edd::162/64 dev eth1 nodad noprefixroute"
+      ];
+    };
   };
 
   # Avahi mDNS responder — required for Matter device discovery during commissioning
