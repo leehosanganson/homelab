@@ -57,6 +57,7 @@ in
             "192.168.1.154 k3s-ctrl-04.home.lab"
             "192.168.1.131 k3s-gpu-01.home.lab"
             "192.168.1.156 k3s-work-01.home.lab"
+            "192.168.1.157 k3s-work-02.home.lab"
             "192.168.1.240 mac-mini.home.lab"
             "192.168.1.197 nas1.home.lab"
             "192.168.1.132 pihole-1.home.lab"
