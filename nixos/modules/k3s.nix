@@ -157,6 +157,14 @@ in
       "L+ /usr/sbin/mount.nfs4 - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
     ];
 
+    # Resolve the NAS hostname from /etc/hosts so host-level processes (e.g. the
+    # synology-csi node plugin, which reads resolv.conf directly and bypasses the
+    # nscd/nsncd cache) don't flood the local DNS resolver. Keep this in sync
+    # with the dns.hosts entry in modules/pihole.nix if the NAS IP ever changes.
+    networking.hosts = {
+      "192.168.1.197" = [ "nas1.home.lab" ];
+    };
+
     # Open the ports k3s uses between nodes.
     networking.firewall = {
       enable = true;
