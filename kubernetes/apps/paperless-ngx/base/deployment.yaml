@@ -73,3 +73,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: paperless-configmap
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: "1.5Gi"
+              cpu: "1000m"

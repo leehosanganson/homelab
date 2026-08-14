@@ -19,6 +19,13 @@ spec:
           image: docker.io/actualbudget/actual-server:26.8.1@sha256:6478d9ddfc0924479c09e6699c205e354c6f2216dfe7de3c0fb7b590d6edcdc5
           ports:
             - containerPort: 5006
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           volumeMounts:
             - name: data-volume
               mountPath: /data
