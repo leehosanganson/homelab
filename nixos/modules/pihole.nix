@@ -71,6 +71,7 @@ in
         # to the HAProxy
         misc.dnsmasq_lines = [
           "address=/homelab.leehosanganson.dev/192.168.1.250"
+          "local-ttl=3600"
         ];
         webserver.api.cli_pw = true; # required so `lists` load on boot
       };
