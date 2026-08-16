@@ -46,6 +46,12 @@ spec:
           volumeMounts:
             - name: runner-profile
               mountPath: /root/.config/google-chrome
+            - name: vnc-cfg
+              mountPath: /opt/bin/noVNC/defaults.json
+              subPath: defaults.json
+            - name: vnc-cfg
+              mountPath: /opt/bin/start-vnc.sh
+              subPath: start-vnc.sh
             - name: shm
               mountPath: /dev/shm
             - name: dri
@@ -54,6 +60,10 @@ spec:
         - name: runner-profile
           persistentVolumeClaim:
             claimName: chrome-runner-pvc
+        - name: vnc-cfg
+          configMap:
+            name: chrome-runner-vnc
+            defaultMode: 0755
         - name: dri
           hostPath:
             path: /dev/dri
