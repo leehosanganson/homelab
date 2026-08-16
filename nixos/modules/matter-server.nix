@@ -15,14 +15,14 @@ _:
     "net.ipv6.conf.default.accept_ra_rt_info_max_plen" = 64;
     # Enable kernel IPv6 route preference for Thread network selection
     "net.ipv6.conf.all.route_preferences" = 1;
-    # Dual-NIC design: eth0 handles management/default route; eth1 is the Thread VLAN30 path.
+    # Dual-NIC design: eth0 handles management/default route; eth1 is the Thread VLAN40 path.
     # Do NOT use RA-derived default routes on either NIC — rely on our static default gateway
     # while still accepting RA + RIO information globally.
     "net.ipv6.conf.eth0.accept_ra_defrtr" = 0;
     "net.ipv6.conf.eth1.accept_ra_defrtr" = 0;
   };
 
-  # Ports & vlan 30
+  # Ports & vlan 40
   networking = {
     useDHCP = false;
 
@@ -33,7 +33,7 @@ _:
 
     interfaces.eth1.ipv4.addresses = [
       {
-        address = "192.168.30.162";
+        address = "192.168.40.162";
         prefixLength = 24;
       }
     ];
