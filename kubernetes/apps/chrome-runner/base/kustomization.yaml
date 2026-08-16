@@ -1,5 +1,6 @@
 resources:
   - vnc-configmap.yaml
+  - launcher-configmap.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

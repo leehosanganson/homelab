@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chrome-runner-launcher
+data:
+  launcher.conf: |
+    [program:granblue-launcher]
+    priority=20
+    command=/home/seluser/venv/bin/python3 /opt/selenium/launcher.py
+    directory=/home/seluser
+    environment=PYTHONUNBUFFERED="1"
+    autostart=true
+    autorestart=true
+    startsecs=10
+    startretries=999
+    stopasgroup=true
+    ;Logs
+    redirect_stderr=true
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+  launcher.py: |
+    #!/home/seluser/venv/bin/python3
+    import json
+    import time
+    import urllib.request
+
+    WEBDRIVER = "http://127.0.0.1:4444"
+    PROFILE = "/home/seluser/.config/google-chrome"
+    URL = "https://game.granbluefantasy.jp/"
+
+    def post(path, payload):
+        req = urllib.request.Request(
+            WEBDRIVER + path,
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+
+    def get(path):
+        req = urllib.request.Request(WEBDRIVER + path, method="GET")
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+
+    def node_ready():
+        try:
+            status = get("/status")
+            return status.get("value", {}).get("ready", False)
+        except Exception:
+            return False
+
+    def open_game():
+        caps = {
+            "capabilities": {
+                "alwaysMatch": {
+                    "browserName": "chrome",
+                    "goog:chromeOptions": {
+                        "args": [
+                            "--user-data-dir=" + PROFILE,
+                            "--start-maximized",
+                            "--disable-background-timer-throttling",
+                            "--disable-backgrounding-occluded-windows",
+                            "--disable-renderer-backgrounding",
+                            "--no-first-run",
+                            "--no-default-browser-check",
+                        ]
+                    },
+                }
+            }
+        }
+        session = post("/session", caps)
+        sid = session.get("value", {}).get("sessionId")
+        if not sid:
+            return None
+        post("/session/%s/url" % sid, {"url": URL})
+        return sid
+
+    def main():
+        while not node_ready():
+            time.sleep(5)
+        sid = None
+        while True:
+            try:
+                if sid is None:
+                    sid = open_game()
+                    if sid:
+                        print("granblue-launcher: session %s -> %s" % (sid, URL), flush=True)
+                else:
+                    get("/session/%s/url" % sid)
+            except Exception as e:
+                print("granblue-launcher: session lost (%s); reopening" % e, flush=True)
+                sid = None
+                time.sleep(10)
+            if sid:
+                time.sleep(120)
+
+    if __name__ == "__main__":
+        main()
