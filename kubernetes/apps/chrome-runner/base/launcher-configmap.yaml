@@ -40,7 +40,6 @@ data:
       --disable-background-timer-throttling \
       --disable-backgrounding-occluded-windows \
       --disable-renderer-backgrounding \
-      --window-size=390,844 \
       --start-maximized \
       --no-first-run \
       --no-default-browser-check \
