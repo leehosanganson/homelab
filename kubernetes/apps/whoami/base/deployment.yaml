@@ -17,3 +17,10 @@ spec:
           image: traefik/whoami@sha256:c4717a8d1f0134a7444e24f881160e033991f23027c6c5a9a3f8fd22e70d1d44
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 25m
+            limits:
+              memory: "128Mi"
+              cpu: "250m"

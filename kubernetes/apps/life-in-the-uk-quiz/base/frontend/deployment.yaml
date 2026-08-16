@@ -21,4 +21,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: frontend-config
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 25m
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
       restartPolicy: Always

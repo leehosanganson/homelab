@@ -28,6 +28,13 @@ spec:
           envFrom:
             - configMapRef:
                 name: open-web-ui-configmap
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 100m
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
           volumeMounts:
             - name: webui-data
               mountPath: /app/backend/data

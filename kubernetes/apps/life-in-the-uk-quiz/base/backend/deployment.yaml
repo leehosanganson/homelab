@@ -29,4 +29,11 @@ spec:
                 secretKeyRef:
                   name: life-in-the-uk-quiz-db-url
                   key: database-url
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 25m
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
       restartPolicy: Always

@@ -23,6 +23,13 @@ spec:
           env:
             - name: TZ
               value: "Etc/UTC"
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 250m
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
           volumeMounts:
             - name: config
               mountPath: /config
