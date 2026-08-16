@@ -14,6 +14,8 @@ spec:
       labels:
         app: chrome-runner
     spec:
+      securityContext:
+        fsGroup: 1201
       runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu.present: "true"
@@ -45,7 +47,7 @@ spec:
               memory: "4Gi"
           volumeMounts:
             - name: runner-profile
-              mountPath: /root/.config/google-chrome
+              mountPath: /home/seluser/.config
             - name: vnc-cfg
               mountPath: /opt/bin/noVNC/defaults.json
               subPath: defaults.json
