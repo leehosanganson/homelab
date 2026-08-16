@@ -82,6 +82,17 @@ in
           provider = "opencode-go";
         };
       };
+
+      # How long the Discord buttons remain clickable (in seconds)
+      # Note: Do not push this past Discord's hard 15-minute limit (900s)
+      approvals = {
+        discord_prompt_timeout = 900;
+      };
+
+      # How long the agent itself waits for your response before giving up
+      agent = {
+        clarify_timeout = 900;
+      };
     };
 
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
