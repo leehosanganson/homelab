@@ -40,11 +40,9 @@ spec:
             requests:
               cpu: "1"
               memory: "1Gi"
-              nvidia.com/gpu: 1
             limits:
               cpu: "4"
               memory: "4Gi"
-              nvidia.com/gpu: 1
           volumeMounts:
             - name: runner-profile
               mountPath: /root/.config/google-chrome
