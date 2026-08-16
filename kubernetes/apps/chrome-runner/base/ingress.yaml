@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chrome-runner
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: chrome-runner.homelab.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: chrome-runner
+                port:
+                  number: 7900
+  tls:
+    - hosts:
+        - chrome-runner.homelab.leehosanganson.dev
+      secretName: chrome-runner-tls
