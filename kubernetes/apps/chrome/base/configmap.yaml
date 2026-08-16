@@ -3,9 +3,6 @@ kind: ConfigMap
 metadata:
   name: chrome-env
 data:
-  # Disable Chromium native window occlusion tracking (throttles/pauses occluded
-  # windows under the labwc Wayland base). See PR discussion.
-  CHROME_CLI: --disable-backgrounding-occluded-windows
   PUID: "1000"
   PGID: "1000"
   TZ: Etc/UTC
