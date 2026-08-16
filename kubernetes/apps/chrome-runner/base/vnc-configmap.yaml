@@ -4,9 +4,9 @@ metadata:
   name: chrome-runner-vnc
 data:
   mandatory.json: |
-    {"resize": "remote"}
+    {"resize": "scale"}
   defaults.json: |
-    {"resize": "remote"}
+    {"resize": "scale"}
   start-vnc.sh: |
     #!/usr/bin/env bash
     if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
@@ -26,7 +26,7 @@ data:
           xdpyinfo -display ${DISPLAY} >/dev/null 2>&1 && break
         done
         exec x11vnc ${X11VNC_OPTS} -forever -shared \
-          -wait 5 -defer 5 -sb 0 -xrandr \
+          -wait 5 -defer 5 -sb 0 \
           -rfbport ${VNC_PORT:-$SE_VNC_PORT} \
           -rfbportv6 ${VNC_PORT:-$SE_VNC_PORT} \
           -display ${DISPLAY}

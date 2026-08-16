@@ -26,9 +26,9 @@ spec:
             - name: SE_START_VNC
               value: "true"
             - name: SE_SCREEN_WIDTH
-              value: "2560"
+              value: "1280"
             - name: SE_SCREEN_HEIGHT
-              value: "1600"
+              value: "720"
             - name: SE_NODE_OVERRIDE_MAX_SESSIONS
               value: "true"
             - name: SE_NODE_MAX_SESSIONS
