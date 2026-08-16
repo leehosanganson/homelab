@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: chrome-runner-vnc
 data:
+  mandatory.json: |
+    {"resize": "scale"}
   defaults.json: |
     {"resize": "scale"}
   start-vnc.sh: |

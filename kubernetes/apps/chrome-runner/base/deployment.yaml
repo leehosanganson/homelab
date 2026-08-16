@@ -54,6 +54,9 @@ spec:
               mountPath: /opt/bin/noVNC/defaults.json
               subPath: defaults.json
             - name: vnc-cfg
+              mountPath: /opt/bin/noVNC/mandatory.json
+              subPath: mandatory.json
+            - name: vnc-cfg
               mountPath: /opt/bin/start-vnc.sh
               subPath: start-vnc.sh
             - name: launcher-cfg
