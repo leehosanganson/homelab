@@ -14,7 +14,7 @@ resources:
   - zotero.yaml
   - navidrome.yaml
   - opencode.yaml
-  - chrome.yaml
+  - remote-browser.yaml
   - life-in-the-uk-quiz.yaml
   - syncthing.yaml
   - immich.yaml

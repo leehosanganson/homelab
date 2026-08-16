@@ -1,4 +1,4 @@
-namespace: chrome
+namespace: remote-browser
 
 resources:
   - ../../base

@@ -42,7 +42,28 @@ spec:
               mountPath: /dev/dri
             - name: shm
               mountPath: /dev/shm
+        - name: keepalive
+          image: linuxserver/chrome:151.0.7922@sha256:fc06f307368ccf49618b6e423c3752252031493cfa2a8f5de5af8401c2f0c344
+          command:
+            - /lsiopy/bin/python3
+            - /scripts/keepalive.py
+          env:
+            - name: SELKIES_WS_URL
+              value: ws://127.0.0.1:8082/websocket
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+          volumeMounts:
+            - name: keepalive-script
+              mountPath: /scripts
       volumes:
+        - name: keepalive-script
+          configMap:
+            name: chrome-keepalive
         - name: chrome-profile
           persistentVolumeClaim:
             claimName: chrome-pvc

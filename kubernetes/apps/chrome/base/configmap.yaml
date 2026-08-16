@@ -3,6 +3,11 @@ kind: ConfigMap
 metadata:
   name: chrome-env
 data:
+  CHROME_CLI: >-
+    --disable-background-timer-throttling
+    --disable-backgrounding-occluded-windows
+    --disable-renderer-backgrounding
+    https://game.granbluefantasy.jp/
   PUID: "1000"
   PGID: "1000"
   TZ: Etc/UTC
