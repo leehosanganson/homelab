@@ -50,7 +50,7 @@ nodes = {
       {
         bridge  = "vmbr0"
         model   = "virtio"
-        vlan_id = 30
+        vlan_id = 40
       },
     ]
   }
