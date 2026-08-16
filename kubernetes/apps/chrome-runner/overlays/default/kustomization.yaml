@@ -1,0 +1,4 @@
+namespace: remote-browser
+
+resources:
+  - ../../base

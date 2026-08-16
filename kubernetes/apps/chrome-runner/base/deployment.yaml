@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chrome-runner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: chrome-runner
+  template:
+    metadata:
+      labels:
+        app: chrome-runner
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      containers:
+        - name: chrome-runner
+          image: selenium/standalone-chrome:151.0-20260808
+          env:
+            - name: SE_START_VNC
+              value: "true"
+            - name: SE_SCREEN_WIDTH
+              value: "1920"
+            - name: SE_SCREEN_HEIGHT
+              value: "1080"
+            - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+              value: "true"
+            - name: SE_NODE_MAX_SESSIONS
+              value: "1"
+          ports:
+            - containerPort: 4444
+              name: webdriver
+            - containerPort: 7900
+              name: novnc
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+              nvidia.com/gpu: 1
+            limits:
+              cpu: "4"
+              memory: "4Gi"
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: runner-profile
+              mountPath: /root/.config/google-chrome
+            - name: shm
+              mountPath: /dev/shm
+            - name: dri
+              mountPath: /dev/dri
+      volumes:
+        - name: runner-profile
+          persistentVolumeClaim:
+            claimName: chrome-runner-pvc
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+        - name: shm
+          emptyDir:
+            medium: Memory
