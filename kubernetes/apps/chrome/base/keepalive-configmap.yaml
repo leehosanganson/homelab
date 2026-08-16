@@ -17,7 +17,15 @@ data:
     DISPLAY_ID = os.environ.get("SELKIES_KEEPALIVE_DISPLAY", "primary")
     WIDTH = int(os.environ.get("SELKIES_KEEPALIVE_WIDTH", "1920"))
     HEIGHT = int(os.environ.get("SELKIES_KEEPALIVE_HEIGHT", "1080"))
-    RECONNECT_DELAY = int(os.environ.get("SELKIES_KEEPALIVE_RECONNECT_DELAY", "3"))
+    RECONNECT_DELAY = int(os.environ.get("SELKIES_KEEPALIVE_RECONNECT_DELAY", "5"))
+
+    def connect_url():
+        url = WS_URL
+        if "?" not in url:
+            url += "?role=viewer"
+        else:
+            url += "&role=viewer"
+        return url
 
     def settings_payload(display_id):
         return (
@@ -39,17 +47,17 @@ data:
     async def keepalive():
         while True:
             try:
-                async with websockets.connect(WS_URL) as ws:
+                async with websockets.connect(connect_url()) as ws:
                     try:
                         await asyncio.wait_for(ws.recv(), timeout=10)
                     except asyncio.TimeoutError:
                         pass
                     await ws.send(settings_payload(DISPLAY_ID))
-                    print(f"[keepalive] connected display={DISPLAY_ID}", flush=True)
+                    print(f"[keepalive] connected display={DISPLAY_ID} role=viewer", flush=True)
                     async for msg in ws:
                         text = msg if isinstance(msg, str) else str(msg)
                         if text.startswith("KILL "):
-                            print(f"[keepalive] superseded by real viewer: {text}", flush=True)
+                            print(f"[keepalive] KILLed: {text}", flush=True)
                             break
             except Exception as e:  # noqa: BLE001
                 print(f"[keepalive] disconnected ({e}); reconnect in {RECONNECT_DELAY}s", flush=True)
