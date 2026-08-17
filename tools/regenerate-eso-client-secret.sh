@@ -48,11 +48,6 @@ echo "==> Restarting external-secrets to pick up new credential"
 kubectl -n "$NS" rollout restart deploy/external-secrets
 kubectl -n "$NS" rollout status deploy/external-secrets --timeout=120s
 
-echo "==> Forcing re-sync of ExternalSecrets using $STORE"
-kubectl get externalsecret -A -o name | while read -r es; do
-  kubectl annotate "$es" force-sync=true --overwrite >/dev/null
-done
-
 echo "==> Verifying store status"
 kubectl get clustersecretstore "$STORE" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}{"\n"}'
 
