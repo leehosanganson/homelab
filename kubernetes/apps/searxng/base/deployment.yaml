@@ -32,7 +32,7 @@ spec:
 
       containers:
         - name: searxng
-          image: searxng/searxng:latest@sha256:e45d5894bfaa0bf8773b9f283795ae57f1c15ddb29c8cecb70b3665b0ce9ec60
+          image: searxng/searxng:latest@sha256:11a9b34cdc0b1ec2b991470a2762ecb5a1a531898289fb51dcd015260450729e
           ports:
             - containerPort: 8080
           envFrom:
