@@ -9,5 +9,8 @@ toolkit:
     - name: CONTAINERD_SET_AS_DEFAULT
       value: "true"
 
+validator:
+  version: "v26.3.3"
+
 driver:
   version: "575.57.08"
