@@ -19,7 +19,7 @@ spec:
         nvidia.com/gpu.present: "true"
       containers:
         - name: chrome
-          image: linuxserver/chrome:151.0.7922@sha256:fc06f307368ccf49618b6e423c3752252031493cfa2a8f5de5af8401c2f0c344
+          image: linuxserver/chrome:151.0.7922@sha256:3aab11cf916f9734cf39b97e6e74faabe26c7ec1f5800d31978b4caa292fbf41
           envFrom:
             - configMapRef:
                 name: chrome-env
