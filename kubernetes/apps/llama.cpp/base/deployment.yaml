@@ -30,7 +30,7 @@ spec:
               export HF_HUB_ENABLE_HF_TRANSFER=1 && \
               mkdir -p /models && \
               hf download \
-                unsloth/Qwen3.6-35B-A3B-GGUF Qwen3.6-35B-A3B-UD-IQ2_M.gguf \
+                unsloth/Qwen3.8-27B-GGUF Qwen3.8-27B-UD-Q3_K_XL.gguf \
                 --local-dir /models
           env:
             - name: HF_TOKEN
@@ -50,18 +50,28 @@ spec:
               memory: 4Gi
       containers:
         - name: llama-cpp
-          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:5f245844a3244287bf69d4964670a021acf6f336467ae1feaa0024b4665c018d
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:45047ae940975851c3b195997c91f6bb4add4b941880d94287e5f21ff5a6369a
           args:
             - -m
-            - /models/Qwen3.6-35B-A3B-UD-IQ2_M.gguf
+            - /models/Qwen3.8-27B-UD-Q3_K_XL.gguf
             - --host
             - 0.0.0.0
             - --port
             - "8080"
             - -c
-            - "131072"
+            - "65536"
             - -np
             - "1"
+            - --spec-type
+            - draft-mtp
+            - --spec-draft-n-max
+            - "4"
+            - -fa
+            - "1"
+            - --cache-type-k
+            - q4_0
+            - --cache-type-v
+            - q4_0
             - -ngl
             - "99"
             - --temp
@@ -75,7 +85,7 @@ spec:
             - --min-p
             - "0.00"
             - --alias
-            - "unsloth/qwen3.6"
+            - "unsloth/qwen3.8"
             - --chat-template-kwargs
             - '{"enable_thinking":false}'
 

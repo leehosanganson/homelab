@@ -9,6 +9,10 @@ configuration:
       default: true
   volumeSnapshotLocation: []
   defaultVolumesToFsBackup: true
+  # Run kopia repo maintenance once daily (default would run ~hourly),
+  # drastically reducing the continuous Azure storage egress (~6.5GB/day)
+  # caused by per-namespace kopia maintain jobs reading index blobs.
+  defaultRepoMaintainFrequency: 24h
 
 credentials:
   useSecret: true
