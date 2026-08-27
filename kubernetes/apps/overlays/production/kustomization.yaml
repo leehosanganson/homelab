@@ -27,6 +27,7 @@ resources:
   - ../../mini-qr/overlays/default
   - ../../chrome-runner/overlays/default
   - ../../forgejo/overlays/default
+  - ../../forgejo-runner/overlays/default
 
 labels:
   - includeSelectors: false

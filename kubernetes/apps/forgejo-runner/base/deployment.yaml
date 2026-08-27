@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo-runner
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: forgejo-runner
+  template:
+    metadata:
+      labels:
+        app: forgejo-runner
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: register
+          image: code.forgejo.org/forgejo/runner:13.0.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              forgejo-runner register --no-interactive \
+                --instance "https://forgejo.homelab.leehosanganson.dev" \
+                --token "$REG_TOKEN" \
+                --name "runner-${HOSTNAME:0:12}" \
+                --labels "ubuntu-latest:docker://node:20-bookworm" || exit 0
+          env:
+            - name: REG_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-runner-reg
+                  key: token
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: runner
+          image: code.forgejo.org/forgejo/runner:13.0.0
+          command:
+            - forgejo-runner
+          args:
+            - daemon
+            - --config
+            - /data/config.yaml
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: certs
+              mountPath: /certs
+            - name: runner-config
+              mountPath: /data/config.yaml
+              subPath: config.yaml
+        - name: docker
+          image: docker:28.4-dind
+          command:
+            - dockerd-entrypoint.sh
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: /certs
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: dind-data
+              mountPath: /var/lib/docker
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: certs
+          emptyDir: {}
+        - name: dind-data
+          emptyDir: {}
+        - name: runner-config
+          configMap:
+            name: forgejo-runner-config

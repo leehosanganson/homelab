@@ -1,10 +1,3 @@
-postgresql:
-  enabled: false
-postgresql-ha:
-  enabled: false
-redis-cluster:
-  enabled: false
-
 gitea:
   additionalConfigFromEnvs:
     - name: FORGEJO__DATABASE__PASSWD
@@ -44,4 +37,4 @@ ingress:
 
 persistence:
   enabled: true
-  existingClaim: forgejo-pvc
+  claimName: forgejo-pvc
