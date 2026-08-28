@@ -58,6 +58,9 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
           envFrom:
             - configMapRef:
                 name: gluetun-config
@@ -115,3 +118,7 @@ spec:
         - name: slskd-app
           emptyDir:
             sizeLimit: 1Gi
+        - name: tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
