@@ -1,19 +1,16 @@
-# Locally-managed Cloudflare Tunnel ingress routes.
-# Single source of truth for public-hostname -> service routing (reconciled by Flux).
-# Credentials file is provided separately (cloudflare-tunnel-credentials secret).
-tunnel: REPLACE_ME_TUNNEL_ID
+tunnel: 0b6d7ce8-ec69-4f2b-8410-67a378342284
 credentials-file: /etc/cloudflared/creds/credentials.json
 metrics: 0.0.0.0:2000
 no-autoupdate: true
 
 ingress:
-  # root domain
+  # Root
   - hostname: leehosanganson.dev
     service: http://portfolio.utility:80
   - hostname: www.leehosanganson.dev
     service: http://portfolio.utility:80
 
-  # published apps (non-homelab)
+  # Public Services
   - hostname: commafeed.leehosanganson.dev
     service: http://commafeed.commafeed:8082
   - hostname: grimmory.leehosanganson.dev
@@ -31,14 +28,12 @@ ingress:
   - hostname: zotero.leehosanganson.dev
     service: http://webdav.zotero:80
 
-  # harbor: core API paths -> harbor-core, UI -> harbor-portal
   - hostname: harbor.leehosanganson.dev
     path: ^/(api|c|service|v2)/
     service: http://harbor-core.harbor:80
   - hostname: harbor.leehosanganson.dev
     service: http://harbor-portal.harbor:80
 
-  # life-in-the-uk-quiz: /api -> backend, everything else -> frontend
   - hostname: life-in-the-uk-quiz.leehosanganson.dev
     path: ^/api
     service: http://backend.life-in-the-uk-quiz:8080
