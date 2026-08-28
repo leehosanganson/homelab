@@ -16,9 +16,15 @@ gitea:
       HOST: forgejo-db-rw:5432
       NAME: forgejo
     server:
-      ROOT_URL: https://forgejo.homelab.leehosanganson.dev
-      DOMAIN: forgejo.homelab.leehosanganson.dev
-      SSH_DOMAIN: forgejo.homelab.leehosanganson.dev
+      ROOT_URL: https://git.leehosanganson.dev
+      DOMAIN: git.leehosanganson.dev
+      SSH_DOMAIN: git.leehosanganson.dev
+      SSH_PORT: 2222
+      SSH_LISTEN_PORT: 2222
+
+service:
+  ssh:
+    port: 2222
 
 ingress:
   enabled: true
@@ -26,14 +32,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
   hosts:
-    - host: forgejo.homelab.leehosanganson.dev
+    - host: git.leehosanganson.dev
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: forgejo-tls
       hosts:
-        - forgejo.homelab.leehosanganson.dev
+        - git.leehosanganson.dev
 
 persistence:
   enabled: true

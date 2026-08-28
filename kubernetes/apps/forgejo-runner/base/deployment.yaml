@@ -23,7 +23,7 @@ spec:
             - -c
             - |
               forgejo-runner register --no-interactive \
-                --instance "https://forgejo.homelab.leehosanganson.dev" \
+                --instance "https://git.leehosanganson.dev" \
                 --token "$REG_TOKEN" \
                 --name "runner-${HOSTNAME:0:12}" \
                 --labels "ubuntu-latest:docker://node:20-bookworm" || exit 0

@@ -23,7 +23,7 @@ spec:
   triggers:
     - type: forgejo-runner
       metadata:
-        address: https://forgejo.homelab.leehosanganson.dev
+        address: https://git.leehosanganson.dev
         global: "true"
         labels: ubuntu-latest:docker://node:20-bookworm
       authenticationRef:
