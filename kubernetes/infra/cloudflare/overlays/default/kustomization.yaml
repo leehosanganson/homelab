@@ -3,3 +3,11 @@ resources:
   - namespace.yaml
   - ../../base
   - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - config.yaml
+    name: cloudflared-config
+    options:
+      disableNameSuffixHash: true
+
