@@ -24,6 +24,12 @@ in
     description = "Pi-hole adlists subscribed to for this host.";
   };
 
+  options.homelab.pihole.exitNode = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = "Advertise this host as a tailnet exit node.";
+  };
+
   config = {
     # Admin password: injected at boot via sops-nix + FTL env override
     sops.secrets."pihole-secret" = {
@@ -89,6 +95,9 @@ in
     services.tailscale = {
       enable = true;
       openFirewall = true; # UDP for WireGuard NAT traversal
+      # Server mode enables IP forwarding + loose RP filter so the host can act
+      # as an exit node.
+      useRoutingFeatures = if cfg.exitNode then "server" else "client";
     };
 
     # Tailnet can reach Pi-hole directly (DNS 53 + admin UI 80).

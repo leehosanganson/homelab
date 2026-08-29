@@ -27,6 +27,8 @@
   # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
   sops.defaultSopsFile = "${sops-secrets}/secrets.yaml";
 
+  homelab.pihole.exitNode = true;
+
   homelab.pihole.blocklists = [
     {
       url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt";
