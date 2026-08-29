@@ -59,10 +59,6 @@
         icon: terminal.png
         href: https://termix.homelab.leehosanganson.dev
         description: Web terminal
-    - Whoami:
-        icon: mdi-web
-        href: https://whoami.leehosanganson.dev
-        description: Traefik demo service
     - OpenCode:
         icon: opencode.png
         href: https://opencode.homelab.leehosanganson.dev
