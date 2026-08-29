@@ -16,7 +16,6 @@ resources:
   - ../../searxng/overlays/default
   - ../../paperless-ngx/overlays/default
   - ../../llama.cpp/overlays/default
-  - ../../whoami/overlays/default
   - ../../zotero-webdav/overlays/default
   - ../../navidrome/overlays/default
   - ../../immich/overlays/default

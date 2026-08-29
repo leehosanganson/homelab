@@ -1,7 +1,6 @@
 namespace: staging
 resources:
   - namespace.yaml
-  - ../../whoami/overlays/test
 
 labels:
   - includeSelectors: false
