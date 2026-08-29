@@ -71,6 +71,7 @@ in
         # Local DNS rewrite: resolve the homelab domain and all its subdomains
         # to the HAProxy
         misc.dnsmasq_lines = [
+          "local=/homelab.leehosanganson.dev/"
           "address=/homelab.leehosanganson.dev/192.168.1.250"
           "local-ttl=3600"
         ];
