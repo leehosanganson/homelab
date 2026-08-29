@@ -10,7 +10,8 @@ let
   # NOTE: For clusters with more than 3 HAProxy nodes, extend keepalivedPeerIps accordingly.
   keepalivedPeerIps = [ "192.168.1.251" "192.168.1.252" "192.168.1.253" ];
   keepalivedPeers = builtins.filter (ip: ip != hostIp) keepalivedPeerIps;
-in {
+in
+{
   # ACME Wildcard for *.infra.leehosanganson.dev
   security.acme = {
     acceptTerms = true;
@@ -99,10 +100,10 @@ in {
 
           # Inspect the SNI (Server Name Indication)
           tcp-request inspect-delay 5s
-          tcp-request content accept if { req_ssl_hello_type 1 }
+          tcp-request content accept if { req.ssl_sni -m found }
 
           # ACL for K3s (Passthrough)
-          acl is_k3s_internal req_ssl_sni -m end .homelab.leehosanganson.dev
+          acl is_k3s_internal req_ssl_sni -i -m end homelab.leehosanganson.dev
           use_backend k3s if is_k3s_internal
 
           # Default: Send everything else to local SSL termination
@@ -155,18 +156,18 @@ in {
           mode tcp
           balance roundrobin
           option tcp-check
-          server ctrl-01 192.168.1.151:443 check
-          server ctrl-02 192.168.1.152:443 check
-          server ctrl-03 192.168.1.153:443 check
+          server ctrl-01 192.168.1.151:443 check inter 5s
+          server ctrl-02 192.168.1.152:443 check inter 5s
+          server ctrl-03 192.168.1.153:443 check inter 5s
 
       backend k3s_api_backend
           mode tcp
           balance roundrobin
           option tcp-check
           # inter 5: probe every 5 seconds (reduces noise from flaky API servers)
-          server ctrl-01 192.168.1.151:6443 check inter 5
-          server ctrl-02 192.168.1.152:6443 check inter 5
-          server ctrl-03 192.168.1.153:6443 check inter 5
+          server ctrl-01 192.168.1.151:6443 check inter 5s
+          server ctrl-02 192.168.1.152:6443 check inter 5s
+          server ctrl-03 192.168.1.153:6443 check inter 5s
     '';
   };
 }
