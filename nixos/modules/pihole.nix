@@ -85,5 +85,13 @@ in
       enable = true;
       ports = [ "80" ];
     };
+
+    services.tailscale = {
+      enable = true;
+      openFirewall = true; # UDP for WireGuard NAT traversal
+    };
+
+    # Tailnet can reach Pi-hole directly (DNS 53 + admin UI 80).
+    networking.firewall.trustedInterfaces = [ "tailscale0" ];
   };
 }
