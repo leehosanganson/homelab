@@ -53,10 +53,19 @@ if [[ "$UPDATE_SECRETS" == "true" ]]; then
   nix flake update sops-secrets --flake "$FLAKE_ROOT"
 fi
 
+# On non-Linux hosts (e.g. macOS) we can't build x86_64-linux closures locally,
+# so delegate the build to the target host.
+BUILD_FLAGS=()
+if [[ "$(uname -s)" != "Linux" ]]; then
+  echo "==> Non-Linux host detected; building on target $TARGET_IP"
+  BUILD_FLAGS=(--build-host "root@$TARGET_IP" --no-reexec)
+fi
+
 echo "==> Deploying '$HOSTNAME' to $TARGET_IP..."
 nixos-rebuild switch \
   --flake "$FLAKE_ROOT#$HOSTNAME" \
-  --target-host "root@$TARGET_IP"
+  --target-host "root@$TARGET_IP" \
+  "${BUILD_FLAGS[@]}"
 
 echo ""
 echo "==> Rebuild complete!"
