@@ -20,8 +20,9 @@
       }
     ];
     defaultGateway = "192.168.1.1";
-    # Host OS resolver: public upstream (FTL serves the network, not this host).
-    nameservers = [ "1.1.1.1" "9.9.9.9" ];
+    # Exit node: resolve via local Pi-hole so exit-node clients get correct
+    # internal DNS + ad-blocking (Tailscale #15999).
+    nameservers = [ "127.0.0.1" ];
   };
 
   # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
