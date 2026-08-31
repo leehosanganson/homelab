@@ -31,6 +31,16 @@ in
   };
 
   config = {
+    # lockKernelModules blocks runtime autoload; load NAT modules so tailscale's
+    # iptables-nft can create the nat POSTROUTING chain (ts-postrouting MASQUERADE).
+    # Mirrors nixos/modules/k3s.nix.
+    boot.kernelModules = lib.mkIf (cfg.subnetRoutes != [ ]) [
+      "nf_nat"
+      "nft_chain_nat"
+      "xt_MASQUERADE"
+      "ip_tables"
+    ];
+
     # Admin password: injected at boot via sops-nix + FTL env override
     sops.secrets."pihole-secret" = {
       mode = "0400";
