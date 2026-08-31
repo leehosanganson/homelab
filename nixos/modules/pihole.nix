@@ -31,13 +31,14 @@ in
   };
 
   config = {
-    # lockKernelModules blocks runtime autoload; load NAT modules so tailscale's
-    # iptables-nft can create the nat POSTROUTING chain (ts-postrouting MASQUERADE).
+    # lockKernelModules blocks runtime autoload; load netfilter modules so tailscale's
+    # iptables-nft can create the nat POSTROUTING chain and MARK forwarded traffic.
     # Mirrors nixos/modules/k3s.nix.
     boot.kernelModules = lib.mkIf (cfg.subnetRoutes != [ ]) [
       "nf_nat"
       "nft_chain_nat"
       "xt_MASQUERADE"
+      "xt_mark"
       "ip_tables"
     ];
 
