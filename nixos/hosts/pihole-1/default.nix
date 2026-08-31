@@ -27,6 +27,10 @@
   # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
   sops.defaultSopsFile = "${sops-secrets}/secrets.yaml";
 
+  # Advertise the LAN subnet (VLAN10) to the tailnet so remote clients can
+  # reach internal services (resolved by Pi-hole → HAProxy VIP 192.168.1.250).
+  homelab.pihole.subnetRoutes = [ "192.168.1.0/24" ];
+
   homelab.pihole.blocklists = [
     {
       url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt";
