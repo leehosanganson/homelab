@@ -24,10 +24,10 @@ in
     description = "Pi-hole adlists subscribed to for this host.";
   };
 
-  options.homelab.pihole.exitNode = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-    description = "Advertise this host as a tailnet exit node.";
+  options.homelab.pihole.subnetRoutes = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    description = "LAN subnets to advertise to the tailnet via Tailscale.";
   };
 
   config = {
@@ -95,9 +95,15 @@ in
     services.tailscale = {
       enable = true;
       openFirewall = true; # UDP for WireGuard NAT traversal
-      # Server mode enables IP forwarding + loose RP filter so the host can act
-      # as an exit node.
-      useRoutingFeatures = if cfg.exitNode then "server" else "client";
+      # Server mode enables IP forwarding so the host can route tailnet clients
+      # to the advertised LAN subnets.
+      useRoutingFeatures = if cfg.subnetRoutes != [ ] then "server" else "client";
+      # Advertise the LAN subnets so tailnet clients can reach internal
+      # services (e.g. *.homelab.leehosanganson.dev → HAProxy VIP) over the
+      # tailnet. Routes must also be approved in the Tailscale admin console.
+      extraSetFlags = lib.mkIf (cfg.subnetRoutes != [ ]) [
+        "--advertise-routes=${builtins.concatStringsSep "," cfg.subnetRoutes}"
+      ];
     };
 
     # Tailnet can reach Pi-hole directly (DNS 53 + admin UI 80).

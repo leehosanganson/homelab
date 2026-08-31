@@ -20,15 +20,16 @@
       }
     ];
     defaultGateway = "192.168.1.1";
-    # Exit node: resolve via local Pi-hole so exit-node clients get correct
-    # internal DNS + ad-blocking (Tailscale #15999).
-    nameservers = [ "127.0.0.1" ];
+    # Host OS resolver: public upstream (FTL serves the network, not this host).
+    nameservers = [ "1.1.1.1" "9.9.9.9" ];
   };
 
   # secrets — sops-nix decrypts at boot using the shared bootstrap-vm SSH key.
   sops.defaultSopsFile = "${sops-secrets}/secrets.yaml";
 
-  homelab.pihole.exitNode = true;
+  # Advertise the LAN subnet (VLAN10) to the tailnet so remote clients can
+  # reach internal services (resolved by Pi-hole → HAProxy VIP 192.168.1.250).
+  homelab.pihole.subnetRoutes = [ "192.168.1.0/24" ];
 
   homelab.pihole.blocklists = [
     {
