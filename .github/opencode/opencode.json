@@ -4,7 +4,7 @@
   "default_agent": "homelab",
   "agent": {
     "homelab": {
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "litellm/unsloth/qwen-3.8",
       "description": "Main entry point for homelab operations. Orchestrates context gathering, planning, and delegates implementation to native agents.",
       "mode": "primary",
       "prompt": "{file:../agents/homelab.md}",
@@ -45,7 +45,7 @@
       }
     },
     "dependency-reviewer": {
-      "model": "litellm/unsloth/qwen-3.6",
+      "model": "litellm/unsloth/qwen-3.8",
       "description": "Reviews Renovate dependency update PRs. Uses native explore for local context and web tools for external research.",
       "mode": "primary",
       "prompt": "{file:../agents/dependency-reviewer.md}",
