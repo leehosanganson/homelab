@@ -1,0 +1,30 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: forgejo-runner-keda-auth
+spec:
+  secretTargetRef:
+    - parameter: token
+      name: forgejo-runner-api-token
+      key: token
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: forgejo-runner
+spec:
+  scaleTargetRef:
+    name: forgejo-runner
+    kind: Deployment
+  minReplicaCount: 1
+  maxReplicaCount: 4
+  cooldownPeriod: 300
+  pollingInterval: 30
+  triggers:
+    - type: forgejo-runner
+      metadata:
+        address: https://git.leehosanganson.dev
+        global: "true"
+        labels: ubuntu-latest:docker://node:20-bookworm
+      authenticationRef:
+        name: forgejo-runner-keda-auth
