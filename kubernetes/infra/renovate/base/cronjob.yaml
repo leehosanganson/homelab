@@ -15,7 +15,7 @@ spec:
             runAsGroup: 1000
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:44.61.1@sha256:1cdf664e8d59ff536f95842a840f6c6c13be3b4ad1a91afc96c84f9d06b1852c
+              image: ghcr.io/renovatebot/renovate:44.65.4@sha256:bacea2fd867d230318b9645ec023a72a8199baee8316ca2039cb73af696fc182
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
