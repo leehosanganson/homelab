@@ -19,3 +19,4 @@ resources:
   - syncthing.yaml
   - immich.yaml
   - searxng.yaml
+  - forgejo.yaml
