@@ -77,15 +77,15 @@
       }
     },
     "general": {
-      "model": "litellm/unsloth/qwen-3.6",
+      "model": "litellm/unsloth/qwen-3.8",
       "mode": "subagent"
     },
     "explore": {
-      "model": "litellm/unsloth/qwen-3.6",
+      "model": "litellm/unsloth/qwen-3.8",
       "mode": "subagent"
     },
     "scout": {
-      "model": "litellm/unsloth/qwen-3.6",
+      "model": "litellm/unsloth/qwen-3.8",
       "mode": "subagent"
     }
   },
@@ -106,7 +106,7 @@
         "setCacheKey": true
       },
       "models": {
-        "unsloth/qwen-3.6": { "limit": { "context": 100000, "output": 16384 } },
+        "unsloth/qwen-3.8": { "limit": { "context": 100000, "output": 16384 } },
         "gemini/gemini-2.5-flash-lite": {},
         "gemini/gemini-3.1-pro": {},
         "openrouter/openrouter/free": {},
