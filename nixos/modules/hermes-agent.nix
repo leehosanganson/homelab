@@ -60,7 +60,7 @@ in
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
       model = {
-        default = "openrouter/deepseek-v4-flash";
+        default = "openrouter/glm-5.3-flash";
         provider = "litellm";
       };
       toolsets = [ "all" ];
@@ -69,17 +69,7 @@ in
           name = "litellm";
           api = "https://litellm.homelab.leehosanganson.dev/v1";
           key_env = "OPENAI_API_KEY";
-          default_model = "openrouter/deepseek-v4-flash";
-        };
-      };
-      model_aliases = {
-        qwen = {
-          model = "unsloth/qwen-3.6";
-          provider = "litellm";
-        };
-        kimi = {
-          model = "kimi-k2.7-code";
-          provider = "opencode-go";
+          default_model = "openrouter/glm-5.3-flash";
         };
       };
 
