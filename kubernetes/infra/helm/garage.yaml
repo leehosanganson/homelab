@@ -6,4 +6,4 @@ spec:
   interval: 1h
   url: https://git.deuxfleurs.fr/Deuxfleurs/garage.git
   ref:
-    tag: v2.3.0
+    tag: v2.4.1
