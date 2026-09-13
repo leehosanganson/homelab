@@ -18,19 +18,19 @@
   "minimumReleaseAge": "14 days",
   "packageRules": [
     {
-      "description": "Apply minimum 14-day release age to github-releases (prevents merging unreleased or broken packages)",
+      "description": "Apply minimum 5-day release age to github-releases (prevents merging unreleased or broken packages)",
       "matchDatasources": ["github-releases"],
-      "minimumReleaseAge": "14 days"
+      "minimumReleaseAge": "5 days"
     },
     {
-      "description": "Apply minimum 7-day release age to Docker images (allows faster updates but avoids immediately after release)",
+      "description": "Apply minimum 3-day release age to Docker images (allows faster updates but avoids immediately after release)",
       "matchDatasources": ["docker"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "3 days"
     },
     {
-      "description": "Apply minimum 7-day release age to Helm charts",
+      "description": "Apply minimum 3-day release age to Helm charts",
       "matchDatasources": ["helm"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "3 days"
     },
     {
       "description": "Auto-approve and auto-merge non-breaking patch updates",
