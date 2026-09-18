@@ -10,7 +10,7 @@ toolkit:
       value: "true"
 
 validator:
-  version: "v26.7.0"
+  version: "v26.3.3"
 
 driver:
   version: "575.57.08"
