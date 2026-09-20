@@ -60,7 +60,7 @@ in
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
       model = {
-        default = "openrouter/glm-5.3-flash";
+        default = "openrouter/gpt-5.6-luna";
         provider = "litellm";
       };
       toolsets = [ "all" ];
@@ -69,7 +69,7 @@ in
           name = "litellm";
           api = "https://litellm.homelab.leehosanganson.dev/v1";
           key_env = "OPENAI_API_KEY";
-          default_model = "openrouter/glm-5.3-flash";
+          default_model = "openrouter/gpt-5.6-luna";
         };
       };
 
