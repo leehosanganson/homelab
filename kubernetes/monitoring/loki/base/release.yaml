@@ -4,6 +4,14 @@ metadata:
   name: loki
 spec:
   interval: 1m
+  upgrade:
+    timeout: 10m
+    strategy:
+      name: RemediateOnFailure
+    remediation:
+      strategy: rollback
+      retries: 1
+      remediateLastFailure: true
   chart:
     spec:
       chart: loki
