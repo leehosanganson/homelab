@@ -64,6 +64,7 @@ in
         provider = "litellm";
       };
       toolsets = [ "all" ];
+      compression.target_ratio = 0.1;
       providers = {
         litellm = {
           name = "litellm";
