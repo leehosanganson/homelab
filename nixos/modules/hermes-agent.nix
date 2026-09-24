@@ -102,6 +102,7 @@ in
     # Common tools available to the agent's terminal backend.
     extraPackages = with pkgs; [
       git
+      gh
       jq
       ripgrep
       ffmpeg
