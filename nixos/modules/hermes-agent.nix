@@ -60,16 +60,17 @@ in
     # Switch anytime with `/model` in Discord/SSH or by changing this file.
     settings = {
       model = {
-        default = "openrouter/glm-5.3-flash";
+        default = "openrouter/gpt-6-luna";
         provider = "litellm";
       };
       toolsets = [ "all" ];
+      compression.target_ratio = 0.1;
       providers = {
         litellm = {
           name = "litellm";
           api = "https://litellm.homelab.leehosanganson.dev/v1";
           key_env = "OPENAI_API_KEY";
-          default_model = "openrouter/glm-5.3-flash";
+          default_model = "openrouter/gpt-6-luna";
         };
       };
 
@@ -101,6 +102,7 @@ in
     # Common tools available to the agent's terminal backend.
     extraPackages = with pkgs; [
       git
+      gh
       jq
       ripgrep
       ffmpeg

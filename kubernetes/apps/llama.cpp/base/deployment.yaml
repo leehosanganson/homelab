@@ -19,7 +19,7 @@ spec:
         nvidia.com/gpu.present: "true"
       initContainers:
         - name: download-model
-          image: python:3.14-slim@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
+          image: python:3.14-slim@sha256:caaf356f40667c496d405780745b9ac25771c189a51dfcc42430d531ea09f8a2
           command:
             - sh
             - -c
@@ -50,7 +50,7 @@ spec:
               memory: 4Gi
       containers:
         - name: llama-cpp
-          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:6ac921528d613deb0fd142c654735e594a446a1c37a069eeab08d8fd974d4bec
+          image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:480f67114291c698d2b13097e0e3efdd57e81aa3a9de6720564c307663868a59
           args:
             - -m
             - /models/Qwen3.8-27B-UD-Q3_K_XL.gguf
