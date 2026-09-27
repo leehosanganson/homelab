@@ -4,6 +4,8 @@ metadata:
   name: litellm-config
 data:
   config.yaml: |
+    general_settings:
+      disable_env_credential_login: true
     litellm_settings:
       cache: True
       callbacks: ["prometheus"]
