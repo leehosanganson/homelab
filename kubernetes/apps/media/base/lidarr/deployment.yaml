@@ -23,7 +23,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
         - name: lidarr
-          image: linuxserver/lidarr:nightly@sha256:806b5d7132b3888aa1773a7c4351e3591a1022089c99d3e13a503db863e22ac3
+          image: linuxserver/lidarr:nightly@sha256:564dc9c929f605746bdbe342fe10ac38dd94f47aa38c283df50ec8eb68b6f3db
           ports:
             - containerPort: 8686
               name: http
