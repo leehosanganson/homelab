@@ -152,7 +152,7 @@
         description: UK citizenship practice quiz
     - Granblue Fantasy Remote Instance:
         icon: chrome.png
-        href: https://chrome.homelab.leehosanganson.dev
+        href: https://chrome-runner.homelab.leehosanganson.dev
         description: Game streaming
 
 - Monitoring:
@@ -172,6 +172,10 @@
           type: uptimekuma
           url: https://uptime-kuma.homelab.leehosanganson.dev
           slug: public
+    - Garage UI:
+        icon: garage.png
+        href: https://garage-ui.homelab.leehosanganson.dev
+        description: S3 object storage manager
 
 - Networking:
     - UniFi:
@@ -313,7 +317,3 @@
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev
         description: Syncthing
-    - Garage UI:
-        icon: garage.png
-        href: https://garage-ui.homelab.leehosanganson.dev
-        description: S3 object storage manager
