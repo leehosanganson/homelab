@@ -14,15 +14,35 @@ layout:
   Monitoring & Health:
     tab: Monitoring
 
-  Links:
+  Automation:
+    tab: Main
+    style: row
+    columns: 1
+  Reading & Research:
     tab: Main
     style: row
     columns: 5
-  Home:
+  Personal & Projects:
     tab: Main
     style: row
     columns: 4
-  Productivity:
+  Utilities:
+    tab: Main
+    style: row
+    columns: 1
+  Learning:
+    tab: Main
+    style: row
+    columns: 1
+  Gaming:
+    tab: Main
+    style: row
+    columns: 1
+  Links:
+    tab: Main
+    style: row
+    columns: 1
+  Home:
     tab: Main
     style: row
     columns: 4

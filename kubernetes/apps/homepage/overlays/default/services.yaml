@@ -16,7 +16,13 @@
         href: https://immich.homelab.leehosanganson.dev
         description: Photos management
 
-- Productivity:
+- Automation:
+    - N8N:
+        icon: n8n.png
+        href: https://n8n.homelab.leehosanganson.dev
+        description: Workflow automation
+
+- Reading & Research:
     - Commafeed:
         icon: commafeed.png
         href: https://commafeed.leehosanganson.dev
@@ -33,10 +39,6 @@
         icon: zotero.png
         href: https://zotero.leehosanganson.dev
         description: Zotero file storage
-    - N8N:
-        icon: n8n.png
-        href: https://n8n.homelab.leehosanganson.dev
-        description: Workflow automation
     - SearXNG:
         icon: searxng.png
         href: https://searxng.homelab.leehosanganson.dev
@@ -121,7 +123,7 @@
         href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
         description: Kubernetes secrets vault
 
-- Links:
+- Personal & Projects:
     - GitHub:
         icon: mdi-github
         href: https://github.com/leehosanganson
@@ -134,26 +136,34 @@
         icon: mdi-home-city
         href: https://github.com/users/leehosanganson/projects/14
         description: Homelab project board
-    - YouTube:
-        icon: mdi-youtube
-        href: https://www.youtube.com/
-        description: YouTube
     - Portfolio:
         icon: mdi-briefcase
         href: https://leehosanganson.dev
         description: Personal portfolio site
+
+- Utilities:
     - Mini-QR:
         icon: mdi-qr-code
         href: https://qr.homelab.leehosanganson.dev
         description: QR code generator
+
+- Learning:
     - Life-in-the-UK Quiz:
         icon: mdi-school
         href: https://life-in-the-uk-quiz.leehosanganson.dev
         description: UK citizenship practice quiz
+
+- Gaming:
     - Granblue Fantasy Remote Instance:
         icon: chrome.png
-        href: https://chrome.homelab.leehosanganson.dev
+        href: https://chrome-runner.homelab.leehosanganson.dev
         description: Game streaming
+
+- Links:
+    - YouTube:
+        icon: mdi-youtube
+        href: https://www.youtube.com/
+        description: YouTube
 
 - Monitoring:
     - Grafana Dashboards:
@@ -172,8 +182,16 @@
           type: uptimekuma
           url: https://uptime-kuma.homelab.leehosanganson.dev
           slug: public
+    - Garage UI:
+        icon: garage.png
+        href: https://garage-ui.homelab.leehosanganson.dev
+        description: Manage Loki's S3 object storage
 
 - Networking:
+    - Cloudflare:
+        icon: cloudflare.png
+        href: https://dash.cloudflare.com
+        description: Cloudflare DNS/CDN
     - UniFi:
         icon: ubiquiti.png
         href: http://unifi.ui.com
@@ -234,10 +252,6 @@
           node: pve03
 
 - Infrastructure:
-    - Cloudflare:
-        icon: cloudflare.png
-        href: https://dash.cloudflare.com
-        description: Cloudflare DNS/CDN
     - Rancher:
         icon: rancher.png
         href: https://rancher.homelab.leehosanganson.dev
@@ -313,7 +327,3 @@
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev
         description: Syncthing
-    - Garage UI:
-        icon: garage.png
-        href: https://garage-ui.homelab.leehosanganson.dev
-        description: S3 object storage manager
