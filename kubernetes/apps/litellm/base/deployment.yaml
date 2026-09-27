@@ -17,9 +17,12 @@ spec:
           image: ghcr.io/berriai/litellm:1.103.0@sha256:bd089afdcd35b894b14a93f9743cdc8b591f82da1a38dd43a010a7b0c9de5fd7
           ports:
             - containerPort: 4000
+            - containerPort: 4001
           args:
             - --config
             - /app/config.yaml
+            - --prometheus_metrics_port
+            - "4001"
           volumeMounts:
             - name: litellm-config-volume
               mountPath: /app/config.yaml
