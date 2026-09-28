@@ -82,3 +82,7 @@ bloomCompactor:
   replicas: 0
 bloomGateway:
   replicas: 0
+
+gateway:
+  nginxConfig:
+    file: '{{ include "loki.nginxFile" . | replace "$http_host" "$server_name" }}'
