@@ -8,7 +8,7 @@ spec:
   instances: 2
   storage:
     storageClass: synology-retain
-    size: 5Gi
+    size: 10Gi
   monitoring:
     enablePodMonitor: true
   bootstrap:
