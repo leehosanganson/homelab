@@ -1,0 +1,13 @@
+namespace: forgejo
+
+resources:
+  - ../../base
+  - externalsecrets.yaml
+  - scaledobject.yaml
+
+configMapGenerator:
+  - files:
+      - config.yaml
+    name: forgejo-runner-config
+    options:
+      disableNameSuffixHash: true
