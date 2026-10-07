@@ -20,7 +20,7 @@
       flake = false;
     };
 
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-agent.url = "github:NousResearch/hermes-agent/v2026.9.24";
   };
 
   outputs = { nixpkgs, disko, nixos-anywhere, sops-nix, sops-secrets, hermes-agent, ... }@inputs: {
