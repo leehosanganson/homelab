@@ -62,7 +62,6 @@ spec:
             - "65536"
             - -np
             - "1"
-            - --no-mmap
             - --spec-type
             - draft-mtp
             - --spec-draft-n-max
