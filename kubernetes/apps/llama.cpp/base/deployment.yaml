@@ -44,10 +44,10 @@ spec:
           resources:
             requests:
               cpu: 500m
-              memory: 2Gi
+              memory: 16Gi
             limits:
               cpu: 1
-              memory: 4Gi
+              memory: 24Gi
       containers:
         - name: llama-cpp
           image: ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:ef08b5a98b1170f2b62177be0a4027c88a84043c55afbf190dd18b9e7cdcfebf
@@ -62,6 +62,7 @@ spec:
             - "65536"
             - -np
             - "1"
+            - --no-mmap
             - --spec-type
             - draft-mtp
             - --spec-draft-n-max
