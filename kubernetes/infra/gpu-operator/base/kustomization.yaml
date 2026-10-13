@@ -1,2 +1,3 @@
 resources:
   - release.yaml
+  - gpu-operator-service-monitor.yaml
