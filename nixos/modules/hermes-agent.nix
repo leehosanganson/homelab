@@ -15,7 +15,7 @@ let
 
   hermesAgent = pkgs.stdenv.mkDerivation {
     pname = "hermes-agent-minimal";
-    version = "0.19.1";
+    version = "0.21.5";
     dontUnpack = true;
     dontBuild = true;
     nativeBuildInputs = [ pkgs.makeWrapper ];
