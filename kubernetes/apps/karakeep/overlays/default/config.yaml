@@ -5,4 +5,4 @@ metadata:
 data:
   NEXTAUTH_URL: http://localhost:3000
   OPENAI_BASE_URL: http://litellm.llm.svc.cluster.local:4000/v1
-  INFERENCE_TEXT_MODEL: unsloth/qwen3.8
+  INFERENCE_TEXT_MODEL: unsloth/qwen-3.8
