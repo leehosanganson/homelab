@@ -1,9 +1,17 @@
 namespace: searxng
 resources:
   - ../../base
+  - gluetun-secrets.yaml
   - secrets.yaml
 
 configMapGenerator:
+  - name: gluetun-config
+    literals:
+      - VPN_TYPE=wireguard
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - SERVER_COUNTRIES=Netherlands
+      - FIREWALL_INPUT_PORTS=8080
+      - FIREWALL_OUTBOUND_SUBNETS=10.42.0.0/16,10.43.0.0/16
   - files:
       - settings.yml
     name: searxng-config
