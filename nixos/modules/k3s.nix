@@ -106,28 +106,39 @@ in
       tokenFile = config.sops.secrets."k3s-token".path;
     };
 
-    # kubelet mounts in-tree NFS PVs (spec.nfs, e.g. media-pv / qbit-download) are mounted by the host,
-    # which needs the userspace NFS mount helper + client daemons (idmapd/statd) for NFSv4. Without them,
-    # kubelet's mount fails with "fsconfig() failed: NFS: mount program didn't pass remote address." (exit 32).
-    # In this nixpkgs snapshot, NFS client support is enabled by declaring nfs / nfs4 as supported
-    # filesystems: the tasks/filesystems/nfs module adds nfs-utils to system.fsPackages and starts
-    # rpcbind/idmapd/statd. kubelet already reaches mount(8), so the tmpfiles rules below symlink
-    # mount.nfs helpers into /sbin and /usr/sbin. The k3s unit's PATH includes these dirs.
+    # kubelet mounts in-tree NFS PVs (spec.nfs, e.g. media-pv / qbit-download) by running `mount -t nfs` on the host, and util-linux resolves the type-specific helper (mount.nfs) from the k3s unit's PATH. Upstream defaults the k3s unit PATH to only the (usually unset) zfs package, so the FHS sbin dirs where tmpfiles places mount.nfs (/sbin, /usr/sbin) are omitted and the helper is never found. The systemd `path` option appends `/bin` and `/sbin` to each entry, so the entries "/" and "/usr" here resolve to /bin:/sbin and /usr/bin:/usr/sbin respectively, injecting exactly those helper directories into the unit's Environment=PATH=.... Because this changes the unit's Environment=PATH=..., a later `nixos-rebuild switch` restarts k3s, so the fix activates without a manual `systemctl restart k3s`.
     systemd.services.k3s.path = [
       "/"
       "/usr"
     ];
 
-    # Synology CSI (iSCSI) attaches need a host-side iscsid + config. The nixpkgs openiscsi module
-    # pulls "iscsi_tcp" into boot.kernelModules (required at boot since hardening locks runtime loading).
+    # Synology CSI (iSCSI) attaches need a host-side iscsid + config. The
+    # nixpkgs openiscsi module also pulls "iscsi_tcp" into boot.kernelModules
+    # (required at boot since hardening locks runtime module loading).
     services.openiscsi = {
       enable = true;
       name = "iqn.2026-08.com.homelab.k3s:${config.networking.hostName}";
     };
 
+    # In-tree NFS PVs (spec.nfs, e.g. media-pv / qbit-download) are mounted by
+    # kubelet on the host, which needs the userspace NFS mount helper + client
+    # daemons (idmapd/statd) for NFSv4. Without them, kubelet's mount fails with
+    # "fsconfig() failed: NFS: mount program didn't pass remote address." (exit 32).
+    # In this nixpkgs snapshot, NFS *client* support is enabled by declaring nfs /
+    # nfs4 as supported filesystems: the tasks/filesystems/nfs module then adds
+    # nfs-utils to system.fsPackages and starts rpcbind/idmapd/statd. (The older
+    # services.nfs.client option no longer exists here.) kubelet already reaches
+    # mount(8) (the failure is at the helper stage), so the tmpfiles rules below
+    # symlink util-linux's type-specific mount helpers (mount.nfs/mount.nfs4) into
+    # /sbin and /usr/sbin. For kubelet to find them, the k3s unit's PATH must also
+    # include those FHS directories — see the systemd.services.k3s.path override
+    # above.
     boot.supportedFilesystems = [ "nfs" "nfs4" ];
 
-    # Expose wrapped iscsiadm and mount.nfs helpers at the FHS paths used by CSI and kubelet.
+    # The synology-csi node plugin runs `chroot /host env iscsiadm ...`; env
+    # resolves via a FHS PATH (e.g. /usr/sbin, /sbin), which doesn't exist on
+    # NixOS. Expose the wrapped iscsiadm there via symlinks into the Nix store.
+    # mount.nfs is exposed the same way for kubelet's in-tree NFS mounts.
     systemd.tmpfiles.rules = [
       "L+ /usr/sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
       "L+ /sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
@@ -137,19 +148,24 @@ in
       "L+ /usr/sbin/mount.nfs4 - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
     ];
 
+    # Resolve the NAS hostname from /etc/hosts so host-level processes (e.g. the
+    # synology-csi node plugin, which reads resolv.conf directly and bypasses the
+    # nscd/nsncd cache) don't flood the local DNS resolver. Keep this in sync
+    # with the dns.hosts entry in modules/pihole.nix if the NAS IP ever changes.
     networking.hosts = {
       "192.168.1.197" = [ "nas1.home.lab" ];
     };
 
+    # Open the ports k3s uses between nodes.
     networking.firewall = {
       enable = true;
       allowedTCPPorts =
-        [ 22 ]
-        ++ [ 6443 ]
-        ++ (lib.optionals isServer [ 2379 2380 ])
-        ++ [ 10250 ]
-        ++ [ 9100 ];
-      allowedUDPPorts = [ 8472 ];
+        [ 22 ] # ssh (see hardening module)
+        ++ [ 6443 ] # Kubernetes API server (server only; harmless on agents)
+        ++ (lib.optionals isServer [ 2379 2380 ]) # etcd client/peer (server)
+        ++ [ 10250 ] # kubelet port required by the metrics server (all nodes must be reachable)
+        ++ [ 9100 ]; # node-exporter: Prometheus host scrape (hostNetwork)
+      allowedUDPPorts = [ 8472 ]; # Flannel VXLAN overlay (the existing cluster's CNI backend; k3s default)
     };
   };
 }
