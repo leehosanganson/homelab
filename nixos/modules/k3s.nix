@@ -35,7 +35,7 @@ in
 
     role = lib.mkOption {
       type = lib.types.enum [ "server" "agent" ];
-      description = "k3s node role: control-plane 'server' or 'agent' (worker).";
+      description = "k3s node role: control-plane 'server' or worker (agent).";
     };
 
     serverAddr = lib.mkOption {
@@ -60,6 +60,7 @@ in
     # security.lockKernelModules (hardening module) disables runtime loading.
     boot.kernelModules = [
       "overlay" # containerd overlayfs snapshotter
+      "tun" # userspace WireGuard VPNs (e.g. Gluetun)
       "vxlan" # flannel VXLAN CNI backend
       "veth" # flannel CNI pod<->bridge veth pairs
       "bridge" # CNI bridge
@@ -105,17 +106,7 @@ in
       tokenFile = config.sops.secrets."k3s-token".path;
     };
 
-    # kubelet mounts in-tree NFS PVs (spec.nfs) by running `mount -t nfs` on the
-    # host, and util-linux resolves the type-specific helper (mount.nfs) from the
-    # k3s unit's PATH. Upstream defaults the k3s unit PATH to only the (usually
-    # unset) zfs package, so the FHS sbin dirs where tmpfiles places mount.nfs
-    # (/sbin, /usr/sbin) are omitted and the helper is never found. The systemd
-    # `path` option appends `/bin` and `/sbin` to each entry, so the entries "/"
-    # and "/usr" here resolve to /bin:/sbin and /usr/bin:/usr/sbin respectively,
-    # injecting exactly those helper directories into the unit's
-    # Environment=PATH=.... Because this changes the unit's Environment=PATH=...,
-    # a later `nixos-rebuild switch` restarts k3s, so the fix activates without
-    # a manual `systemctl restart k3s`.
+    # kubelet mounts in-tree NFS PVs (spec.nfs, e.g. media-pv / qbit-download) by running `mount -t nfs` on the host, and util-linux resolves the type-specific helper (mount.nfs) from the k3s unit's PATH. Upstream defaults the k3s unit PATH to only the (usually unset) zfs package, so the FHS sbin dirs where tmpfiles places mount.nfs (/sbin, /usr/sbin) are omitted and the helper is never found. The systemd `path` option appends `/bin` and `/sbin` to each entry, so the entries "/" and "/usr" here resolve to /bin:/sbin and /usr/bin:/usr/sbin respectively, injecting exactly those helper directories into the unit's Environment=PATH=.... Because this changes the unit's Environment=PATH=..., a later `nixos-rebuild switch` restarts k3s, so the fix activates without a manual `systemctl restart k3s`.
     systemd.services.k3s.path = [
       "/"
       "/usr"
