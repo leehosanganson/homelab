@@ -5,8 +5,9 @@ on:
     types: [opened, synchronize]
 
 concurrency:
-  group: renovate-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   review-renovate-pr:
