@@ -27,7 +27,6 @@
             yq-go
             kubectl-neat
             graphviz
-            azure-cli
           ];
 
           shellHook = ''
