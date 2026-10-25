@@ -12,7 +12,7 @@
   ],
   "pinDigests": true,
   "prHourlyLimit": 0,
-  "prConcurrentLimit": 20,
+  "prConcurrentLimit": 0,
   
   "internalChecksFilter": "flexible",
   "minimumReleaseAge": "14 days",
