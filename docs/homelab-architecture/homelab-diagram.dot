@@ -100,7 +100,7 @@ digraph homelab {
         margin=15;
         node [color="#10B981"]; // Emerald
 
-        proxmox     [label="Proxmox VE Cluster\n3 Nodes"];
+        proxmox     [label="Proxmox VE Cluster\n4 Nodes"];
         syn_nas     [label="Synology NAS\nNFS Volumes & LUN"];
 
         { rank=same; proxmox -> syn_nas [style=invis] }
@@ -121,10 +121,10 @@ digraph homelab {
 
         haproxy     [label="HAProxy x3"];
         pihole      [label="Pi-hole & Tailscale"];
-        opencode    [label="OpenCode"];
+        hermes      [label="Hermes"];
         k3s         [label="k3s Nodes\nKubernetes Cluster"];
 
-        { rank=same; haproxy -> pihole -> opencode -> k3s [style=invis] }
+        { rank=same; haproxy -> pihole -> hermes -> k3s [style=invis] }
     }
 
     // ==========================================
@@ -162,7 +162,7 @@ digraph homelab {
         node [color="#8B5CF6"]; // Violet
 
         docs      [label="Docs: Paperless, Karakeep"];
-        ai_apps   [label="AI: LiteLLM, Open WebUI"];
+        ai_apps   [label="AI: LiteLLM, llama.cpp"];
         media     [label="Media: Jellyfin, *arr"];
         dev       [label="Dev: n8n, Coder"];
         utility   [label="Util: Homepage, Budget"];
@@ -177,12 +177,12 @@ digraph homelab {
 
     // Automation & IaC (Indigo)
     tofu -> proxmox       [rhead=cluster_hardware, xlabel=" Provisions ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
-    nixos -> opencode     [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
+    nixos -> hermes       [lhead=cluster_vm, xlabel=" Configures ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot", weight=5];
     flux -> github        [lhead=cluster_infra, xlabel=" Reconciles ", style=dashed, color="#818CF8", fontcolor="#818CF8", arrowhead="dot"];
     k3s -> storage        [lhead=cluster_infra, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
 
     // Infrastructure (Emerald)
-    proxmox -> opencode   [lhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
+    proxmox -> hermes     [lhead=cluster_vm, xlabel=" Hosts ", style=dashed, color="#34D399", fontcolor="#34D399", arrowhead="dot"];
 
     // Security (Yellow)
     azure_kv -> platform  [xlabel=" Secrets ", style=dashed, color="#FBBF24", fontcolor="#FBBF24", arrowhead="obox"];
@@ -209,7 +209,7 @@ digraph homelab {
     // Column 2
     private -> azure_kv -> pihole -> platform -> ai_apps;
     // Column 3
-    nixos -> opencode -> obs -> media;
+    nixos -> hermes -> obs -> media;
     // Column 4
     tofu -> proxmox -> k3s -> storage -> dev;
     // Column 5
