@@ -4,6 +4,7 @@ metadata:
   name: portfolio
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    traefik.ingress.kubernetes.io/router.middlewares: utility-portfolio-apex-to-www@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
