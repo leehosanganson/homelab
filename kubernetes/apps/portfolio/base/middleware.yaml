@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: portfolio-apex-to-www
+spec:
+  redirectRegex:
+    regex: ^https?://leehosanganson\.dev/(.*)
+    replacement: https://www.leehosanganson.dev/${1}
+    permanent: true
