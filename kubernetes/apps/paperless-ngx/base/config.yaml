@@ -19,8 +19,6 @@ data:
   PAPERLESS_TIME_ZONE: "Europe/London"
   PAPERLESS_URL: "https://paperless.homelab.leehosanganson.dev"
   PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
-  PAPERLESS_DISABLE_REGULAR_LOGIN: "true"
-  PAPERLESS_ENABLE_HTTP_REMOTE_USER: "true"
 
   PAPERLESS_CONSUMPTION_DIR: /usr/src/paperless-ngx/consume
   PAPERLESS_DATA_DIR: /usr/src/paperless-ngx/data
