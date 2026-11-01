@@ -30,7 +30,7 @@ spec:
             - mountPath: /app/data
               name: termix-pvc
         - name: guacd
-          image: guacamole/guacd:latest@sha256:2d266a525a72ad55d8ea7cd4ca8342a1b44075759b03660d8684821b3636a922
+          image: guacamole/guacd:latest@sha256:b134c7f6580fc15e9c98a79a9192a6e79c6a08c961dbf1b55cabb49398ac9a74
           ports:
             - containerPort: 4822
           resources:
