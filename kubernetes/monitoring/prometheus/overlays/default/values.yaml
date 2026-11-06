@@ -60,6 +60,10 @@ defaultRules:
     KubeProxyDown: true
 
 prometheus:
+  additionalRulesForClusterRole:
+    - apiGroups: [""]
+      resources: ["nodes/proxy"]
+      verbs: ["get"]
   prometheusSpec:
     retention: 90d
     retentionSize: 130GB
