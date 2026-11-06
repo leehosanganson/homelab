@@ -12,6 +12,20 @@ admin:
   userKey: admin-user
   passwordKey: admin-password
 
+grafana.ini:
+  smtp:
+    enabled: true
+    host: smtp.resend.com:465
+    from_address: alert@leehosanganson.dev
+    from_name: Grafana
+    password: $__env{GF_SMTP_PASSWORD}
+    user: $__env{GF_SMTP_USER}
+
+smtp:
+  existingSecret: grafana-resend-smtp-credentials
+  userKey: user
+  passwordKey: password
+
 datasources:
   datasources.yaml:
     apiVersion: 1
