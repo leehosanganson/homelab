@@ -2,6 +2,7 @@ additionalArguments:
   - "--log.level=INFO"
   - "--api.dashboard=true"
 deployment:
+  replicas: 2
   podAnnotations:
     prometheus.io/port: "8082"
     prometheus.io/scrape: "true"
@@ -20,6 +21,17 @@ ports:
         readTimeout: "3600"
         writeTimeout: "3600"
         idleTimeout: "3600"
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+topologySpreadConstraints:
+  - labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: traefik
+        app.kubernetes.io/instance: traefik-kube-system
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
 service:
   ipFamilyPolicy: PreferDualStack
   spec:
