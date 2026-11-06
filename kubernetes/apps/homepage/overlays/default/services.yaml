@@ -61,10 +61,6 @@
         icon: terminal.png
         href: https://termix.homelab.leehosanganson.dev
         description: Web terminal
-    - OpenCode:
-        icon: opencode.png
-        href: https://opencode.homelab.leehosanganson.dev
-        description: AI-powered code editor
 
 - Entertainment:
     - Jellyfin:

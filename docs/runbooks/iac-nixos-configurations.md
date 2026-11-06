@@ -16,13 +16,11 @@ nixos/
 ├── flake.nix          # Main flake entry point
 ├── flake.lock
 ├── hosts/             # Per-VM host configurations
-│   ├── opencode-1/
 │   ├── haproxy-{1,2,3}/
 │   └── ...
 ├── keys/              # Pre-generated SSH host keys for sops-nix Day-0 bootstrap
 │   └── <hostname>/etc/ssh/
 ├── modules/           # Reusable NixOS modules
-│   ├── opencode.nix
 │   ├── sops-bootstrap.nix
 │   ├── haproxy.nix
 │   └── ...
