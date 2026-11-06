@@ -1,2 +1,3 @@
 resources:
   - release.yaml
+  - rules.yaml

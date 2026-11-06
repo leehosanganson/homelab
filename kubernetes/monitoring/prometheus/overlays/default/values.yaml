@@ -8,6 +8,57 @@
 grafana:
   enabled: false
 
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: smtp.resend.com:587
+      smtp_from: alert@leehosanganson.dev
+      smtp_auth_username: resend
+      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-resend-smtp-credentials/password
+      smtp_require_tls: true
+    route:
+      group_by: [alertname, namespace]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: "null"
+      routes:
+        - receiver: "null"
+          matchers:
+            - alertname = "KubeDaemonSetRolloutStuck"
+            - namespace = "synology-csi"
+            - daemonset = "synology-csi-node"
+        - receiver: "null"
+          matchers:
+            - alertname = "KubeJobFailed"
+            - namespace = "renovate"
+            - job_name = "renovate-29851200"
+        - receiver: homelab-email
+          matchers:
+            - severity = "critical"
+        - receiver: homelab-email
+          matchers:
+            - severity = "warning"
+            - alertname =~ "KubeNodeNotReady|KubeNodeUnreachable|KubePodCrashLooping|KubePodNotReady|KubeDeploymentGenerationMismatch|KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck|KubeStatefulSetGenerationMismatch|KubeStatefulSetReplicasMismatch|KubeStatefulSetUpdateNotRolledOut|KubeDaemonSetNotScheduled|KubeDaemonSetMisScheduled|KubeJobFailed|KubeJobNotCompleted|KubePdbNotEnoughHealthyPods|KubeHpaMaxedOut|KubePersistentVolumeErrors|KubePersistentVolumeFillingUp|KubePersistentVolumeInodesFillingUp|AlertmanagerFailedToSendAlerts|PrometheusErrorSendingAlertsToSomeAlertmanagers|PrometheusNotConnectedToAlertmanagers|TargetDown|LiteLLMProxyHighFailureRate|GPUFramebufferMemoryLow"
+    receivers:
+      - name: "null"
+      - name: homelab-email
+        email_configs:
+          - to: leehosanganson@gmail.com
+            send_resolved: true
+  alertmanagerSpec:
+    secrets:
+      - alertmanager-resend-smtp-credentials
+
+# K3s does not expose these component scrape endpoints in this cluster; the
+# chart's `absent(up{job=...})` rules have been firing continuously as a result.
+defaultRules:
+  disabled:
+    KubeControllerManagerDown: true
+    KubeProxyDown: true
+    KubeSchedulerDown: true
+
 prometheus:
   prometheusSpec:
     retention: 90d

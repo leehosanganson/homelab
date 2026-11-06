@@ -2,6 +2,7 @@ namespace: monitoring
 
 resources:
   - ../../base
+  - secrets.yaml
 
 configMapGenerator:
   - files:
