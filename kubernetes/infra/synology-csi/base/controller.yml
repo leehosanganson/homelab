@@ -84,6 +84,7 @@ spec:
     spec:
       serviceAccountName: csi-controller-sa
       hostNetwork: true
+      priorityClassName: system-cluster-critical
       containers:
         - name: csi-provisioner
           securityContext:

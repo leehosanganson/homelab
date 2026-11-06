@@ -51,13 +51,13 @@ alertmanager:
     secrets:
       - alertmanager-resend-smtp-credentials
 
-# K3s does not expose these component scrape endpoints in this cluster; the
-# chart's `absent(up{job=...})` rules have been firing continuously as a result.
+# K3s does not expose controller-manager or kube-proxy scrape endpoints here.
+# The scheduler is scraped through the Kubernetes API proxy below; the
+# Prometheus service account has nodes/proxy permission.
 defaultRules:
   disabled:
     KubeControllerManagerDown: true
     KubeProxyDown: true
-    KubeSchedulerDown: true
 
 prometheus:
   prometheusSpec:
@@ -80,3 +80,17 @@ prometheus:
         static_configs:
           - targets:
               - litellm.llm.svc.cluster.local:4001
+      - job_name: kube-scheduler
+        scheme: https
+        metrics_path: /api/v1/nodes/k3s-ctrl-04/proxy/metrics
+        authorization:
+          type: Bearer
+          credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - target_label: instance
+            replacement: k3s-ctrl-04
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        static_configs:
+          - targets:
+              - kubernetes.default.svc:443
