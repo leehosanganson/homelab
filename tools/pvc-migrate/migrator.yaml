@@ -19,7 +19,7 @@ metadata:
 spec:
   containers:
     - name: migrator
-      image: alpine
+      image: alpine:3.23.3
       command: ["sh", "-c", "cp -av /source/. /destination/ && sleep infinity"]
       volumeMounts:
         - name: source

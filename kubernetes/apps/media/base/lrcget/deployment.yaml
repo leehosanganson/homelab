@@ -18,7 +18,7 @@ spec:
         stack.arr: "arr-1"
       containers:
         - name: lrcget
-          image: gtt1229/docker-lrcget:1.0.2@sha256:361b156e7ced1141e3efb9fd7c45ae9d3635cbafb67ec02d35bb9a67b96edab5
+          image: gtt1229/docker-lrcget:lrcget-2.2.2@sha256:cce109a47bfd551faa5b9e7d4c72bafb0a4cbd69c818d8f3aa5802a80de41df1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5800

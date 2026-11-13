@@ -3,6 +3,7 @@ controllers:
     containers:
       main:
         image:
+          repository: ghcr.io/immich-app/immich-server
           tag: v3.3.3
         env:
           DB_DATABASE_NAME: immich

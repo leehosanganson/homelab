@@ -84,5 +84,17 @@
     "managerFilePatterns": [
       "/^kubernetes/.+/values\\.ya?ml$/"
     ]
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^kubernetes\\/apps\\/immich\\/base\\/db\\.yaml$/"
+      ],
+      "matchStrings": [
+        "imageName:\\s*(?<depName>ghcr\\.io/tensorchord/cloudnative-vectorchord):(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
 }
