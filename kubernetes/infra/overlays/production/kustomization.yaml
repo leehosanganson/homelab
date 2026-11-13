@@ -11,6 +11,7 @@ resources:
   - ../../harbor/overlays/default
   - ../../metrics-server/overlays/default
   - ../../renovate/overlays/default
+  - ../../keda/overlays/default
 
 labels:
   - includeSelectors: false
