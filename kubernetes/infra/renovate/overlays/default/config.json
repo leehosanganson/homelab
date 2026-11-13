@@ -18,12 +18,6 @@
   "minimumReleaseAge": "14 days",
   "packageRules": [
     {
-      "description": "Parse stable lrcget semver tags",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["gtt1229/docker-lrcget"],
-      "versioning": "regex:^lrcget-(?<major>0|[1-9]\\d*)\\.(?<minor>0|[1-9]\\d*)\\.(?<patch>0|[1-9]\\d*)$"
-    },
-    {
       "description": "Apply minimum 5-day release age to github-releases (prevents merging unreleased or broken packages)",
       "matchDatasources": ["github-releases"],
       "minimumReleaseAge": "5 days"
@@ -82,7 +76,6 @@
   "kubernetes": {
     "managerFilePatterns": [
       "/^kubernetes/.+\\.ya?ml$/",
-      "/^tools/pvc-migrate/migrator\\.yaml$/",
       "!/kubernetes/.+/base/release\\.ya?ml$",
       "!/kubernetes/infra/helm/.*\\.ya?ml$"
     ]
