@@ -31,6 +31,12 @@
     enable = true;
     role = "server";
     serverAddr = "https://192.168.1.250:6443";
-    extraFlags = [ "--tls-san" "192.168.1.250" ];
+    extraFlags = [
+      "--tls-san" "192.168.1.250"
+      "--kubelet-arg=system-reserved=memory=512Mi"
+      "--kubelet-arg=kube-reserved=memory=256Mi"
+      "--kubelet-arg=eviction-hard=memory.available<500Mi"
+      "--kubelet-arg=merge-default-eviction-settings=true"
+    ];
   };
 }
