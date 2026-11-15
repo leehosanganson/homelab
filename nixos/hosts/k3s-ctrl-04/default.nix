@@ -35,8 +35,7 @@
       "--tls-san" "192.168.1.250"
       "--kubelet-arg=system-reserved=memory=512Mi"
       "--kubelet-arg=kube-reserved=memory=256Mi"
-      "--kubelet-arg=eviction-hard=memory.available<500Mi"
-      "--kubelet-arg=merge-default-eviction-settings=true"
+      "--kubelet-arg=eviction-hard=memory.available<500Mi,nodefs.available<10%,imagefs.available<15%,nodefs.inodesFree<5%,imagefs.inodesFree<5%"
     ];
   };
 }
