@@ -3,15 +3,6 @@ set -euo pipefail
 # Disable tracing before handling credentials, even if the caller used `bash -x`.
 case $- in *x*) set +x ;; esac
 
-readonly DEFAULT_SUBSCRIPTION="homelab"
-readonly DEFAULT_STORAGE_ACCOUNT="lhshomelabbackup"
-readonly DEFAULT_CONTAINER="paperless"
-readonly DEFAULT_KEY_VAULT="lhs-kubernetes-keyvault"
-readonly DEFAULT_KEY_VAULT_SECRET="paperless-blob-sas"
-readonly DEFAULT_NAMESPACE="paperless"
-readonly DEFAULT_EXTERNAL_SECRET="paperless-backup-env-external"
-readonly DEFAULT_KUBERNETES_SECRET="paperless-backup-env"
-readonly DEFAULT_SECRET_KEY="blob-sas"
 readonly DEFAULT_EXPIRY_DAYS=30
 readonly ESO_TIMEOUT_SECONDS=180
 readonly ESO_POLL_SECONDS=5
@@ -21,18 +12,22 @@ usage() {
 Renew a container SAS and sync it through an Azure Key Vault ExternalSecret.
 
 Usage:
-  renew-blob-sas.sh [options] [--apply | --confirm]
+  renew-blob-sas.sh --subscription NAME --storage-account NAME --container NAME \\
+    --key-vault NAME --key-vault-secret NAME --namespace NAME \\
+    --external-secret NAME --secret NAME --secret-key KEY [options] [--apply | --confirm]
 
-Options (incident defaults are shown):
-  --subscription NAME          Azure subscription (default: homelab)
-  --storage-account NAME       Azure Storage account (default: lhshomelabbackup)
-  --container NAME             Blob container (default: paperless)
-  --key-vault NAME             Azure Key Vault (default: lhs-kubernetes-keyvault)
-  --key-vault-secret NAME      Key Vault secret (default: paperless-blob-sas)
-  --namespace NAME             Kubernetes namespace (default: paperless)
-  --external-secret NAME       ExternalSecret name (default: paperless-backup-env-external)
-  --secret NAME                Target Kubernetes Secret (default: paperless-backup-env)
-  --secret-key KEY             Target Secret data key (default: blob-sas)
+Required rotation target:
+  --subscription NAME          Azure subscription name or ID
+  --storage-account NAME       Azure Storage account
+  --container NAME             Blob container
+  --key-vault NAME             Azure Key Vault
+  --key-vault-secret NAME      Key Vault secret to update
+  --namespace NAME             Kubernetes namespace
+  --external-secret NAME       ExternalSecret that reads the Key Vault secret
+  --secret NAME                Target Kubernetes Secret
+  --secret-key KEY             Target Secret data key
+
+Optional:
   --expiry-days 1..30           SAS lifetime in days (default: 30)
   --apply                      Apply without an interactive prompt
   --confirm                    Ask for interactive confirmation before applying
@@ -52,15 +47,15 @@ fail() {
   exit 1
 }
 
-subscription=$DEFAULT_SUBSCRIPTION
-storage_account=$DEFAULT_STORAGE_ACCOUNT
-container=$DEFAULT_CONTAINER
-key_vault=$DEFAULT_KEY_VAULT
-key_vault_secret=$DEFAULT_KEY_VAULT_SECRET
-namespace=$DEFAULT_NAMESPACE
-external_secret=$DEFAULT_EXTERNAL_SECRET
-kubernetes_secret=$DEFAULT_KUBERNETES_SECRET
-secret_key=$DEFAULT_SECRET_KEY
+subscription=
+storage_account=
+container=
+key_vault=
+key_vault_secret=
+namespace=
+external_secret=
+kubernetes_secret=
+secret_key=
 expiry_days=$DEFAULT_EXPIRY_DAYS
 mode=preview
 
@@ -104,6 +99,16 @@ while (($#)); do
       ;;
   esac
 done
+
+[[ -n $subscription ]] || fail '--subscription is required'
+[[ -n $storage_account ]] || fail '--storage-account is required'
+[[ -n $container ]] || fail '--container is required'
+[[ -n $key_vault ]] || fail '--key-vault is required'
+[[ -n $key_vault_secret ]] || fail '--key-vault-secret is required'
+[[ -n $namespace ]] || fail '--namespace is required'
+[[ -n $external_secret ]] || fail '--external-secret is required'
+[[ -n $kubernetes_secret ]] || fail '--secret is required'
+[[ -n $secret_key ]] || fail '--secret-key is required'
 
 [[ $expiry_days =~ ^[0-9]+$ ]] || fail '--expiry-days must be an integer from 1 to 30'
 ((expiry_days >= 1 && expiry_days <= 30)) || fail '--expiry-days must be from 1 to 30'
