@@ -5,6 +5,7 @@ metadata:
 spec:
   configuration:
     destinationPath: https://lhshomelabbackup.blob.core.windows.net/immich
+    serverName: immich-db-pg17
     azureCredentials:
       storageAccount:
         name: immich-backup-env
