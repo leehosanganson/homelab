@@ -25,7 +25,7 @@ spec:
             description: More than 5% of LiteLLM proxy requests have failed for at least 10 minutes while traffic is present.
 
         - alert: GPUFramebufferMemoryLow
-          expr: max by (hostname, gpu, modelName) (DCGM_FI_DEV_FB_FREE{job="nvidia-dcgm-exporter"}) < 512
+          expr: max by (hostname, gpu, modelName) (DCGM_FI_DEV_FB_FREE_BYTES{job="nvidia-dcgm-exporter"}) < 536870912
           for: 10m
           labels:
             severity: warning
