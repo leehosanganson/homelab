@@ -1,14 +1,9 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: litellm-config
-data:
-  config.yaml: |
-    general_settings:
-      disable_env_credential_login: true
-    litellm_settings:
-      cache: True
-      callbacks: ["prometheus"]
-      request_timeout: 600
-      cache_params:
-        type: local
+general_settings:
+  disable_env_credential_login: true
+litellm_settings:
+  cache: True
+  callbacks: ["prometheus"]
+  prometheus_initialize_budget_metrics: true
+  request_timeout: 600
+  cache_params:
+    type: local
