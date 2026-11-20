@@ -3,6 +3,13 @@ namespace: llm
 resources:
   - ../../base
   - secrets.yaml
-  - config.yaml
   - backup-store.yaml
   - backup-schedule.yaml
+
+configMapGenerator:
+  - name: litellm-config
+    files:
+      - config.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
