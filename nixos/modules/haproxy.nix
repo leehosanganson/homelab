@@ -156,6 +156,8 @@ in
           mode tcp
           balance roundrobin
           option tcp-check
+          server ctrl-01 192.168.1.151:443 check inter 5s
+          server ctrl-02 192.168.1.152:443 check inter 5s
           server ctrl-04 192.168.1.154:443 check inter 5s
 
       backend k3s_api_backend
@@ -163,6 +165,8 @@ in
           balance roundrobin
           option tcp-check
           # inter 5: probe every 5 seconds (reduces noise from flaky API servers)
+          server ctrl-01 192.168.1.151:6443 check inter 5s
+          server ctrl-02 192.168.1.152:6443 check inter 5s
           server ctrl-04 192.168.1.154:6443 check inter 5s
     '';
   };
