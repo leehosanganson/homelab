@@ -14,8 +14,6 @@ spec:
       labels:
         app: radarr
     spec:
-      nodeSelector:
-        stack.arr: "arr-1"
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
