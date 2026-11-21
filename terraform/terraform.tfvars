@@ -70,11 +70,27 @@ nodes = {
     disk_size = 20
     datastore = "local-lvm"
   }
+  "k3s-ctrl-01" = {
+    node      = "pve01"
+    vm_id     = 108
+    cores     = 4
+    memory    = 8192
+    disk_size = 250
+    datastore = "local-lvm"
+  }
+  "k3s-ctrl-02" = {
+    node      = "pve02"
+    vm_id     = 109
+    cores     = 4
+    memory    = 4096
+    disk_size = 250
+    datastore = "local-lvm"
+  }
   "k3s-ctrl-04" = {
     node      = "pve04"
     vm_id     = 104
     cores     = 4
-    memory    = 4096
+    memory    = 8192
     disk_size = 250
     datastore = "local-lvm"
   }
@@ -97,6 +113,14 @@ nodes = {
   "k3s-work-03" = {
     node      = "pve01"
     vm_id     = 107
+    cores     = 8
+    memory    = 8192
+    disk_size = 250
+    datastore = "local-lvm"
+  }
+  "k3s-work-04" = {
+    node      = "pve02"
+    vm_id     = 110
     cores     = 8
     memory    = 8192
     disk_size = 250
