@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/immich-app/immich-server
-          tag: v3.3.3
+          tag: v3.4.2
         env:
           DB_DATABASE_NAME: immich
           DB_HOSTNAME: immich-db-rw
