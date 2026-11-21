@@ -1,0 +1,19 @@
+- op: add
+  path: /spec/template/spec/tolerations
+  value:
+    - key: gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+- op: add
+  path: /spec/template/spec/affinity
+  value:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchFields:
+              - key: metadata.name
+                operator: In
+                values:
+                  - k3s-gpu-01
