@@ -6,3 +6,14 @@ resources:
 
 patches:
   - path: patch-velero.yaml
+  - path: patch-gpu-placement.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+  - path: patch-arr-node-selector.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ^(bazarr|lidarr|lrcget|prowlarr|radarr|sonarr)$
