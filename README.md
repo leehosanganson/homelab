@@ -39,6 +39,7 @@ The entire homelab is provisioned and configured using a fully declarative IaC a
 
 ### Applications
 
+<<<<<<< HEAD
 |                                                              Logo                                                               | Name                                                                         | Description                                                 |
 | :-----------------------------------------------------------------------------------------------------------------------------: | ---------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/actual-budget.png" alt="Actual Budget Logo" height="32"/> | [Actual Budget](https://github.com/actualbudget/actual)                      | Personal finance management                                 |
@@ -63,6 +64,7 @@ The entire homelab is provisioned and configured using a fully declarative IaC a
 |                <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/termix.png" height="32" />                 | [Termix](https://github.com/termux/)                                         | Terminal emulator and SSH client for mobile                 |
 |                                                                                                                                 | [Whoami](https://github.com/antonz/whoami)                                   | Simple HTTP service for debugging                           |
 |       <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/syncthing.png" alt="Syncthing" height="32"/>        | [Syncthing](https://syncthing.net/)                                          | Continuous file synchronization                             |
+|            <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png" height="32"/>             | [Forgejo](https://forgejo.org/)                                              | Self-hosted Git service                                     |
 
 ### AI
 

@@ -19,3 +19,4 @@ resources:
   - garage.yaml
   - garage-ui.yaml
   - prometheus-community.yaml
+  - forgejo-helm.yaml
