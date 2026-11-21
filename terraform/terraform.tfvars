@@ -90,7 +90,7 @@ nodes = {
     node      = "pve04"
     vm_id     = 104
     cores     = 4
-    memory    = 4096
+    memory    = 8192
     disk_size = 250
     datastore = "local-lvm"
   }
