@@ -28,6 +28,11 @@ spec:
               mountPath: /app/config.yaml
               subPath: config.yaml
               readOnly: true
+            - name: prometheus-multiproc
+              mountPath: /tmp/prometheus-multiproc
+          envFrom:
+            - configMapRef:
+                name: litellm-env
           env:
             - name: LITELLM_MASTER_KEY
               valueFrom:
@@ -57,3 +62,5 @@ spec:
         - name: litellm-config-volume
           configMap:
             name: litellm-config
+        - name: prometheus-multiproc
+          emptyDir: {}
