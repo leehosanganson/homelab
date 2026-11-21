@@ -16,7 +16,7 @@ nodes = {
     datastore = "local-lvm"
   }
   "haproxy-2" = {
-    node      = "pve02"
+    node      = "pve04"
     vm_id     = 202
     cores     = 2
     memory    = 2048
@@ -55,7 +55,7 @@ nodes = {
     datastore = "local-lvm"
   }
   "pihole-1" = {
-    node      = "pve04"
+    node      = "pve01"
     vm_id     = 102
     cores     = 2
     memory    = 2048
@@ -63,16 +63,13 @@ nodes = {
     datastore = "local-lvm"
   }
   "pihole-2" = {
-    node      = "pve02"
+    node      = "pve04"
     vm_id     = 103
     cores     = 2
     memory    = 2048
     disk_size = 20
     datastore = "local-lvm"
   }
-  # NixOS k3s nodes — first of the rollout replacing the existing Ubuntu k3s
-  # cluster. Both on pve04 (192.168.1.194); ctrl-04 is the control plane,
-  # work-01 the worker. Join via existing cluster token (sops: k3s-token).
   "k3s-ctrl-04" = {
     node      = "pve04"
     vm_id     = 104
@@ -92,6 +89,14 @@ nodes = {
   "k3s-work-02" = {
     node      = "pve04"
     vm_id     = 106
+    cores     = 8
+    memory    = 8192
+    disk_size = 250
+    datastore = "local-lvm"
+  }
+  "k3s-work-03" = {
+    node      = "pve01"
+    vm_id     = 107
     cores     = 8
     memory    = 8192
     disk_size = 250
