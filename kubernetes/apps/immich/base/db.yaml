@@ -29,6 +29,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: immich-backup-storage
+        serverName: immich-db-pg17
   externalClusters:
     - name: clusterBackup
       plugin:
