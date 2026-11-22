@@ -19,6 +19,11 @@ spec:
       runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: gpu
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
       containers:
         - name: chrome-runner
           image: selenium/standalone-chrome:151.0-20260808@sha256:18bb3447b0c6f7e755a5c3eb75481fe752edc4c334e02d19060e54803e417720
