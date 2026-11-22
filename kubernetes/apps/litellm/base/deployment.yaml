@@ -18,6 +18,21 @@ spec:
           ports:
             - containerPort: 4000
             - containerPort: 4001
+          command:
+            - python
+            - -c
+            - |
+              import os
+              import sys
+
+              directory = os.environ["PROMETHEUS_MULTIPROC_DIR"]
+              for name in os.listdir(directory):
+                  path = os.path.join(directory, name)
+                  if os.path.isfile(path) or os.path.islink(path):
+                      os.unlink(path)
+
+              entrypoint = "/app/docker/prod_entrypoint.sh"
+              os.execv(entrypoint, [entrypoint, *sys.argv[1:]])
           args:
             - --config
             - /app/config.yaml
