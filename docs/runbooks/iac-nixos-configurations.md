@@ -77,6 +77,14 @@ Each host imports [`sops-bootstrap.nix`](../nixos/modules/sops-bootstrap.nix) wh
 
 Encrypted secrets are stored in the external repository and referenced by each host's NixOS configuration via `defaultSopsFile`.
 
+### Private flake input access
+
+The NixOS flake includes the private `sops-secrets` Git repository as an input. The root account on each host must have outbound SSH read access to that repository before its automatic upgrade can evaluate the configuration. Arrange this access outside this repository; this change does not configure or store credentials. Public read access to the `homelab` repository is also required.
+
+### Automatic upgrades
+
+Each configured NixOS host uses the built-in `system.autoUpgrade` service to pull and switch to the `main` branch configuration for its own hostname from the `nixos/` flake directory in the public `homelab` repository. The service runs hourly, with a randomized delay of up to 15 minutes to spread builds across hosts. It uses the committed `flake.lock` and does not automatically reboot. A host switches to the new configuration only after its build succeeds.
+
 ---
 
 ## CPU Configuration
