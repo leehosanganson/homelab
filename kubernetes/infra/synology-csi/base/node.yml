@@ -66,6 +66,10 @@ spec:
         - key: node-role.kubernetes.io/master
           operator: Exists
           effect: NoSchedule
+        - key: gpu
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
       containers:
         - name: csi-driver-registrar
           securityContext:

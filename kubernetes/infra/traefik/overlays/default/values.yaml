@@ -33,6 +33,12 @@ topologySpreadConstraints:
     topologyKey: kubernetes.io/hostname
     whenUnsatisfiable: DoNotSchedule
 service:
+  annotations:
+    svccontroller.k3s.cattle.io/tolerations: |
+      - key: gpu
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
   spec:
     ipFamilyPolicy: PreferDualStack
     loadBalancerIP: "192.168.1.250"
