@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remote-browser-profile-permissions
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: migrate-permissions
+          image: selenium/standalone-chrome:151.0-20260808@sha256:18bb3447b0c6f7e755a5c3eb75481fe752edc4c334e02d19060e54803e417720
+          command:
+            - /bin/bash
+            - -euo
+            - pipefail
+            - -c
+            - |
+              config_root=/home/seluser/.config
+              profile="$config_root/google-chrome"
+
+              if [[ "$(id -u)" != 1200 ]]; then
+                echo "Expected to run as the existing profile owner UID 1200; got UID $(id -u)" >&2
+                exit 1
+              fi
+              if [[ ! -d "$config_root" || -L "$config_root" ]]; then
+                echo "Mounted config directory is missing or is a symlink: $config_root" >&2
+                exit 1
+              fi
+              if [[ ! -O "$config_root" ]]; then
+                echo "Current UID 1200 does not own $config_root; refusing to change permissions" >&2
+                exit 1
+              fi
+              if [[ ! -d "$profile" || -L "$profile" ]]; then
+                echo "Chrome profile directory is missing or is a symlink: $profile" >&2
+                exit 1
+              fi
+              if [[ ! -O "$profile" ]]; then
+                echo "Current UID 1200 does not own $profile; refusing to change permissions" >&2
+                exit 1
+              fi
+
+              symlink=$(find "$profile" -xdev -type l -print -quit)
+              if [[ -n "$symlink" ]]; then
+                echo "Found a symbolic link under the profile; refusing to risk changing permissions outside it: $symlink" >&2
+                exit 1
+              fi
+
+              hardlink=$(find "$profile" -xdev -type f -links +1 -print -quit)
+              if [[ -n "$hardlink" ]]; then
+                echo "Found a multiply-linked profile file; refusing to change permissions outside the profile path: $hardlink" >&2
+                exit 1
+              fi
+
+              non_owner=$(find "$profile" -xdev ! -uid 1200 -print -quit)
+              if [[ -n "$non_owner" ]]; then
+                echo "UID 1200 does not own every profile entry; refusing to change permissions. First entry: $non_owner" >&2
+                exit 1
+              fi
+
+              chgrp --no-dereference 1201 -- "$config_root"
+              chmod g+rwx,o-rwx -- "$config_root"
+              find "$profile" -xdev \( -type d -o -type f \) -exec chgrp --no-dereference 1201 -- {} +
+              find "$profile" -xdev \( -type d -o -type f \) -exec chmod g+rwX,o-rwx -- {} +
+
+              if [[ "$(stat -c '%g' "$config_root")" != 1201 ]] || ! find "$config_root" -maxdepth 0 -type d -perm -g+rwx ! -perm /007 -print -quit | grep -q .; then
+                echo "Mounted config directory is not group 1201 rwx without world access" >&2
+                exit 1
+              fi
+              if find "$profile" -xdev \( -type d -o -type f \) ! -gid 1201 -print -quit | grep -q .; then
+                echo "Some profile entries could not be assigned to group 1201" >&2
+                exit 1
+              fi
+              if find "$profile" -xdev -type d ! -perm -g+rwx -print -quit | grep -q .; then
+                echo "Some profile directories are still missing group read/write/search permissions" >&2
+                exit 1
+              fi
+              if find "$profile" -xdev -type f ! -perm -g+rw -print -quit | grep -q .; then
+                echo "Some profile files are still missing group read/write permissions" >&2
+                exit 1
+              fi
+              if find "$profile" -xdev \( -type d -o -type f \) -perm /007 -print -quit | grep -q .; then
+                echo "Some profile entries still have world permissions" >&2
+                exit 1
+              fi
+
+              echo "Set group access on $config_root and the profile subtree, and removed world access from those paths."
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1200
+            runAsGroup: 1201
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: runner-profile
+              mountPath: /home/seluser/.config
+      volumes:
+        - name: runner-profile
+          persistentVolumeClaim:
+            claimName: chrome-runner-pvc

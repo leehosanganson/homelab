@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chrome-runner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: chrome-runner
+  template:
+    metadata:
+      labels:
+        app: chrome-runner
+        app.kubernetes.io/name: remote-browser
+    spec:
+      securityContext:
+        fsGroup: 1201
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: gpu
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+      containers:
+        - name: remote-browser
+          image: kasmweb/chrome:1.18.0@sha256:ae3d50d888a35e745c699941d4f51bee0710bf655a53a0889d1da447382effc1
+          envFrom:
+            - configMapRef:
+                name: remote-browser-config
+          env:
+            - name: VNC_PW
+              valueFrom:
+                secretKeyRef:
+                  name: remote-browser-kasm-password
+                  key: VNC_PW
+          ports:
+            - containerPort: 6901
+              name: kasmvnc
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              cpu: "4"
+              memory: "4Gi"
+          volumeMounts:
+            - name: runner-profile
+              mountPath: /home/kasm-user/.config
+            - name: kasmvnc-config
+              mountPath: /etc/kasmvnc/kasmvnc.yaml
+              subPath: kasmvnc.yaml
+            - name: shm
+              mountPath: /dev/shm
+            - name: dri
+              mountPath: /dev/dri
+      volumes:
+        - name: runner-profile
+          persistentVolumeClaim:
+            claimName: chrome-runner-pvc
+        - name: kasmvnc-config
+          configMap:
+            name: remote-browser-kasmvnc
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory

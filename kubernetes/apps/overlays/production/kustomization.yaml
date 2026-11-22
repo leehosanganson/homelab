@@ -25,7 +25,7 @@ resources:
   - ../../syncthing/overlays/default
   - ../../portfolio/overlays/default
   - ../../mini-qr/overlays/default
-  - ../../chrome-runner/overlays/default
+  - ../../remote-browser/overlays/default
 
 labels:
   - includeSelectors: false
