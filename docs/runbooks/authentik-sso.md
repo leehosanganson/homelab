@@ -1,16 +1,10 @@
 # Homelab SSO: Authentik and Karakeep Pilot
 
-This runbook describes the staged setup for Authentik as the homelab identity provider and Karakeep as the first native OIDC integration. It does **not** authorize deployment or change production access. The initial PR prepares the Authentik manifests and a dedicated suspended Flux Kustomization; it does not deploy Authentik, either automatically or at this time. Configuring providers and activating Karakeep SSO require the external secrets and account checks below.
+This runbook covers a staged Authentik installation and a later Karakeep OpenID Connect (OIDC) pilot. The first stage installs Authentik and verifies its database, application health, and backup before the PR is merged. The PR then makes the normal `infra-production` Flux reconciliation manage the same resources. This stage does **not** enable DNS, Ingress, or OIDC for Karakeep or another application.
 
-## Access model
+## Required Azure Key Vault values
 
-Use an Authentik group named `homelab-allowlist` as the easy-to-manage membership list. Add the owner and each approved user to that group in Authentik. Bind each integrated Authentik Application to that group (or to a narrower service-specific group when roles differ). Removing a user from the group blocks future app authorizations, but an application's existing session may need separate revocation.
-
-Do not allow every Google or GitHub login merely because it is a desired sign-in option. A provider authenticates an identity; the group binding authorizes access. Authentik's application policy behavior is fail-open when no binding is configured, so verify the binding exists and uses the intended policy-engine mode before connecting an application. Leave open enrollment disabled or invitation-only unless there is a specific need.
-
-## Before enabling Authentik
-
-The Kubernetes manifests refer to values in Azure Key Vault. Create these values through the existing secure Key Vault workflow; never commit them or send them in chat.
+The Kubernetes manifests refer to these values in Azure Key Vault. They must exist before the manual first apply, but are not a prerequisite to merging the PR if no apply is being performed. Create values only through the approved secure Key Vault workflow; never commit them or send them in chat.
 
 | Azure Key Vault entry | Kubernetes secret/key | Purpose |
 |---|---|---|
@@ -20,64 +14,50 @@ The Kubernetes manifests refer to values in Azure Key Vault. Create these values
 | `homelab-backup-storageaccount-name` | `authentik-backup-env` / `storage-account-name` | Existing shared backup storage account reference. |
 | `authentik-blob-sas` | `authentik-backup-env` / `blob-sas` | SAS token scoped to the Authentik backup destination. |
 
-The Key Vault keys must exist before Authentik is first created. The chart's bundled PostgreSQL is disabled; this service uses its separate CNPG database.
+The chart's bundled PostgreSQL is disabled; Authentik uses a separate CloudNativePG (CNPG) database.
 
-## First deployment gate
+## Fresh first installation — before PR merge
 
-This procedure is for a **fresh first deployment only**. Before creating anything:
+This sequence is only for a confirmed fresh installation with no Authentik database data to recover. Before apply, inspect for an existing Authentik Cluster or persistent volume claim and check the approved read-only backup inventory. If any prior Authentik database, PVC, or backup exists, or the data state is uncertain, stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery). Do not apply the fresh-install overlay in that case.
 
-1. Verify that all five Key Vault secret names in the table above exist in `lhs-kubernetes-keyvault`. List names only; do not print or copy secret values:
-   ```bash
-   az keyvault secret list --vault-name lhs-kubernetes-keyvault \
-     --query "[?name=='authentik-secret-key' || name=='authentik-db-username' || name=='authentik-db-password' || name=='homelab-backup-storageaccount-name' || name=='authentik-blob-sas'].name" \
-     -o tsv
-   ```
-   Confirm every required name is present. Resolve missing values through the approved Key Vault workflow before proceeding.
-2. Check for existing Authentik clusters, persistent volume claims, or data/backups that may need restoration. For example, inspect the current cluster and read-only Barman inventory:
+1. Check the intended Kubernetes context and confirm the CNPG operator and External Secrets Operator (ESO) are healthy and can access the required resources. Confirm that all five Key Vault values in the table above exist and are valid. Do not print secret values. If any value is missing, or its status cannot be confirmed, stop before applying; resolve it through the approved Key Vault workflow.
    ```bash
    kubectl get clusters.postgresql.cnpg.io,pvc -A
-   az storage blob list --auth-mode login --account-name lhshomelabbackup --container-name authentik --prefix authentik-db-backup/base/ --num-results 1 --query 'length(@)' -o tsv
    ```
-   If any Authentik data already exists, a backup is present from a prior deployment, or the data state is uncertain, **stop**. Do not use this fresh-install procedure; follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery) and obtain a separate, explicit recovery plan. Also stop if Authentik resources are already managed by the old `infra-production` configuration: removing them from a pruning Kustomization can delete them, so the ownership transition needs its own reviewed plan.
-3. Confirm that the infrastructure prerequisites are ready: External Secrets Operator can read the Azure Key Vault store, and the CNPG operator and required CRDs are healthy. Confirm the intended cluster context, then verify the production root Kustomization (`flux-system`) is Ready and has reconciled the child Kustomization:
+2. From the PR branch, and only after confirming this is a fresh installation, apply the Authentik chart source and overlay before merging the PR:
    ```bash
-   flux get kustomizations flux-system
-   flux get kustomizations authentik-production
-   kubectl get kustomization authentik-production -n flux-system -o jsonpath='{.spec.suspend}'
-   ```
-   Do not continue unless the root is Ready and the child reports `suspend=true`. Then manually create the initial resources from the overlay:
-   ```bash
+   kubectl apply -f kubernetes/infra/helm/authentik.yaml
    kubectl apply -k kubernetes/infra/authentik/overlays/default
    ```
-   This command is an operator step for the first deployment; it is **not run as part of this change**. It creates the Authentik namespace and resources, including ExternalSecrets, the HelmRelease, CNPG Cluster, ObjectStore, and scheduled backup. The `authentik-production` Flux Kustomization is suspended, and `infra-production` excludes the Authentik workload overlay (the shared HelmRepository source may remain); neither Flux Kustomization creates the Authentik workload or database at this stage.
-4. Wait for the ExternalSecrets, CNPG database, Authentik server, and worker to become healthy. Check their status and pod readiness:
+   The first command creates the HelmRepository in `flux-system`, which the HelmRelease needs to fetch the chart. The second creates the namespace, ExternalSecrets, HelmRelease, CNPG Cluster using `initdb`, ObjectStore, and scheduled backup. Do not run this command when restoring an existing installation.
+3. Wait for the ExternalSecrets to become Ready, the `authentik-db` Cluster to report healthy, and the Authentik server and worker pods to be Ready:
    ```bash
    kubectl get externalsecrets.external-secrets.io,clusters.postgresql.cnpg.io,pods -n authentik
+   kubectl get pods -n authentik -w
    ```
-   Keep the Ingress disabled. Verify that CNPG has completed a successful full base backup before handing the resources to Flux. For example, inspect the backup list read-only from the healthy CNPG instance:
-   ```bash
-   kubectl exec -n authentik authentik-db-1 -- barman-cloud-backup-list --format json lhshomelabbackup/authentik authentik-db-backup
-   ```
-   Confirm that the output contains a successful full base backup. Do not proceed if the backup is absent or failed.
-5. Only after verifying that backup, make a reviewed Git change setting `spec.suspend: false` on `authentik-production` in `fluxcd/clusters/production/authentik.yaml`. The production root Kustomization reconciles this child Kustomization resource, so the Git change durably updates its suspend state; the child then adopts the exact resources already created from the same overlay. Do **not** use `flux resume kustomization authentik-production` alone: the root Kustomization would restore the Git value `suspend: true` on its next reconciliation.
-
-This is not a DNS or Ingress activation procedure. Do not create DNS, enable the Authentik Ingress, or expose Authentik as part of first deployment; keep Ingress disabled.
-
-## Initial Authentik setup
-
-1. Confirm your `kubectl` context is the intended cluster and that the Authentik server Service is ready: `kubectl get pods,svc -n authentik`. Check that no Cloudflare Tunnel or other external route points directly to the Authentik Service. Keep this operator-controlled setup session on a trusted workstation.
-2. Start a loopback-only port-forward to the Authentik server Service:
+   Confirm that the `authentik-db` cluster is initialized and healthy before proceeding. If the database or either application workload is not healthy, stop and diagnose it; do not merge yet.
+4. Start a loopback-only port-forward to the Authentik server Service:
    ```bash
    kubectl port-forward --address 127.0.0.1 -n authentik svc/authentik-server 9000:80
    ```
-   Leave this command running. It binds only to the local machine; do not replace `127.0.0.1` with `0.0.0.0` or expose the forwarded port through another proxy.
-3. On that same workstation, open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash) and create a strong local bootstrap administrator account. Do not protect this initial setup/admin path with Authentik itself.
-4. While the port-forward is running, confirm the local bootstrap administrator can sign in and recover access. Store recovery credentials safely outside Git.
-5. Stop the port-forward with Ctrl-C when setup and sign-in checks are complete. Do not use a public hostname for initial setup while the Ingress is disabled.
-6. For later Authentik admin tasks below, reuse the same loopback-only port-forward procedure while working in the admin UI, then stop it with Ctrl-C when finished. Create the `homelab-allowlist` group. Keep the bootstrap administrator account separate from public social-login accounts. Do not add any social source until the local admin and backup/recovery path work.
-7. Configure GitHub OAuth and Google OAuth sources using their respective official provider setup guides. Store their client secrets in Authentik's protected configuration, not in Kubernetes YAML or this repository. Use only the requested providers.
-8. Configure source/enrollment flows so users cannot obtain application access merely by choosing a provider. Add the owner's social identity to `homelab-allowlist` only after verifying it in the Authentik admin UI. Add future approved identities to this group; do not enable a broad enrollment shortcut as the allowlist.
-9. For each app, configure an Authentik Application and the matching provider. Add a group binding to the Authentik Application for `homelab-allowlist` before distributing the login URL or allowing traffic to the app. Verify an unapproved account is denied. Authentik docs note that no bindings means access is granted; do not leave an application unbound unintentionally.
+   On the same trusted workstation, open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash), complete the local bootstrap administrator setup, and verify that the server responds and the administrator can sign in. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check.
+5. Verify that a successful full Barman base backup exists before merging. From the healthy CNPG instance, inspect the backup list:
+   ```bash
+   kubectl exec -n authentik authentik-db-1 -- \
+     barman-cloud-backup-list --format json \
+     lhshomelabbackup/authentik authentik-db-backup
+   ```
+   Confirm the output shows a completed successful full base backup, not only a WAL archive or a scheduled-backup object. Wait for the scheduled backup if needed. If no successful base backup is visible, stop and do not merge the PR.
+6. Only after the database, server, worker, local port-forward check, and full backup are verified, merge the PR through its normal review process. The PR adds the Authentik overlay to `infra-production`; after merge, Flux reconciles and manages the already-applied resources through that existing Kustomization. There is no separate Authentik Kustomization or Git adoption step.
+
+Do not create DNS records, enable or expose the Authentik Ingress, or activate OIDC for any application during this stage. Keep Ingress disabled.
+
+## Later Authentik configuration
+
+After the first-install checks and a separate decision to configure identity providers, use a loopback-only port-forward as above. Verify bootstrap administrator sign-in and recovery, and store recovery credentials safely outside Git. Then create the `homelab-allowlist` group. Keep the bootstrap administrator separate from social-login accounts and leave open enrollment disabled or invitation-only.
+
+Configure only approved Google or GitHub sources. A provider authenticates an identity; a group binding authorizes access. Add the owner's verified identity to `homelab-allowlist` only after confirming it in the admin UI. Authentik grants access to an Application when no binding is configured, so bind each Application to `homelab-allowlist` or a narrower service-specific group before allowing access. Test both an approved and a non-allowlisted identity. These steps are separate from the initial install and do not authorize DNS, Ingress, or application OIDC activation.
+
 
 ## Karakeep native OIDC pilot (deferred activation)
 
@@ -106,33 +86,25 @@ Karakeep's `DISABLE_SIGNUPS` setting disables signups generally, including OAuth
 
 ### Before PR merge
 
-- [ ] Production root includes `authentik-production` with `spec.suspend: true`, and `infra-production` does not include the Authentik overlay.
-- [ ] No secret values appear in the Git diff.
-- [ ] `kustomize build kubernetes/infra/authentik/overlays/default` succeeds.
-- [ ] `kustomize build kubernetes/infra/overlays/production` succeeds.
-- [ ] Helm chart version/value render uses external PostgreSQL, does not enable chart-bundled PostgreSQL, and contains no Ingress by default.
+- [ ] Required Authentik Key Vault values exist before the manual apply; no secret values appear in Git.
+- [ ] `kustomize build kubernetes/infra/authentik/overlays/default` and `kustomize build kubernetes/infra/overlays/production` succeed.
+- [ ] The chart uses external PostgreSQL, does not enable bundled PostgreSQL, and leaves Ingress disabled.
 - [ ] Rendered server and worker run non-root, disable privilege escalation, and drop all Linux capabilities.
-- [ ] CNPG database and Barman backup resources use Authentik-specific names and the intended Key Vault backup references.
+- [ ] The fresh `authentik-db` Cluster is initialized and healthy; Authentik server and worker are Ready.
+- [ ] The loopback-only port-forward reaches the local initial-setup page and bootstrap administrator sign-in succeeds.
+- [ ] A completed, successful full Barman base backup is visible for `authentik-db-backup`.
+- [ ] No DNS or Ingress was created or enabled, and no application OIDC integration was activated.
 
-### Before manual first apply
+### After PR merge
 
-- [ ] All five required Key Vault keys above exist in `lhs-kubernetes-keyvault` and are scoped correctly.
-- [ ] External Secrets Operator can read the Azure Key Vault store, and the CNPG operator and required CRDs are healthy.
-- [ ] No existing Authentik data or backups need recovery; stop and use a separately reviewed recovery plan if any data exists or its state is uncertain.
-
-### After the fresh first deployment and Git adoption
-
-- [ ] Authentik server, worker, database, backup, and ExternalSecrets report healthy/Ready, and a successful full base backup was verified before the reviewed Git change unsuspended `authentik-production`.
-- [ ] The root-managed `authentik-production` Kustomization is unsuspended in Git; do not use `flux resume` alone as a durable change. No DNS or Ingress was created or enabled.
-- [ ] A TLS certificate is not expected while the Ingress remains disabled.
-- [ ] Local bootstrap administrator sign-in and recovery are verified before connecting any app.
-- [ ] Google and GitHub source logins work only as configured; a non-allowlisted user cannot access a bound application.
-- [ ] Karakeep's non-secret public URL and Authentik discovery URL are prepared; before OIDC activation, verify discovery metadata and all required endpoint reachability as described above. No OAuth client ID/secret is referenced until those Key Vault values exist.
-- [ ] After the follow-up OIDC activation, existing local Karakeep credentials or a documented recovery path still work until OIDC-only activation is explicitly approved; then verify the allowed/denied identity policy separately.
+- [ ] `infra-production` is Ready and manages the Authentik resources already created from the same overlay; there is no separate Authentik Kustomization or adoption step.
+- [ ] Ingress remains disabled. No DNS or application OIDC configuration was activated.
+- [ ] A TLS certificate is not expected while Ingress remains disabled.
+- [ ] Later provider setup and application integrations follow a separate review and verify the intended allowlist policy.
 
 ## Rollback
 
-For the Authentik foundation, revert the PR through the repository workflow and preserve the CNPG data, backup objects, and Azure Key Vault values unless a separate data-removal decision is made. Do not delete the identity database as part of an application rollback. CNPG restore uses `bootstrap.recovery` to create a **new Cluster**; it does not restore an initialized Cluster in place. Never change the initialized Authentik Cluster's `bootstrap.initdb` to `bootstrap.recovery` as a restore. The inventory in [Cluster Recovery — Phase 4](cluster-recovery.md#phase-4--cnpg-database-recovery) identifies Authentik's existing manifest at `kubernetes/infra/authentik/base/db/cluster.yaml`, but that file is not a ready-to-apply recovery manifest. Verify the Authentik backup in `lhshomelabbackup/authentik` under the `authentik-db-backup` server prefix as a read-only pre-check. Phase 4 is not yet a complete executable Authentik restore/cutover procedure: this repository has no validated replacement-cluster name/service/cutover runbook. Stop before creating, deleting, or replacing any Cluster or data until an explicit recovery plan covers a separate recovery Cluster, unique WAL archive `serverName`, data verification, application service/host cutover, and preservation or planned retirement of the original data. Preserve the long-lived `AUTHENTIK_SECRET_KEY`; changing it can invalidate sessions/tokens and disrupt identity integrations.
+Do not revert this PR or remove Authentik from `infra-production` blindly: the Flux Kustomization prunes resources that disappear from its inventory. Any rollback must have a reviewed plan that preserves the CNPG data, backup objects, and Azure Key Vault values unless a separate data-removal decision is made. Do not delete the identity database as part of an application rollback. CNPG restore uses `bootstrap.recovery` to create a **new Cluster**; it does not restore an initialized Cluster in place. Never change the initialized Authentik Cluster's `bootstrap.initdb` to `bootstrap.recovery` as a restore. The inventory in [Cluster Recovery — Phase 4](cluster-recovery.md#phase-4--cnpg-database-recovery) identifies Authentik's existing manifest at `kubernetes/infra/authentik/base/db/cluster.yaml`, but that file is not a ready-to-apply recovery manifest. Verify the Authentik backup in `lhshomelabbackup/authentik` under the `authentik-db-backup` server prefix as a read-only pre-check. Phase 4 is not yet a complete executable Authentik restore/cutover procedure: this repository has no validated replacement-cluster name/service/cutover runbook. Stop before creating, deleting, or replacing any Cluster or data until an explicit recovery plan covers a separate recovery Cluster, unique WAL archive `serverName`, data verification, application service/host cutover, and preservation or planned retirement of the original data. Preserve the long-lived `AUTHENTIK_SECRET_KEY`; changing it can invalidate sessions/tokens and disrupt identity integrations.
 
 For Karakeep, revert only the application-specific OIDC configuration and restore the last known working app-local auth settings. Do not remove the Authentik provider or user data until all app sessions and account mappings have been reviewed. If the app is protected by an outer proxy gate in a later phase, roll back the gate only to a still-protected state; do not inadvertently publish a private service.
 

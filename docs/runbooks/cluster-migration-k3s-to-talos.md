@@ -26,8 +26,8 @@ Phase 7: Post-migration cleanup
 
 ### Migration principles
 
-- Keep `infra-production` active; it excludes Authentik. Control timing by suspending/resuming `apps-production` and `monitoring-production`.
-- Keep the dedicated `authentik-production` Kustomization suspended throughout migration and recovery. Do not reconcile Authentik through ordinary infra reconciliation or manually initialize a fresh Authentik database during recovery.
+- Normal `infra-production` includes Authentik and its CNPG Cluster configured with `initdb`. Before bootstrap or any infra reconciliation on a target that may need Authentik data restored, use a reviewed recovery branch that prevents Authentik resources from being applied; account for pruning as well. If that safe gate is unclear, stop and require an explicit recovery plan.
+- Suspend `apps-production` and `monitoring-production` to control their timing. Do not use the normal Authentik overlay to initialize a fresh database when existing Authentik data needs restoration.
 - Use Velero to restore Kubernetes objects/PVC bindings; file-system backup is off by default and only annotated pod volumes (`backup.velero.io/backup-volumes`) are included.
 - Start an initialized CNPG Cluster only from verified original PVC/PGDATA. CNPG 1.27.0 `bootstrap.recovery` bootstraps a new Cluster from barman; use it only under an explicit, separate-cluster recovery plan.
 - Perform DNS/Ingress cutover only after all gates pass.
@@ -134,7 +134,7 @@ Proceed only if:
 
 ## 4) Flux Bootstrap and Staged Reconcile / Suspend Strategy
 
-Flux must be installed first, but app and monitoring reconciliation should be controlled to prevent races during restore.
+Flux must be installed first, but app and monitoring reconciliation should be controlled to prevent races during restore. **Before Flux bootstrap or any infra reconciliation**, if the target must preserve or recover existing Authentik data, ensure a reviewed recovery branch is configured so `infra-production` cannot apply Authentik's normal `initdb` resources. The review must account for pruning: excluding resources from a pruning Kustomization can delete existing live resources. The current `fluxcd/bootstrap.sh` targets `main`; do not run it for recovery unless the reviewed procedure ensures a recovery-safe source is active before `infra-production` can reconcile. Do not make ad hoc manifest or live-cluster edits to work around this. If the branch does not clearly prevent both unintended initialization and unsafe pruning, **STOP** until an explicit recovery plan establishes a safe method.
 
 ### 4.1 Bootstrap Flux on Talos
 
@@ -154,7 +154,7 @@ flux --context "$DST_CTX" suspend kustomization monitoring-production
 flux --context "$DST_CTX" get kustomizations
 ```
 
-Keep `infra-production` active; it does not include Authentik. Verify that the Git-managed `authentik-production` Kustomization remains suspended. Do not resume it as part of migration or apply the Authentik overlay as a fresh `initdb` deployment. If existing Authentik data needs restoration, stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery).
+Do not reconcile `infra-production` on a target that needs Authentik recovery until the reviewed recovery branch has passed the Authentik gate above. Normal infra includes Authentik, so suspending `apps-production` and `monitoring-production` does not prevent Authentik's `initdb` resources from applying. If existing Authentik data needs restoration, do not apply the normal Authentik overlay as a fresh install; stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery).
 
 ### 4.3 Seed ESO bootstrap credential and reconcile infra
 
@@ -183,7 +183,7 @@ kubectl --context "$DST_CTX" get pods -n traefik
 kubectl --context "$DST_CTX" get storageclass
 ```
 
-Proceed only if ESO, Velero, Traefik, CNPG operator, and CSI/storage stack are healthy. `infra-production` does not create Authentik resources or its database; keep `authentik-production` suspended during this migration.
+Proceed only if ESO, Velero, Traefik, CNPG operator, and CSI/storage stack are healthy. If the migration's reviewed recovery branch excludes Authentik pending recovery, verify that the exclusion is active and does not prune existing resources. Otherwise, do not reconcile infra until the Authentik gate is resolved. Do not use a separate Authentik Kustomization to manage this stage.
 
 ---
 
@@ -240,7 +240,7 @@ All required PVCs must be `Bound`. For this repo, retained NAS-backed classes (`
 
 ### 5.5 Start CNPG databases only from verified data
 
-A `Bound` PVC alone does not prove that the database's original data was restored. Keep `apps-production` suspended until the data source for every database is known and verified. Keep `authentik-production` suspended as well. If existing Authentik data needs recovery, do not use ordinary infra reconciliation, the fresh-install `initdb`, or an Authentik overlay apply to initialize it; stop at the [Cluster Recovery Phase 4 boundary](cluster-recovery.md#phase-4--cnpg-database-recovery) until a separate new-Cluster recovery plan is approved.
+A `Bound` PVC alone does not prove that the database's original data was restored. Keep `apps-production` suspended until the data source for every database is known and verified. If existing Authentik data needs recovery, ensure the reviewed recovery branch still prevents normal `infra-production` from applying the Authentik `initdb` resources, and stop at the [Cluster Recovery Phase 4 boundary](cluster-recovery.md#phase-4--cnpg-database-recovery) until a separate new-Cluster recovery and cutover plan is approved. Do not attempt an in-place restore.
 
 **If starting from the original database data:** Before app reconciliation, verify that each CNPG Cluster will use its correct original PVC/PV and backing storage, and verify that the expected original `PGDATA` is present. This is ordinary startup from an already initialized data directory; it is not CNPG bootstrap recovery. Only after those checks pass may you resume app reconciliation to start the existing Clusters and applications:
 

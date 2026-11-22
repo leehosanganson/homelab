@@ -9,7 +9,7 @@ Recovery must follow a strict order because later phases depend on resources cre
 ```
 Phase 1: Bootstrap Flux
      ↓
-Phase 2: Reconcile Infrastructure (External Secrets → Storage → Velero → CNPG → Harbor)
+Phase 2: Reconcile Infrastructure (External Secrets → Storage → Velero → CNPG → Harbor → Authentik, only after the recovery gate)
      ↓
 Phase 3: Velero Restore (apps + harbor namespaces)
      ↓
@@ -42,14 +42,20 @@ Ensure the following tools are available and configured before starting:
 
 ## Phase 1 — Bootstrap Flux
 
-Flux is the foundation — it manages all other resources. Bootstrap it first using the script at `fluxcd/bootstrap.sh`.
+Flux is the foundation — it manages all other resources. First determine whether Authentik is a fresh installation or its existing database/data/backup must be preserved or restored. Normal `infra-production` includes Authentik, including a CNPG Cluster configured with `initdb`; it can create a fresh database.
+
+**Recovery gate:** Before bootstrapping Flux or triggering any infrastructure reconciliation, if Authentik data may need restoration, make sure the active recovery branch has been reviewed and ensures Authentik resources are not applied by `infra-production`. The reviewed plan must also account for pruning: simply removing resources from a pruning Kustomization may delete existing live resources. The current `fluxcd/bootstrap.sh` targets `main`; do not run it for recovery unless the reviewed procedure ensures a recovery-safe source is active before `infra-production` can reconcile. If the branch or pruning behavior does not clearly prevent both an unintended `initdb` and unsafe pruning, or if the data state is uncertain, **STOP** and require an explicit recovery plan. Do not use the normal production overlay for recovery until that gate is satisfied.
+
+For a confirmed fresh installation with no Authentik data to restore, follow the Authentik first-install gate and make sure all required Key Vault values exist before applying the overlay.
+
+After the applicable gate is satisfied, bootstrap Flux using the script at `fluxcd/bootstrap.sh`:
 
 ```bash
 # Run from the repo root; the script reads the GitHub token from Azure Key Vault
 ./fluxcd/bootstrap.sh
 ```
 
-This creates the `flux-system` namespace and installs Flux components. The production root reconciles the `infra-production`, `monitoring-production`, `apps-production`, and dedicated `authentik-production` Kustomization resources. The `authentik-production` child must remain suspended and must not apply its workload during recovery. Other Kustomizations may fail initially because External Secrets Operator (ESO) has not yet synced any secrets; that is expected.
+This creates the `flux-system` namespace and installs Flux components. The production root reconciles `infra-production`, `monitoring-production`, and `apps-production`. Other Kustomizations may fail initially because External Secrets Operator (ESO) has not yet synced any secrets; that is expected.
 
 **Verify Flux is running:**
 
@@ -60,7 +66,7 @@ flux get kustomizations
 
 ### 1.1 — Suspend app/monitoring reconciliation before recovery actions
 
-Before running restores or database recovery, suspend `apps-production` and `monitoring-production` so Flux does not race ahead while PVCs and databases are being restored.
+Before running restores or database recovery, suspend `apps-production` and `monitoring-production` so Flux does not race ahead while PVCs and databases are being restored. The Authentik recovery gate above is separate and must be satisfied before Flux bootstrap or any `infra-production` reconciliation; those two suspensions do not prevent infra from creating Authentik.
 
 ```bash
 flux suspend kustomization apps-production
@@ -68,7 +74,7 @@ flux suspend kustomization monitoring-production
 flux get kustomizations
 ```
 
-`infra-production` should remain active. It excludes the Authentik workload and database. Before recovery actions, verify that the Git-managed `authentik-production` resource has `spec.suspend: true` and that the production root has reconciled it. If it is not suspended in Git, make a reviewed Git change and wait for the root to apply it; `flux suspend` alone is not durable because the root would restore the Git value. Keep this Kustomization suspended for the entire recovery; do not resume it or apply the Authentik overlay as a fresh `initdb` deployment. If Authentik data needs recovery, follow the Phase 4 stop boundary and require an explicit new-Cluster recovery plan.
+Do not reconcile `infra-production` until a reviewed recovery branch is active and has been verified to prevent Authentik resources from being applied. Normal production infra includes the Authentik overlay, whose database manifest uses `initdb`. A recovery branch must exclude Authentik from `infra-production`, or keep `infra-production` from reconciling until another reviewed method ensures those resources are not applied. Because `infra-production` prunes resources, do not assume that removing Authentik from its resource list is safe when Authentik resources already exist. Do not make ad hoc live or Git edits to remove resources; if the safe exclusion and pruning behavior is not established for this recovery, **STOP** and require an explicit plan. Keep `apps-production` and `monitoring-production` suspended as shown above. If Authentik data needs recovery, follow the Phase 4 stop boundary and require an explicit new-Cluster recovery and cutover plan.
 
 ---
 
@@ -92,14 +98,14 @@ kubectl create secret generic azure-sp-secret \
 
 ### 2.2 — Reconcile Infrastructure
 
-Trigger a reconcile and wait for all infra components to become ready:
+Only after the Authentik recovery gate in Phase 1 is satisfied, trigger infrastructure reconciliation and wait for components to become ready:
 
 ```bash
 flux reconcile kustomization infra-production --with-source
 flux get kustomizations --watch
 ```
 
-`infra-production` installs its components (as defined in `kubernetes/infra/overlays/production/kustomization.yaml`); it does not create Authentik or its database:
+In normal operation, `infra-production` installs the components defined in `kubernetes/infra/overlays/production/kustomization.yaml`, including Authentik and its `authentik-db` Cluster. The Authentik entry below describes normal production only; during recovery, do not allow it to reconcile until the reviewed recovery branch has passed the Authentik gate:
 
 | Component | Namespace | Purpose |
 |-----------|-----------|---------|
@@ -111,6 +117,7 @@ flux get kustomizations --watch
 | Velero | `velero` | Backup / restore agent |
 | Harbor | `harbor` | Container registry (stateful; PVCs restored via Velero in Phase 3) |
 | Renovate | `renovate` | Dependency update automation |
+| Authentik | `authentik` | Identity service and CNPG database; normal production only, subject to the recovery gate above |
 
 ### 2.3 — Verify Velero Is Ready
 
@@ -215,7 +222,7 @@ All PVCs must be `Bound` before proceeding. If a PVC is `Pending`, see [Velero P
 
 CNPG 1.27.0 `bootstrap.recovery` bootstraps a **new Cluster** from a backup; it is not an in-place restore. Changing `spec.bootstrap` on an already initialized Cluster—including changing it from `initdb` to `recovery`—does not restore that Cluster's data. Do not make that change or reconcile a recovery bootstrap onto an initialized Cluster as a restore. See the [CNPG 1.27 recovery documentation](https://cloudnative-pg.io/docs/1.27/recovery/) for the version-specific behavior.
 
-The inventory below lists the repository's existing Cluster manifests; these are not recovery-mode manifests. App database resources are managed through `apps-production`. Authentik has a dedicated `authentik-production` Kustomization, separate from `infra-production`, which must remain suspended during recovery. This guide does not provide or authorize applying recovery settings to an existing Cluster.
+The inventory below lists the repository's existing Cluster manifests; these are not recovery-mode manifests. App database resources are managed through `apps-production`; Authentik's Cluster is part of normal `infra-production`. CNPG 1.27.0 `bootstrap.recovery` creates a new Cluster and is not an in-place restore. This guide does not provide or authorize applying recovery settings to an existing Cluster or reconciling Authentik's normal `initdb` manifest when existing data needs recovery.
 
 This repository does not have a validated replacement-Cluster name, service, or cutover runbook. After the read-only backup and ObjectStore checks below, **stop**. Do not create, delete, or replace any Cluster, PVC, or database data until an explicit recovery plan covers a separate recovery Cluster, a unique WAL archive `serverName`, data verification, application database service/host cutover, and preservation or planned retirement of the original data.
 
@@ -270,7 +277,7 @@ If no barman backup can be confirmed for a database that needs recovery, stop. D
 
 ### 4.2 — Verify ObjectStore and Secrets Exist
 
-Before a planned recovery Cluster can be created, the `ObjectStore` resource and its backing secret (synced by ESO) must exist in the namespace. The existing app database resources are managed through `apps-production`. Authentik's dedicated Kustomization remains suspended; do not resume it or use ordinary infra reconciliation to create Authentik resources during recovery.
+Before a planned recovery Cluster can be created, the `ObjectStore` resource and its backing secret (synced by ESO) must exist in the namespace. The existing app database resources are managed through `apps-production`. Authentik resources must remain excluded from application by normal `infra-production` until an explicit recovery plan is approved. Do not reconcile the normal Authentik overlay as a fresh `initdb` deployment when existing data needs recovery.
 
 ```bash
 # Check for each namespace that needs recovery, e.g. immich:
@@ -286,7 +293,7 @@ If no prior barman backup can be confirmed, there is nothing for CNPG recovery t
 
 ### 4.4 — Recovery Progress and Cutover
 
-This repository does not define a validated replacement-Cluster name, service, or cutover process. Do not reconcile a recovery configuration to an existing Cluster or proceed from this guide to create or replace a Cluster. An explicit per-database recovery plan must first define the separate recovery Cluster and its unique WAL archive `serverName`, how restored data will be verified, how the application database service/host will be cut over, and how the original data will be preserved or intentionally retired. The plan must use `apps-production` for app database resources. Authentik must remain excluded from `infra-production` and its dedicated Kustomization suspended during this process; follow the documented stop boundary rather than attempting a fresh `initdb`.
+This repository does not define a validated replacement-Cluster name, service, or cutover process. Do not reconcile a recovery configuration to an existing Cluster or proceed from this guide to create or replace a Cluster. An explicit per-database recovery plan must first define the separate recovery Cluster and its unique WAL archive `serverName`, how restored data will be verified, how the application database service/host will be cut over, and how the original data will be preserved or intentionally retired. The plan must use `apps-production` for app database resources. Authentik must remain excluded from `infra-production` until this plan is approved and the reviewed recovery branch ensures the normal `initdb` resources are not applied or allowed to prune needed data. If that safe behavior is uncertain, **STOP**; do not attempt a fresh `initdb` or an in-place restore.
 
 ### 4.5 — Data Verification Requirement
 
