@@ -122,6 +122,12 @@ in
           acl is_pihole_2 hdr(host) -i pihole-2.infra.leehosanganson.dev
           use_backend pihole_2 if is_pihole_2
 
+          acl is_technitium_1 hdr(host) -i technitium-1.infra.leehosanganson.dev
+          use_backend technitium_1 if is_technitium_1
+
+          acl is_technitium_2 hdr(host) -i technitium-2.infra.leehosanganson.dev
+          use_backend technitium_2 if is_technitium_2
+
       frontend k3s_api
           bind *:6443
           mode tcp
@@ -151,6 +157,14 @@ in
       backend pihole_2
           mode http
           server pi2 192.168.1.133:80 check
+
+      backend technitium_1
+          mode http
+          server technitium-1 192.168.1.211:5380 check
+
+      backend technitium_2
+          mode http
+          server technitium-2 192.168.1.212:5380 check
 
       backend k3s
           mode tcp
