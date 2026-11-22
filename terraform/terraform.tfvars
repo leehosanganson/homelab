@@ -90,7 +90,7 @@ nodes = {
     node      = "pve04"
     vm_id     = 104
     cores     = 4
-    memory    = 8192
+    memory    = 4096
     disk_size = 250
     datastore = "local-lvm"
   }
@@ -122,7 +122,7 @@ nodes = {
     node      = "pve02"
     vm_id     = 110
     cores     = 8
-    memory    = 8192
+    memory    = 16384
     disk_size = 250
     datastore = "local-lvm"
   }
