@@ -1,5 +1,6 @@
 resources:
   - namespaces
+  - limit-ranges.yaml
   - ../../actual-budget/overlays/default
   - ../../homepage/overlays/default
   - ../../commafeed/overlays/default
@@ -10,6 +11,7 @@ resources:
   - ../../karakeep/overlays/default
   - ../../litellm/overlays/default
   - ../../media/overlays/default
+  - ../../minecraft/overlays/default
   - ../../n8n/overlays/default
   - ../../openwebui/overlays/default
   - ../../searxng/overlays/default

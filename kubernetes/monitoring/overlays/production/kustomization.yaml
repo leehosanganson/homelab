@@ -1,5 +1,6 @@
 resources:
   - namespace.yaml
+  - limit-range.yaml
   - ../../garage/overlays/default
   - ../../garage-ui/overlays/default
   - ../../uptime-kuma/overlays/default

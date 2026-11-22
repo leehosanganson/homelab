@@ -1,7 +1,9 @@
 resources:
   requests:
     cpu: 1
-    memory: 1024Mi
+    memory: 1.2Gi
+  limits:
+    memory: 1.5Gi
 
 minecraftServer:
   eula: "TRUE"

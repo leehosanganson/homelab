@@ -65,6 +65,11 @@ prometheus:
       resources: ["nodes/proxy"]
       verbs: ["get"]
   prometheusSpec:
+    resources:
+      requests:
+        memory: 3Gi
+      limits:
+        memory: 4Gi
     retention: 90d
     retentionSize: 130GB
     storageSpec:
