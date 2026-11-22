@@ -27,4 +27,11 @@ initContainers:
 
 deployNodeAgent: true
 
+nodeAgent:
+  tolerations:
+    - key: gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
 features: EnableCSI
