@@ -2,6 +2,7 @@ namespace: harbor
 
 resources:
   - namespace.yaml
+  - limit-range.yaml
   - ../../base
   - secrets.yaml
 

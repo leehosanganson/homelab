@@ -36,6 +36,15 @@ valkey:
 
 server:
   enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              memory: 768Mi
+            limits:
+              memory: 1.5Gi
   ingress:
     main:
       enabled: true

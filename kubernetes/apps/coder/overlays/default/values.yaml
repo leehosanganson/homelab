@@ -1,4 +1,9 @@
 coder:
+  resources:
+    requests:
+      memory: 256Mi
+    limits:
+      memory: 1Gi
   env:
     - name: CODER_PG_CONNECTION_URL
       valueFrom:

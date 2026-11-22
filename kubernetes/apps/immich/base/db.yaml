@@ -6,6 +6,9 @@ metadata:
     db: immich-db
 spec:
   instances: 2
+  resources:
+    requests:
+      memory: 256Mi
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.5-0.4.3
   storage:
     storageClass: synology-retain

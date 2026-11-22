@@ -1,6 +1,12 @@
 deploymentStrategy:
   type: Recreate
 
+resources:
+  requests:
+    memory: 512Mi
+  limits:
+    memory: 896Mi
+
 persistence:
   enabled: true
   accessModes:
