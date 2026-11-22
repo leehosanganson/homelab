@@ -38,7 +38,7 @@ server:
       drop:
         - ALL
   ingress:
-    enabled: false
+    enabled: true
     ingressClassName: traefik
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-cloudflare
