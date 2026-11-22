@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: remote-browser
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: remote-browser-kasmvnc@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: remote-browser.homelab.leehosanganson.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: remote-browser
+                port:
+                  number: 6901
+  tls:
+    - hosts:
+        - remote-browser.homelab.leehosanganson.dev
+      secretName: remote-browser-tls

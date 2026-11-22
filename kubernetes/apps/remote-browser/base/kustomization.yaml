@@ -1,11 +1,10 @@
 resources:
-  - vnc-configmap.yaml
-  - launcher-configmap.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - transport.yaml
   - pvc.yaml
 
 labels:
   - pairs:
-      app: chrome-runner
+      app: remote-browser

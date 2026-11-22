@@ -1,4 +1,4 @@
 namespace: remote-browser
 
 resources:
-  - ../../base
+  - job.yaml
