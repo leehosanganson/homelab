@@ -48,8 +48,10 @@ spec:
             - name: N8N_RUNNERS_MODE
               value: internal
           resources:
+            requests:
+              memory: 512Mi
             limits:
-              memory: 4G
+              memory: 896Mi
           volumeMounts:
             - mountPath: /home/node/.n8n
               name: n8n-pvc

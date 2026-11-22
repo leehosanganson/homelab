@@ -51,6 +51,11 @@ deploymentMode: Monolithic
 
 singleBinary:
   replicas: 1
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 896Mi
 
 # Zero out replica counts of other deployment modes.
 backend:

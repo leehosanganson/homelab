@@ -1,3 +1,54 @@
+operator:
+  nodeSelector:
+    kubernetes.io/os: linux
+    kubernetes.io/hostname: k3s-gpu-01
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Equal
+      value: ""
+      effect: NoSchedule
+    - key: gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
+daemonsets:
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
+node-feature-discovery:
+  master:
+    nodeSelector:
+      kubernetes.io/hostname: k3s-gpu-01
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Equal
+        value: ""
+        effect: NoSchedule
+      - key: gpu
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+  worker:
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Equal
+        value: ""
+        effect: NoSchedule
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      - key: gpu
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+
 toolkit:
   env:
     - name: CONTAINERD_CONFIG

@@ -75,8 +75,8 @@ spec:
                 name: paperless-configmap
           resources:
             requests:
-              memory: 256Mi
+              memory: 512Mi
               cpu: 100m
             limits:
-              memory: "1.5Gi"
+              memory: "896Mi"
               cpu: "1000m"

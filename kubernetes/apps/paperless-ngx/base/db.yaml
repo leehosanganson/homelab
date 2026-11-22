@@ -6,6 +6,9 @@ metadata:
     db: paperless-db
 spec:
   instances: 2
+  resources:
+    requests:
+      memory: 256Mi
   storage:
     storageClass: synology-retain
     size: 10Gi

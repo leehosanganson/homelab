@@ -30,10 +30,10 @@ spec:
                 name: open-web-ui-configmap
           resources:
             requests:
-              memory: 512Mi
+              memory: 768Mi
               cpu: 100m
             limits:
-              memory: "2Gi"
+              memory: "1.2Gi"
               cpu: "1000m"
           volumeMounts:
             - name: webui-data

@@ -3,3 +3,6 @@ namespace: llm
 resources:
   - ../../base
   - secrets.yaml
+
+patches:
+  - path: patch-gpu-placement.yaml

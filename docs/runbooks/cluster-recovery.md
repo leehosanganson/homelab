@@ -109,7 +109,6 @@ Flux installs components in order (as defined in `kubernetes/infra/overlays/prod
 | Synology CSI | `synology-csi` | Storage class provisioner |
 | CloudNativePG | `cnpg-system` | PostgreSQL cluster operator |
 | Velero | `velero` | Backup / restore agent |
-| Rancher | `cattle-system` | Cluster management UI |
 | Harbor | `harbor` | Container registry (stateful; PVCs restored via Velero in Phase 3) |
 | Renovate | `renovate` | Dependency update automation |
 

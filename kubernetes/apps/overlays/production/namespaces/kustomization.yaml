@@ -7,6 +7,7 @@ resources:
   - karakeep.yaml
   - llm.yaml
   - media.yaml
+  - minecraft.yaml
   - n8n.yaml
   - paperless.yaml
   - termix.yaml

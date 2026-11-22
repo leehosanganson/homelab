@@ -6,3 +6,8 @@ resources:
 
 patches:
   - path: patch-velero.yaml
+  - path: patch-gpu-placement.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment

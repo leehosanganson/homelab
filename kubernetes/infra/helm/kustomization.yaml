@@ -12,7 +12,6 @@ resources:
   - immich-app.yaml
   - harbor.yaml
   - metrics-server.yaml
-  - rancher-stable.yaml
   - traefik.yaml
   - grafana.yaml
   - grafana-community.yaml
