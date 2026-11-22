@@ -247,12 +247,6 @@
           password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
           node: pve03
 
-- Infrastructure:
-    - Rancher:
-        icon: rancher.png
-        href: https://rancher.homelab.leehosanganson.dev
-        description: Kubernetes Cluster Management
-
 - Downloads:
     - Sonarr:
         icon: sonarr.png

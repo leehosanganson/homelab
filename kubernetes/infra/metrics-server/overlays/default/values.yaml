@@ -4,6 +4,15 @@ args:
   - --kubelet-insecure-tls=true
 apiService:
   insecureSkipTLSVerify: false
+replicas: 2
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: metrics-server
+            app.kubernetes.io/instance: metrics-server
+        topologyKey: kubernetes.io/hostname
 extraArgs:
   - --kubelet-use-node-status-port
 tls:

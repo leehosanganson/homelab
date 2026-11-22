@@ -87,7 +87,6 @@ The entire homelab is provisioned and configured using a fully declarative IaC a
 |        <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/postgres.png" height="32" />        | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg) | PostgreSQL DB Cluster for other applications          |
 |               <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/synology.png" height="32" />               | [Synology NAS](https://www.synology.com/)                         | File server & CSI Persistent Volume Provisioner       |
 |   <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/harbor.svg" alt="Harbor" height="32"/>   | [Harbor](https://github.com/goharbor/harbor)                      | Private container registry                            |
-|  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/rancher.svg" alt="Rancher" height="32"/>  | [Rancher](https://github.com/rancher/rancher)                     | Kubernetes management platform                        |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/renovate.svg" alt="Renovate" height="32"/> | [Renovate](https://github.com/renovatebot/renovate)               | Automated dependency update bot                       |
 |   <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/velero.svg" alt="Velero" height="32"/>   | [Velero](https://github.com/vmware-tanzu/velero)                  | Backup & disaster recovery for Kubernetes             |
 
