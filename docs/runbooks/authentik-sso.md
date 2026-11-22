@@ -12,7 +12,9 @@ The Kubernetes manifests refer to these values in Azure Key Vault. They must exi
 | `authentik-db-username` | `authentik-db-env` / `username` | CNPG initial database owner; value must be `authentik`. |
 | `authentik-db-password` | `authentik-db-env` / `password` | CNPG/Authentik database password. |
 | `homelab-backup-storageaccount-name` | `authentik-backup-env` / `storage-account-name` | Existing shared backup storage account reference. |
-| `authentik-blob-sas` | `authentik-backup-env` / `blob-sas` | SAS token scoped to the Authentik backup destination. |
+| `authentik-blob-sas` | `authentik-backup-env` / `blob-sas` | Container-scoped SAS token for the `authentik` container. It is HTTPS-only, has `racwdl` permissions, and expires 180 days after issue. |
+
+Renew `authentik-blob-sas` before it expires; start the renewal well ahead of the expiry date (for example, 30 days). Create a replacement SAS for only the `authentik` container, with HTTPS-only access and the required `racwdl` permissions, then update the Key Vault secret through the approved secure workflow. Never paste, print, log, or commit the token. Allow the ExternalSecret to refresh and confirm it is Ready before relying on the replacement. Do not wait for expiry: an expired token stops database backups.
 
 The chart's bundled PostgreSQL is disabled; Authentik uses a separate CloudNativePG (CNPG) database.
 
@@ -40,15 +42,56 @@ This sequence is only for a confirmed fresh installation with no Authentik datab
    ```bash
    kubectl port-forward --address 127.0.0.1 -n authentik svc/authentik-server 9000:80
    ```
-   On the same trusted workstation, open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash), complete the local bootstrap administrator setup, and verify that the server responds and the administrator can sign in. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check.
-5. Verify that a successful full Barman base backup exists before merging. From the healthy CNPG instance, inspect the backup list:
+   On the same trusted workstation, open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash). Completing initial bootstrap administrator setup is an operator-controlled action. Only after the operator completes setup and tests sign-in may it be reported as verified. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check.
+5. Verify the database backup before merging. The `authentik-backup-schedule` ScheduledBackup is set for 03:00 UTC daily, but it has not produced an automatic backup yet. An on-demand CNPG Backup named `authentik-manual-initial-backup` completed successfully. Check the Backup resource phase:
    ```bash
-   kubectl exec -n authentik authentik-db-1 -- \
-     barman-cloud-backup-list --format json \
-     lhshomelabbackup/authentik authentik-db-backup
+   kubectl get backups.postgresql.cnpg.io -n authentik authentik-manual-initial-backup \
+     -o jsonpath='{.status.phase}{"\n"}'
    ```
-   Confirm the output shows a completed successful full base backup, not only a WAL archive or a scheduled-backup object. Wait for the scheduled backup if needed. If no successful base backup is visible, stop and do not merge the PR.
-6. Only after the database, server, worker, local port-forward check, and full backup are verified, merge the PR through its normal review process. The PR adds the Authentik overlay to `infra-production`; after merge, Flux reconciles and manages the already-applied resources through that existing Kustomization. There is no separate Authentik Kustomization or Git adoption step.
+   Confirm the phase is `completed`. The Azure blob listing also confirmed `authentik-db-backup/base/20261122T215230/backup.info` and `authentik-db-backup/base/20261122T215230/data.tar.gz`.
+
+   To verify blob names and count read-only, retrieve the SAS directly into a temporary environment variable. Do not enable shell tracing, print the variable, or paste it into a command or log. The subshell and exit trap limit the variable's lifetime; it is also explicitly unset after use:
+   ```bash
+   (
+     set +x
+     trap 'unset AZURE_STORAGE_SAS_TOKEN' EXIT
+     AZURE_STORAGE_SAS_TOKEN="$(az keyvault secret show \
+       --vault-name lhs-kubernetes-keyvault \
+       --name authentik-blob-sas --query value -o tsv)" || exit 1
+     export AZURE_STORAGE_SAS_TOKEN
+     az storage blob list --auth-mode key --account-name lhshomelabbackup \
+       --container-name authentik --prefix authentik-db-backup/base/ \
+       --query '[].name' -o tsv || exit 1
+     az storage blob list --auth-mode key --account-name lhshomelabbackup \
+       --container-name authentik --prefix authentik-db-backup/base/ \
+       --query 'length(@)' -o tsv || exit 1
+     unset AZURE_STORAGE_SAS_TOKEN
+   )
+   ```
+   Confirm the listing includes a `backup.info` and `data.tar.gz` in a base-backup directory and that the count is non-zero. A scheduled-backup object alone is not proof that a base backup exists.
+
+   If an immediate backup is needed before the next scheduled run, first inspect existing Backup resources and do not create a duplicate:
+   ```bash
+   kubectl get backups.postgresql.cnpg.io -n authentik
+   ```
+   Only if `authentik-manual-initial-backup` does not already exist and an immediate backup is still needed, create the CNPG Backup resource matching the successful initial backup:
+   ```bash
+   kubectl apply -f - <<'EOF'
+   apiVersion: postgresql.cnpg.io/v1
+   kind: Backup
+   metadata:
+     name: authentik-manual-initial-backup
+     namespace: authentik
+   spec:
+     cluster:
+       name: authentik-db
+     method: plugin
+     pluginConfiguration:
+       name: barman-cloud.cloudnative-pg.io
+   EOF
+   ```
+   Then wait for its phase to become `completed` and repeat the read-only blob check. If the Backup name already exists, do not apply it again; verify that resource and its backup instead.
+6. Only after the database, server, worker, operator-controlled initial administrator setup (if completed), and full backup are verified, merge the PR through its normal review process. Do not claim administrator sign-in was verified unless the operator has completed that check. The PR adds the Authentik overlay to `infra-production`; after merge, Flux reconciles and manages the already-applied resources through that existing Kustomization. There is no separate Authentik Kustomization or Git adoption step.
 
 Do not create DNS records, enable or expose the Authentik Ingress, or activate OIDC for any application during this stage. Keep Ingress disabled.
 
@@ -91,8 +134,8 @@ Karakeep's `DISABLE_SIGNUPS` setting disables signups generally, including OAuth
 - [ ] The chart uses external PostgreSQL, does not enable bundled PostgreSQL, and leaves Ingress disabled.
 - [ ] Rendered server and worker run non-root, disable privilege escalation, and drop all Linux capabilities.
 - [ ] The fresh `authentik-db` Cluster is initialized and healthy; Authentik server and worker are Ready.
-- [ ] The loopback-only port-forward reaches the local initial-setup page and bootstrap administrator sign-in succeeds.
-- [ ] A completed, successful full Barman base backup is visible for `authentik-db-backup`.
+- [ ] The loopback-only port-forward reaches the local initial-setup page. Bootstrap administrator sign-in is verified only after the operator completes the initial setup and signs in.
+- [ ] The CNPG Backup resource reports phase `completed`, and the Azure blob listing shows base-backup contents (`backup.info` and `data.tar.gz`) for `authentik-db-backup`.
 - [ ] No DNS or Ingress was created or enabled, and no application OIDC integration was activated.
 
 ### After PR merge
