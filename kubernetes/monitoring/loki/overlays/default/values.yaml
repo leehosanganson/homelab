@@ -81,13 +81,6 @@ distributor:
 compactor:
   enabled: false
 
-lokiCanary:
-  tolerations:
-    - key: gpu
-      operator: Equal
-      value: "true"
-      effect: NoSchedule
-
 indexGateway:
   replicas: 0
 bloomGateway:
