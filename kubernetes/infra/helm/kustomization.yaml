@@ -18,3 +18,4 @@ resources:
   - garage.yaml
   - garage-ui.yaml
   - prometheus-community.yaml
+  - authentik.yaml

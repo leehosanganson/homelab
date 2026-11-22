@@ -1,6 +1,6 @@
 # Cluster Migration — K3s to Talos
 
-Runbook for migrating the homelab Kubernetes platform from an existing K3s cluster to a new Talos cluster with minimal downtime, while preserving stateful workloads through retained storage classes, Velero object restore, and CNPG recovery from barman backups.
+Runbook for migrating the homelab Kubernetes platform from an existing K3s cluster to a new Talos cluster with minimal downtime, while preserving stateful workloads through retained storage classes, Velero object restore, and verified CNPG data startup. Recovery from barman backups requires a separate new-Cluster plan.
 
 ## 1) Overview and Phase Map
 
@@ -26,9 +26,10 @@ Phase 7: Post-migration cleanup
 
 ### Migration principles
 
-- Keep `infra-production` active; control timing by suspending/resuming `apps-production` and `monitoring-production`.
+- Normal `infra-production` includes Authentik and its CNPG Cluster configured with `initdb`. Before bootstrap or any infra reconciliation on a target that may need Authentik data restored, use a reviewed recovery branch that prevents Authentik resources from being applied; account for pruning as well. If that safe gate is unclear, stop and require an explicit recovery plan.
+- Suspend `apps-production` and `monitoring-production` to control their timing. Do not use the normal Authentik overlay to initialize a fresh database when existing Authentik data needs restoration.
 - Use Velero to restore Kubernetes objects/PVC bindings; file-system backup is off by default and only annotated pod volumes (`backup.velero.io/backup-volumes`) are included.
-- Use CNPG `bootstrap.recovery` overlays for database recovery from barman unless a cluster has no historical backup.
+- Start an initialized CNPG Cluster only from verified original PVC/PGDATA. CNPG 1.27.0 `bootstrap.recovery` bootstraps a new Cluster from barman; use it only under an explicit, separate-cluster recovery plan.
 - Perform DNS/Ingress cutover only after all gates pass.
 
 ---
@@ -133,7 +134,7 @@ Proceed only if:
 
 ## 4) Flux Bootstrap and Staged Reconcile / Suspend Strategy
 
-Flux must be installed first, but app and monitoring reconciliation should be controlled to prevent races during restore.
+Flux must be installed first, but app and monitoring reconciliation should be controlled to prevent races during restore. **Before Flux bootstrap or any infra reconciliation**, if the target must preserve or recover existing Authentik data, ensure a reviewed recovery branch is configured so `infra-production` cannot apply Authentik's normal `initdb` resources. The review must account for pruning: excluding resources from a pruning Kustomization can delete existing live resources. The current `fluxcd/bootstrap.sh` targets `main`; do not run it for recovery unless the reviewed procedure ensures a recovery-safe source is active before `infra-production` can reconcile. Do not make ad hoc manifest or live-cluster edits to work around this. If the branch does not clearly prevent both unintended initialization and unsafe pruning, **STOP** until an explicit recovery plan establishes a safe method.
 
 ### 4.1 Bootstrap Flux on Talos
 
@@ -153,7 +154,7 @@ flux --context "$DST_CTX" suspend kustomization monitoring-production
 flux --context "$DST_CTX" get kustomizations
 ```
 
-Keep `infra-production` active.
+Do not reconcile `infra-production` on a target that needs Authentik recovery until the reviewed recovery branch has passed the Authentik gate above. Normal infra includes Authentik, so suspending `apps-production` and `monitoring-production` does not prevent Authentik's `initdb` resources from applying. If existing Authentik data needs restoration, do not apply the normal Authentik overlay as a fresh install; stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery).
 
 ### 4.3 Seed ESO bootstrap credential and reconcile infra
 
@@ -182,7 +183,7 @@ kubectl --context "$DST_CTX" get pods -n traefik
 kubectl --context "$DST_CTX" get storageclass
 ```
 
-Proceed only if ESO, Velero, Traefik, CNPG operator, and CSI/storage stack are healthy.
+Proceed only if ESO, Velero, Traefik, CNPG operator, and CSI/storage stack are healthy. If the migration's reviewed recovery branch excludes Authentik pending recovery, verify that the exclusion is active and does not prune existing resources. Otherwise, do not reconcile infra until the Authentik gate is resolved. Do not use a separate Authentik Kustomization to manage this stage.
 
 ---
 
@@ -237,30 +238,19 @@ kubectl --context "$DST_CTX" get storageclass
 
 All required PVCs must be `Bound`. For this repo, retained NAS-backed classes (`synology-retain`, `nfs-csi-retain`) are expected to re-bind to preserved data paths.
 
-### 5.5 Recover CNPG databases on target
+### 5.5 Start CNPG databases only from verified data
 
-With `apps-production` still suspended, verify each namespace has ObjectStore + backup secret before bringing apps.
+A `Bound` PVC alone does not prove that the database's original data was restored. Keep `apps-production` suspended until the data source for every database is known and verified. If existing Authentik data needs recovery, ensure the reviewed recovery branch still prevents normal `infra-production` from applying the Authentik `initdb` resources, and stop at the [Cluster Recovery Phase 4 boundary](cluster-recovery.md#phase-4--cnpg-database-recovery) until a separate new-Cluster recovery and cutover plan is approved. Do not attempt an in-place restore.
 
-```bash
-kubectl --context "$DST_CTX" get objectstore -A
-kubectl --context "$DST_CTX" get secret -A | grep backup
-```
-
-If required, force ESO sync for a namespace:
-
-```bash
-kubectl --context "$DST_CTX" annotate externalsecret -n <namespace> <name> \
-  force-sync=$(date +%s) --overwrite
-```
-
-Then resume apps reconcile to let CNPG cluster recovery execute:
+**If starting from the original database data:** Before app reconciliation, verify that each CNPG Cluster will use its correct original PVC/PV and backing storage, and verify that the expected original `PGDATA` is present. This is ordinary startup from an already initialized data directory; it is not CNPG bootstrap recovery. Only after those checks pass may you resume app reconciliation to start the existing Clusters and applications:
 
 ```bash
 flux --context "$DST_CTX" resume kustomization apps-production
 flux --context "$DST_CTX" reconcile kustomization apps-production --with-source
-
 kubectl --context "$DST_CTX" get cluster -A -w
 ```
+
+**If the exact original database data is not restored and barman is the only available source:** **STOP.** Keep `apps-production` suspended. Do not reconcile its Cluster manifests, change `bootstrap` on an initialized Cluster, or treat app reconciliation as a recovery action. CNPG 1.27.0 `bootstrap.recovery` bootstraps a **new Cluster**; it does not restore an initialized Cluster in place ([CNPG 1.27 recovery documentation](https://cloudnative-pg.io/docs/1.27/recovery/)). Use the new-Cluster-only procedure in [Cluster Recovery, Phase 4](cluster-recovery.md#phase-4--cnpg-database-recovery) only after an explicit plan defines a distinct recovery Cluster, a unique WAL archive `serverName`, data verification, application service/host cutover, and preservation of the original data. Until that plan is approved and complete, do not resume `apps-production` or cut over applications.
 
 ### 5.6 Minimal downtime gate
 
@@ -268,7 +258,7 @@ Proceed to traffic cutover only if:
 
 - Velero restore is `Completed`.
 - All critical PVCs are `Bound`.
-- CNPG clusters report healthy state after recovery.
+- CNPG Clusters started from original data are healthy; any Barman recovery uses a separately planned and verified new Cluster before application cutover.
 - App pods on target are running and passing readiness probes.
 
 ---
