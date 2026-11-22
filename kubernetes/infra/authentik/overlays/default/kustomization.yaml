@@ -1,0 +1,14 @@
+namespace: authentik
+
+resources:
+  - ../../base
+  - secrets.yaml
+
+configMapGenerator:
+  - files:
+      - values.yaml
+    name: authentik-values
+    options:
+      disableNameSuffixHash: true
+      labels:
+        helm.toolkit.fluxcd.io/watch: "true"

@@ -1,0 +1,4 @@
+resources:
+  - cluster.yaml
+  - backup-store.yaml
+  - backup-schedule.yaml

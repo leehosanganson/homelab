@@ -2,3 +2,4 @@ resources:
   - apps.yaml
   - infra.yaml
   - monitoring.yaml
+  - authentik.yaml

@@ -1,0 +1,21 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: authentik-backup-storage
+spec:
+  configuration:
+    destinationPath: https://lhshomelabbackup.blob.core.windows.net/authentik
+    azureCredentials:
+      storageAccount:
+        name: authentik-backup-env
+        key: storage-account-name
+      storageSasToken:
+        name: authentik-backup-env
+        key: blob-sas
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 7d
+  instanceSidecarConfiguration:
+    retentionPolicyIntervalSeconds: 86400

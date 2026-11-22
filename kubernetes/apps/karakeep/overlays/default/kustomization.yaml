@@ -1,8 +1,12 @@
 namespace: karakeep
 resources:
-  - config.yaml
   - secrets.yaml
   - ../../base
+
+configMapGenerator:
+  - name: karakeep-configuration
+    envs:
+      - config.env
 
 patches:
   - path: patch-velero.yaml
