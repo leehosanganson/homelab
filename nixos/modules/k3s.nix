@@ -94,10 +94,28 @@ in
       "crc32c_cryptoapi"
     ];
 
+    zramSwap.enable = false;
+
+    services.earlyoom = {
+      enable = true;
+      freeMemThreshold = 5;
+      extraArgs = [ "--avoid" "^(k3s|systemd|sshd|containerd)$" ];
+    };
+
     # k3s needs the cluster token for joins (server<->server and agent<->server).
     services.k3s = {
       enable = true;
-      inherit (cfg) role serverAddr extraFlags;
+      inherit (cfg) role serverAddr;
+      extraFlags = cfg.extraFlags ++ [
+        "--kubelet-arg=system-reserved=cpu=500m,memory=768Mi"
+        "--kubelet-arg=kube-reserved=cpu=250m,memory=512Mi"
+        "--kubelet-arg=eviction-soft=memory.available<600Mi"
+        "--kubelet-arg=eviction-soft-grace-period=memory.available=30s"
+      ] ++ [
+        "--kubelet-arg=eviction-hard=memory.available<400Mi,nodefs.available<10%,imagefs.available<15%,nodefs.inodesFree<5%,imagefs.inodesFree<5%"
+      ] ++ lib.optionals isServer [
+        "--kube-apiserver-arg=enable-aggregator-routing=true"
+      ];
       disable = lib.optionals isServer [
         # Will be managed by FluxCD
         "metrics-server"
