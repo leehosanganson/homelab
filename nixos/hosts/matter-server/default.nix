@@ -2,6 +2,7 @@
   imports = [
     ../../modules/users.nix
     ../../modules/matter-server.nix
+    ../../modules/auto-upgrade.nix
     ../../modules/disko.nix
   ];
 
