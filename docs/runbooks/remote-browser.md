@@ -11,8 +11,9 @@ Kasm container mounts at `/home/kasm-user`. The bootstrap init container has
 been removed. The Deployment does not seed or reseed this home automatically
 from the image defaults or `chrome-runner-pvc`. The original
 `chrome-runner-pvc` remains the older profile source and is not mounted by the
-current Kasm runtime. Restoring that claim or its snapshot can recover only the
-older source profile, not changes made to the Kasm home after migration.
+current Kasm runtime. A pre-migration backup or snapshot, if available and
+verified, may restore only the older source profile; it cannot recover changes
+made to the Kasm home after migration.
 Kasm startup generates a self-signed certificate at
 `${HOME}/.vnc/self.pem`. KasmVNC uses that same path for both its certificate
 and key.
@@ -34,8 +35,8 @@ this claim. Before replacing it, back up the active Kasm home and verify the
 recovery plan. This runbook does not claim that a current Kasm-home backup
 exists.
 
-The original `chrome-runner-pvc` and its snapshot can recover only the
-pre-migration Chrome state, not changes made in the Kasm home.
+A pre-migration backup or snapshot, if available and verified, may restore only
+the old Chrome profile; it cannot recover changes made in the Kasm home.
 
 Keep the KasmVNC password in the `remote-browser-kasm-password` key in the
 configured Azure Key Vault. The ExternalSecret creates the Kubernetes secret
@@ -98,6 +99,6 @@ reset, reseed, or roll back Kasm. Any future PVC lifecycle change requires a
 separately reviewed recovery plan. The prune annotation does not prevent
 intentional manual deletion.
 
-Restoring a pre-migration backup can recover the original profile if it is
-damaged or you need it in a known state. It does not restore Kasm home data or
-changes made after migration.
+A pre-migration backup or snapshot, if available and verified, may restore only
+the original profile if it is damaged or you need it in a known state. It cannot
+recover Kasm home data or changes made after migration.
