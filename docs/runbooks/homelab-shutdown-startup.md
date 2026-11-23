@@ -10,9 +10,9 @@ This runbook does not authorize database recovery, destructive changes, or chang
 - Confirm the current shell, Kubernetes context, PVE cluster, host, and target before each command or power action. Use the read-only checks below first.
 - Keep an out-of-band path to the equipment that does not depend on homelab DNS, HAProxy, or Kubernetes. Confirm credentials, console access, and a working management device/network before starting.
 - Use graceful, guest-aware shutdown actions. Do not use PVE **Stop**, reset, power removal, or similar hard-stop actions as substitutes for a guest shutdown. If a guest does not shut down cleanly, **STOP**; do not force it off.
-- Do not use `kubectl scale`, delete workloads, or other bypasses to make shutdown appear complete. `kubectl drain` is an optional, one-worker-at-a-time evacuation branch for rolling maintenance while the cluster remains operating; use it only after application writers/jobs have stopped, the approved database shutdown procedure has completed, and the live K3s procedure allows it while the API and quorum remain healthy. Before each drain, check PDBs, DaemonSet pods, and storage detach/unmount requirements. Use the command shown below with an explicit context and worker name. If eviction is blocked or any check is unclear, stop this drain branch; resolve it under a workload-owner-approved procedure, or skip drain only for a full-cluster outage after its stated gates pass. Do not use `--force`, `--delete-emptydir-data`, or `--disable-eviction`. Never drain multiple nodes as a mass shortcut or drain a server node. Do not change Flux desired state or reconciliation state just to silence workloads.
-- Do not treat automatic VM startup as confirmed. `docs/runbooks/iac-nixos-configurations.md` says VMs are left powered off, but `terraform/main.tf` sets both `on_boot = true` and `started = true` (and ignores changes to `started`). Confirm actual PVE settings and the intended behavior for every VM before shutdown and restart. Do not run OpenTofu to resolve this discrepancy.
-- Treat every PVE, storage, database, and UPS action as an operator action that needs the live-approved procedure for that system.
+- Do not use `kubectl scale`, delete workloads, or other bypasses to make shutdown appear complete. For a full-cluster outage, drain is optional after writers/jobs and databases are safely quiesced and the approved K3s procedure permits per-guest shutdown. For rolling maintenance, drain one worker only after the database procedure completes and the live K3s procedure permits it with API and quorum healthy; check PDBs, DaemonSet pods, and storage detach/unmount first. If blocked or unclear, stop this branch and resolve it under an owner-approved procedure. Never use `--force`, `--delete-emptydir-data`, or `--disable-eviction`, drain a server or multiple nodes, or change Flux state to silence workloads. PDBs constrain eviction requests such as drain, not guest poweroff.
+- VM auto-start is unconfirmed: [`iac-nixos-configurations.md`](iac-nixos-configurations.md) says VMs are left off, but `terraform/main.tf` sets `on_boot = true` and `started = true` (and ignores changes to `started`). Verify live PVE settings and intended behavior for every VM; do not run OpenTofu to resolve the discrepancy.
+- Use each system's live-approved procedure for PVE, storage, database, and UPS actions.
 
 ## Repository facts and live-confirmation gates
 
@@ -21,41 +21,40 @@ These facts are confirmed in the repository; they do not prove the live state:
 - The IaC VM inventory is in [`terraform/terraform.tfvars`](../../terraform/terraform.tfvars). Its current entries reference PVE nodes `pve01` through `pve04`; use that only as a comparison list, not as proof of the live PVE inventory. It is not a complete PVE/physical-device inventory.
 - K3s server hosts use the HAProxy virtual IP as their server address, and HAProxy has K3s control-plane backends. See [`nixos/modules/k3s.nix`](../../nixos/modules/k3s.nix) and [`nixos/modules/haproxy.nix`](../../nixos/modules/haproxy.nix). HAProxy must therefore be available before K3s servers start relying on that address.
 - K3s workloads use Synology CSI/iSCSI and NFS storage. The repository points these to `nas1.home.lab`; see [`nixos/modules/k3s.nix`](../../nixos/modules/k3s.nix) and [`kubernetes/infra/synology-csi/base/storageclass/`](../../kubernetes/infra/synology-csi/base/storageclass/). Confirm that the NAS and its exports/volumes are available before K3s workloads depend on them. The repository does **not** establish whether the NAS also provides PVE storage.
-- Repository recovery/configuration indicates an etcd-backed K3s server cluster, and the existing IaC runbook treats etcd membership and quorum as important during recovery. See [`docs/runbooks/iac-terraform-opentofu-provisioning.md`](iac-terraform-opentofu-provisioning.md). Confirm the actual live datastore and membership, quorum, and approved whole-cluster shutdown and startup procedures before acting. Do not assume the live datastore, member count, or node order from this runbook.
+- Repository recovery/configuration indicates an etcd-backed K3s server cluster; the [IaC runbook](iac-terraform-opentofu-provisioning.md) also treats membership and quorum as critical. Confirm the live datastore, members, quorum, and approved shutdown/startup procedures. Do not infer the live datastore, member count, or node order here.
 - Flux manages infrastructure, monitoring, and application resources. The production Kustomization definitions are in [`fluxcd/clusters/production/infra.yaml`](../../fluxcd/clusters/production/infra.yaml), [`monitoring.yaml`](../../fluxcd/clusters/production/monitoring.yaml), and [`apps.yaml`](../../fluxcd/clusters/production/apps.yaml). The cluster recovery runbook documents database recovery boundaries: [`docs/runbooks/cluster-recovery.md`](cluster-recovery.md). Confirm live Flux Kustomization and HelmRelease readiness and suspension state before acting. Do not suspend, resume, or force reconciliation as part of this runbook without a separate approved plan.
-- CNPG (CloudNativePG) manages PostgreSQL clusters. The repository includes a CNPG 1.27.0 manifest at [`kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml`](../../kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml), but the live operator version and supported shutdown method must be confirmed. **STOP:** do not proceed with database or K3s shutdown until both are confirmed from the installed operator and its matching procedure. This repository has no generic CNPG shutdown command. Do not guess at database commands or remove/scale resources.
+- CNPG (CloudNativePG) manages PostgreSQL clusters. The repository includes a [CNPG 1.27.0 manifest](../../kubernetes/infra/cloudnativepg/cnpg-1.27.0.yaml), but the live operator version and its supported shutdown method are unknown. **STOP:** confirm both from the installed operator and matching procedure before database or K3s shutdown. There is no generic CNPG shutdown command; do not guess commands or remove/scale resources.
 
-Before proceeding, also confirm from the live PVE interface and approved operational records:
+Before proceeding, confirm from the live PVE interface and approved records:
 
-- Which PVE nodes, guests, physical hosts, network devices, storage systems, and UPS-backed devices are in scope, including guests absent from IaC.
-- Current PVE cluster status, storage configuration/health, quorum, HA-managed guests, and whether Ceph is present. Confirm the approved PVE shutdown and startup procedure for those exact roles. **Do not proceed on an unknown or unhealthy state.**
-- Whether the NAS is independent hardware, a VM, or a PVE storage dependency; identify the required NAS shutdown/startup method. If this creates a dependency cycle or its role is unclear, **STOP**.
-- Current VM `on_boot` and startup-order behavior in PVE, including any differences from `terraform/main.tf`; identify which services are expected to start automatically and which require an operator action.
-- Current K3s server/member health and etcd quorum, storage/PVC health, Flux Kustomization and HelmRelease state, and the installed CNPG operator version.
-- Out-of-band access and the site-specific UPS/network-power sequence. This repository contains no approved UPS sequence; follow the equipment manufacturer and local electrical/safety procedures.
+- In-scope PVE nodes, guests (including those absent from IaC), physical hosts, network devices, storage, and UPS-backed devices.
+- PVE cluster status, storage health, quorum, HA-managed guests, Ceph presence, and the approved shutdown/startup procedure for these roles. **STOP** on unknown or unhealthy state.
+- NAS role (independent hardware, VM, or PVE storage dependency) and its procedures. **STOP** if its role is unclear or creates a dependency cycle.
+- Live VM `on_boot` and startup-order behavior, differences from `terraform/main.tf`, and which services need operator action.
+- K3s member health and etcd quorum, storage/PVC health, Flux Kustomization/HelmRelease state, and installed CNPG version.
+- Working out-of-band access and the site UPS/network-power sequence. No UPS sequence is approved here; follow manufacturer and local electrical/safety procedures.
 
 ## Preflight inventory (read-only)
 
-Record the output and the operator-confirmed live inventory before shutdown. These commands inspect state; they do not shut down or change resources. Set `CTX` to the exact context confirmed for this maintenance window. Each command names the context or live PVE target explicitly; do not copy a placeholder as a real host or context.
+Record these read-only results and the confirmed live inventory.
 
-From the Kubernetes management host:
+From the Kubernetes management host, confirm the current Kubernetes context before running the remaining checks:
 
 ```sh
-CTX='<verified-kubeconfig-context>'
-kubectl config get-contexts "$CTX"
-kubectl --context "$CTX" get nodes -o wide
-kubectl --context "$CTX" get pods --all-namespaces -o wide
-kubectl --context "$CTX" get pvc --all-namespaces
-kubectl --context "$CTX" get pdb --all-namespaces
-kubectl --context "$CTX" get clusters.postgresql.cnpg.io --all-namespaces
-kubectl --context "$CTX" get pods -n cnpg-system -l app.kubernetes.io/name=cloudnative-pg -o jsonpath='{range .items[*]}{.metadata.name}{" phase="}{.status.phase}{" "}{range .status.containerStatuses[*]}{.name}{" ready="}{.ready}{" image="}{.image}{" imageID="}{.imageID}{"\n"}{end}{end}'
-flux get kustomizations --all-namespaces --context "$CTX"
-flux get helmreleases --all-namespaces --context "$CTX"
+kubectl config current-context
+kubectl get nodes -o wide
+kubectl get pods --all-namespaces -o wide
+kubectl get pvc --all-namespaces
+kubectl get pdb --all-namespaces
+kubectl get clusters.postgresql.cnpg.io --all-namespaces
+kubectl get pods -n cnpg-system -l app.kubernetes.io/name=cloudnative-pg -o jsonpath='{range .items[*]}{.metadata.name}{" phase="}{.status.phase}{" "}{range .status.containerStatuses[*]}{.name}{" ready="}{.ready}{" image="}{.image}{" imageID="}{.imageID}{"\n"}{end}{end}'
+flux get kustomizations --all-namespaces
+flux get helmreleases --all-namespaces
 ```
 
-The repository manifest identifies the controller pod in `cnpg-system` with label `app.kubernetes.io/name=cloudnative-pg`; the command prints pod phase and container status, including the image and image ID. Use the image from a Running, ready controller pod as an identification clue only. Confirm the actual installed operator version and its matching supported procedure before acting. If no matching pod appears or the live installation differs, discover the actual namespace/controller name first, then query that controller pod's container status image; do not infer a version from this repository's manifest.
+The command queries the repository's `cnpg-system` controller label and prints pod phase, container status, image, and image ID. A Running, ready controller image is only an identification clue: confirm the installed version and matching procedure. If no pod matches, find the live namespace/controller and query its image; do not infer the version from the repository manifest.
 
-From an approved management shell, connect to a **verified live PVE node**. Run cluster checks only where that node is healthy and the command applies; use the PVE configuration and operator records to confirm whether HA or Ceph is configured:
+From an approved management shell, connect to a **verified live PVE node**. Run applicable checks only on a healthy node; use PVE configuration and operator records to establish whether HA or Ceph is configured:
 
 ```sh
 PVE_NODE='<verified-live-pve-node>'
@@ -67,11 +66,11 @@ ssh "root@$PVE_NODE" 'ha-manager status'  # only if HA is configured
 ssh "root@$PVE_NODE" 'ceph -s'            # only if Ceph is configured
 ```
 
-Do not interpret a failed or missing command as proof that a feature is absent. Check the PVE configuration and operational records. Do not continue if cluster quorum, storage health, HA state, Ceph state, NAS role, VM state, or inventory cannot be established.
+A failed or missing command does not prove a feature is absent. Check PVE configuration and records; **STOP** if quorum, storage, HA/Ceph state, NAS role, VM state, or inventory is unknown.
 
 ### Committed VM reference (stale-prone; not live inventory)
 
-The following names, VM IDs, and PVE-node placements are copied from [`terraform/terraform.tfvars`](../../terraform/terraform.tfvars); corresponding NixOS host definitions are under [`nixos/hosts/`](../../nixos/hosts/). This is a repo-derived comparison list only. It can be stale or incomplete. Verify every VM ID and its current owning node against live PVE before use; it does not list all guests or physical hosts.
+Names, VM IDs, and PVE placements below come from [`terraform/terraform.tfvars`](../../terraform/terraform.tfvars); corresponding NixOS definitions are under [`nixos/hosts/`](../../nixos/hosts/). This stale-prone, incomplete repo list is for comparison only: verify each ID and current owner in live PVE, and inventory guests/physical hosts not listed here.
 
 | VM name         | VM ID | PVE node (repo reference) |
 | --------------- | ----: | ------------------------- |
@@ -105,45 +104,44 @@ Use the following blank table as the **live** inventory; complete it rather than
 | CNPG databases and applications        |                  |                     |                            |                           |           |
 | Other guests / physical systems / UPS  |                  |                     |                            |                           |           |
 
-**Preflight go/no-go:** proceed only when the live inventory is complete for the requested scope, every dependency has a verified procedure, backups meet the operator's requirements, and all health/quorum/storage/HA gates above pass. If any item is unknown, unhealthy, or inconsistent with the expected state, **STOP**.
+**Preflight go/no-go:** proceed only with a complete live inventory, verified dependency procedures, operator-approved backups, and all health/quorum/storage/HA gates passed. **STOP** on any unknown, unhealthy, or unexpected state.
 
 ## Planned shutdown
 
-Keep a log of each phase, target, result, and time. If the sequence is interrupted, repeat the read-only checks and continue from verified live state; do not repeat a power action blindly. Do not skip a phase because a service appears idle. The sequence below preserves dependencies where the repository establishes them; live PVE, NAS, and cluster rules take precedence.
+Log each phase, target, result, and time. If interrupted, repeat read-only checks and resume from verified state; never repeat a power action blindly or skip a phase because a service appears idle. Live PVE, NAS, and cluster procedures take precedence over the sequence below.
 
-1. **Quiesce and stop applications.** Notify users, stop external jobs and write-producing clients, then gracefully stop application workloads through each application's approved procedure. Confirm that active Flux reconciliation will not undo that procedure. Do not use generic scale/delete operations or suspend Flux as a shortcut; any needed Flux change requires a separate approved plan. Confirm backups and any required final data checks. If no approved application stop procedure exists, **STOP** before touching its database.
-2. **Shut down databases by their supported procedure.** Confirm the running CNPG operator version and follow its matching shutdown guidance. Verify the expected database/cluster state after the procedure. Do not issue a guessed `kubectl`, SQL, container, or systemd shutdown command. If the installed version's procedure is unavailable or the result is unclear, **STOP**.
-3. **Stop Kubernetes workloads and cluster through the approved process.** First pass the CNPG version-and-method STOP gate above. Confirm Flux state and follow the live K3s shutdown procedure for the confirmed datastore and member topology. Preserve quorum until that procedure says the cluster can be stopped; follow its exact member/quorum ordering, and do not invent an order or power off a subset of server members based on this document.
+1. **Quiesce and stop applications.** Notify users; stop external jobs and write-producing clients, then gracefully stop workloads using each application's approved procedure. Confirm active Flux will not undo it; do not scale/delete workloads or suspend Flux as a shortcut. Confirm backups and required final data checks. **STOP** before database shutdown if no approved application procedure exists.
+2. **Shut down databases by their supported procedure.** After the CNPG version/method gate above passes, follow that version's guidance and verify the expected database state. **STOP** if guidance is unavailable or the result unclear; do not guess a `kubectl`, SQL, container, or systemd command.
+3. **Stop Kubernetes workloads and cluster through the approved process.** Confirm Flux state and follow the approved live K3s procedure for the verified datastore and member topology. Preserve quorum and use its exact member order; this runbook does not authorize stopping a server subset or inventing an order.
 
-   **Full-cluster outage:** `kubectl drain` is optional; it evacuates a node while the cluster remains operating, and PDBs govern eviction API requests such as drain, not guest poweroff. Direct VM shutdown does not guarantee graceful application/database shutdown. The repository's NixOS [K3s configuration](../../nixos/modules/k3s.nix) does not explicitly set kubelet graceful-node-shutdown grace periods, so do not assume `systemctl poweroff` gives pods enough time. After writers/jobs and stateful databases are safely quiesced using owner/version-specific procedures and the CNPG STOP gate above passes, the approved whole-cluster K3s/etcd procedure may allow graceful per-guest shutdown without draining every worker; follow its exact member/quorum order and proceed only if that procedure allows it.
+   **Full-cluster outage:** drain is optional; it evacuates a node while the cluster runs, and PDBs constrain eviction requests, not guest poweroff. Guest shutdown does not ensure graceful app/database shutdown, and the repository's [K3s configuration](../../nixos/modules/k3s.nix) does not explicitly set kubelet graceful-shutdown grace periods. Do not assume kubelet shutdown handling is configured. After writers/jobs and stateful databases are safely quiesced under owner/version-specific procedures and the CNPG gate passes, follow the approved K3s/etcd member/quorum order; skip worker drains only if that procedure allows it.
 
-   **Optional drain branch — rolling maintenance while the cluster remains operating:** drain one worker only after app writers/jobs have stopped, the installed-version-specific database shutdown procedure has completed, storage checks are clear, and the live K3s procedure permits evacuation while API and quorum remain healthy. Check PDBs and DaemonSet pods and confirm each affected volume can detach/unmount. Set the explicit context and worker name, then drain **one verified worker only**. Confirm `$NODE` names a worker, not a server, before running the command:
+   **Optional drain branch — rolling maintenance:** while the cluster runs, drain one verified worker only after writers/jobs and the installed-version-specific database shutdown are complete, storage checks pass, and the live K3s procedure permits it with API and quorum healthy. Check PDBs, DaemonSet pods, and affected volume detach/unmount first. Confirm `$NODE` is a worker, not a server:
 
    ```sh
-   CTX='<verified-kubeconfig-context>'
    NODE='<verified-worker-node-name>'
-   kubectl --context "$CTX" get pdb --all-namespaces
-   kubectl --context "$CTX" get daemonsets --all-namespaces
-   kubectl --context "$CTX" get pods --all-namespaces -o wide --field-selector "spec.nodeName=$NODE"
-   kubectl --context "$CTX" get pvc --all-namespaces
-   kubectl --context "$CTX" get pv
+   kubectl get pdb --all-namespaces
+   kubectl get daemonsets --all-namespaces
+   kubectl get pods --all-namespaces -o wide --field-selector "spec.nodeName=$NODE"
+   kubectl get pvc --all-namespaces
+   kubectl get pv
    ```
 
    **STOP / REVIEW:** inspect all check output. Confirm `$NODE` is the exact live worker to drain, API and quorum are healthy, each affected volume can detach, and the approved K3s procedure authorizes this action. Run only the separate drain command below; never paste or run the check and action blocks as a batch.
 
    ```sh
-   kubectl --context "$CTX" drain "$NODE" --ignore-daemonsets --timeout=10m
+   kubectl drain "$NODE" --ignore-daemonsets --timeout=10m
    ```
 
-   **STOP:** if drain is blocked or times out, stop this drain branch; do not force it or try another worker. Resolve the block under a workload-owner-approved procedure, or skip drain only for a full-cluster outage after the full-outage gates above pass. After a successful drain, inspect its status separately:
+   **STOP:** if drain is blocked or times out, do not force it or try another worker. Resolve the block under an owner-approved procedure, or skip drain for a full-cluster outage only when its gates pass. After a successful drain, check its status separately:
 
    ```sh
-   kubectl --context "$CTX" get node "$NODE" -o wide
+   kubectl get node "$NODE" -o wide
    ```
 
-   Do not use `--force`, `--delete-emptydir-data`, or `--disable-eviction`; do not drain a server or another worker as a shortcut. After a successful rolling-maintenance drain, follow the approved live K3s member procedure. Shut down a NixOS guest only when that procedure and all database, workload, storage, and quorum gates permit that specific guest. The SSH poweroff command in phase 4 is for an individually verified guest and is not a K3s member-order procedure.
+   After drain, follow the live K3s member procedure. Phase 4's SSH poweroff is for an individually verified guest, not a substitute for member ordering.
 
-4. **Shut down guests one at a time, excluding the NAS VM and other storage dependencies.** Keep DNS and HAProxy available until they are no longer needed for user access, name resolution, or management. For each in-scope guest, verify its live identity and check its relevant services first. For a K3s guest, do not proceed until the approved member procedure permits shutting down that member. All Kubernetes preconditions above must pass: app writers/jobs are stopped, CNPG's installed version and supported shutdown method are confirmed and completed, any selected rolling-maintenance drain is complete, and the live procedure confirms the required member/quorum ordering and safety for this shutdown. A drain is not a prerequisite for the full-cluster outage path. Set these values for the exact live guest, then inspect the output; these commands only check state:
+4. **Shut down guests one at a time, excluding the NAS VM and other storage dependencies.** Keep DNS and HAProxy until no longer needed for access or management. Verify each guest's live identity and relevant services. For K3s guests, proceed only after writers/jobs and databases are safely quiesced, the CNPG version-specific gate passes, and the live member/quorum procedure permits this guest. Drain is not required for a full-cluster outage. Set the exact live guest values and inspect these read-only checks:
 
    ```sh
    PVE_NODE='<verified-live-owning-pve-node>'
@@ -186,7 +184,7 @@ Keep a log of each phase, target, result, and time. If the sequence is interrupt
 
    Confirm the result is `stopped` before moving on. The committed table above is not sufficient to authorize a target. This is not a PVE node order.
 
-5. **Resolve the NAS/PVE shutdown dependency.** Phase 4 excludes the NAS VM and all other storage dependencies; this phase owns their shutdown. Keep NAS/storage online until all dependents are stopped. If the NAS is a PVE guest, gracefully stop it only after its dependents stop and the approved storage/PVE shutdown order for its exact role and host is confirmed. If the NAS provides PVE storage, follow that approved storage-specific procedure; do not infer whether NAS or PVE stops first. If the role, dependent state, or approved order is unknown, **STOP**.
+5. **Resolve the NAS/PVE shutdown dependency.** Keep NAS/storage online until dependents stop. If the NAS is a PVE guest, gracefully stop it only after dependents stop and the approved order for its role/host is confirmed. If it provides PVE storage, follow the storage-specific procedure; do not infer whether NAS or PVE stops first. **STOP** if the role, dependent state, or order is unknown.
 6. **Shut down PVE only after the guests and storage gates pass.** This is a separate, live-approved PVE operation, not a command sequence inferred from this runbook. Before each host action, confirm the approved quorum, storage, HA, and Ceph procedure and that its exact prerequisites pass. There is no fixed host order here. Only when the live operator's approved procedure explicitly permits the specific host to shut down, the command template is:
 
    ```sh
@@ -231,32 +229,31 @@ Use the same confirmed inventory. Do not assume PVE auto-start settings are corr
    Confirm the result is `running` before proceeding. If it is not, **STOP**; do not repeat or broaden the action without the approved procedure. Use the same individually scoped template for K3s guests only at the point allowed by the approved member procedure in the next step. Never bulk-start guests.
 
 5. **Start K3s servers and agents by the live cluster procedure.** Confirm etcd member state and quorum using the approved procedure. Start server members in the operator-approved order, verify the API and quorum, then start agents as directed by the same procedure. The repository does not define the live member count or a safe member-by-member order. If quorum or membership is uncertain, **STOP** and use [`docs/runbooks/iac-terraform-opentofu-provisioning.md`](iac-terraform-opentofu-provisioning.md) for its documented K3s member diagnostics; do not remove members or change cluster state as part of startup.
-6. **Verify nodes, storage, Flux, and guests before applications.** Set `CTX` to the verified cluster context. After the live K3s procedure says the API is available, wait for nodes to become Ready and inspect nodes, workloads, volumes, and CNPG. Then inspect Flux status. These are read-only checks:
+6. **Verify nodes, storage, Flux, and guests before applications.** Confirm the current Kubernetes context. After the live K3s procedure says the API is available, wait for nodes to become Ready and inspect nodes, workloads, volumes, and CNPG. Then inspect Flux status. These are read-only checks:
 
    ```sh
-   CTX='<verified-kubeconfig-context>'
-   kubectl --context "$CTX" wait --for=condition=Ready nodes --all --timeout=10m
-   kubectl --context "$CTX" get nodes -o wide
-   kubectl --context "$CTX" get pods --all-namespaces -o wide
-   kubectl --context "$CTX" get pvc --all-namespaces
-   kubectl --context "$CTX" get clusters.postgresql.cnpg.io --all-namespaces
-   kubectl --context "$CTX" get pods -n cnpg-system -l app.kubernetes.io/name=cloudnative-pg -o jsonpath='{range .items[*]}{.metadata.name}{" phase="}{.status.phase}{" "}{range .status.containerStatuses[*]}{.name}{" ready="}{.ready}{" image="}{.image}{" imageID="}{.imageID}{"\n"}{end}{end}'
-   flux get kustomizations --all-namespaces --context "$CTX"
-   flux get helmreleases --all-namespaces --context "$CTX"
+   kubectl wait --for=condition=Ready nodes --all --timeout=10m
+   kubectl get nodes -o wide
+   kubectl get pods --all-namespaces -o wide
+   kubectl get pvc --all-namespaces
+   kubectl get clusters.postgresql.cnpg.io --all-namespaces
+   kubectl get pods -n cnpg-system -l app.kubernetes.io/name=cloudnative-pg -o jsonpath='{range .items[*]}{.metadata.name}{" phase="}{.status.phase}{" "}{range .status.containerStatuses[*]}{.name}{" ready="}{.ready}{" image="}{.image}{" imageID="}{.imageID}{"\n"}{end}{end}'
+   flux get kustomizations --all-namespaces
+   flux get helmreleases --all-namespaces
    ```
 
    If a worker was drained for this shutdown, uncordon only after that specific node is back and Ready and the approved cluster procedure permits workloads to return to it:
 
    ```sh
    NODE='<verified-worker-node-name>'
-   kubectl --context "$CTX" wait --for=condition=Ready "node/$NODE" --timeout=10m
-   kubectl --context "$CTX" get node "$NODE" -o wide
+   kubectl wait --for=condition=Ready "node/$NODE" --timeout=10m
+   kubectl get node "$NODE" -o wide
    ```
 
    **STOP / REVIEW:** inspect the output and confirm this is the exact worker drained for this shutdown, it is Ready, and the approved cluster procedure permits it to receive workloads. Run only the separate action below; never paste or run the checks and action as a batch.
 
    ```sh
-   kubectl --context "$CTX" uncordon "$NODE"
+   kubectl uncordon "$NODE"
    ```
 
    Check PVE again from a verified live node; these do not replace the approved quorum/storage/HA/Ceph gate:
@@ -276,15 +273,7 @@ Use the same confirmed inventory. Do not assume PVE auto-start settings are corr
 
 ## Stop and recovery gates
 
-Stop the sequence and do not improvise if:
-
-- Live PVE topology, quorum, storage, HA, Ceph, VM auto-start, or guest inventory is unknown or differs from the planned inventory.
-- NAS role or storage dependencies are unknown, or the NAS/PVE shutdown or startup order cannot be determined safely.
-- Out-of-band access, credentials, or the approved UPS/electrical procedure is unavailable.
-- K3s etcd member state/quorum is unhealthy or unknown, or a server would be stopped/started outside the approved cluster procedure.
-- Flux Kustomization/HelmRelease status or suspension state is unexpected.
-- CNPG version-specific shutdown guidance is missing, or database status is uncertain.
-- A guest does not shut down cleanly, a storage check fails, or a startup health gate does not pass.
+Stop and do not improvise if any live inventory, PVE quorum/storage/HA/Ceph, VM auto-start, NAS dependency/order, out-of-band access, or UPS/electrical procedure is unknown; K3s membership/quorum or Flux state is unexpected; CNPG version-specific guidance or database state is uncertain; a guest fails to shut down cleanly; or any storage/startup health gate fails.
 
 For PVE cluster, HA, storage, or VM provisioning issues, use the applicable PVE/IaC operational documentation, including [`iac-terraform-opentofu-provisioning.md`](iac-terraform-opentofu-provisioning.md) and [`iac-nixos-configurations.md`](iac-nixos-configurations.md). For a K3s cluster that cannot regain quorum, follow the documented K3s diagnostics and approved recovery process; this document does not authorize etcd member removal. For Kubernetes data loss or restore, use [`cluster-recovery.md`](cluster-recovery.md). Do not power-cycle, force-stop, reinstall, delete, or restore resources as an improvised recovery action.
 
@@ -305,7 +294,7 @@ For PVE cluster, HA, storage, or VM provisioning issues, use the applicable PVE/
 
 - [ ] New application writes/jobs stopped through approved procedures.
 - [ ] Databases stopped using the installed-version-specific CNPG procedure.
-- [ ] K3s stopped through the approved whole-cluster member/quorum-order procedure; drain is optional for a full-cluster outage and may be skipped only after writers/jobs and stateful databases are safely quiesced under owner/version-specific procedures and the approved procedure allows graceful per-guest shutdown. For rolling maintenance, drain one worker only after writers/jobs and database procedures complete, with API/quorum healthy and PDB/DaemonSet/storage checks passed; stop that branch if blocked and resolve it under a workload-owner-approved procedure. Never use force, local-data deletion, eviction bypass, server-node drain, or mass drain.
+- [ ] K3s stopped in the approved live member/quorum order. Full-outage drain is optional only after writers/jobs and databases are safely quiesced and the procedure permits per-guest shutdown. For rolling maintenance, drain one worker only after app/database procedures and PDB/DaemonSet/storage checks pass with API/quorum healthy; if blocked, stop and resolve under an owner-approved procedure. No force, local-data deletion, eviction bypass, server drain, or mass drain.
 - [ ] Remaining guests shut down gracefully and verified off.
 - [ ] PVE stopped only after approved cluster/storage/HA gates pass.
 - [ ] NAS, network, and UPS-backed equipment stopped only in confirmed order.
