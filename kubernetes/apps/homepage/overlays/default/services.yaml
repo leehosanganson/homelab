@@ -275,10 +275,18 @@
         icon: mdi-dns
         href: https://technitium-1.infra.leehosanganson.dev
         description: Private / DNS management, node 1
+        widget:
+          type: technitium
+          url: https://technitium-1.infra.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_TECHNITIUM_API_TOKEN}}"
     - Technitium 2:
         icon: mdi-dns
         href: https://technitium-2.infra.leehosanganson.dev
         description: Private / DNS management, node 2
+        widget:
+          type: technitium
+          url: https://technitium-2.infra.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_TECHNITIUM_API_TOKEN}}"
 
 - Virtualization & Network:
     - Proxmox 1:
