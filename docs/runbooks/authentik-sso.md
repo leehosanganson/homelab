@@ -93,6 +93,15 @@ Require phase `completed` and a backup ID. With the approved read-only Azure ide
 2. In the Authentik admin UI, review the Application's policy, group, and user bindings. **An Application with no bindings allows access by default.** Bind the approved group before opening access. Review the binding evaluation mode and check that no other binding grants access outside that group. Never remove the only binding from a live Application to revoke access or roll back a change.
 3. Test the Application in separate clean browser sessions. Verify that an approved member reaches protected content, while a signed-in nonmember and a signed-out visitor do not. For revocations, check whether existing application sessions still work and revoke them if required. If denial fails or is unclear, keep or take the affected route offline through the approved change workflow. Restore only a known access-controlled configuration and retest before reopening it.
 
+## Add a service behind Authentik
+
+Confirm the target cluster and get approval for the service change and possible downtime. Follow the prerequisites in [Grant or revoke Application access](#grant-or-revoke-application-access).
+
+1. Prefer native OpenID Connect (OIDC) when the service officially supports it. Otherwise, use Traefik ForwardAuth only for traffic that passes through Traefik. Verify and preserve a local login for recovery. Store integration credentials in Azure Key Vault and sync them with an ExternalSecret; keep secret values out of Git.
+2. Bind the Authentik Application to the intended group before opening the route. An unbound Application allows access by default. For ForwardAuth, route `/outpost.goauthentik.io/` to the outpost without ForwardAuth middleware. Verify that the callback route takes priority over the app route and that app traffic still requires authentication.
+3. Before opening general access, confirm that group members can sign in and that nonmembers and signed-out users cannot reach protected content. For ForwardAuth, test clients, health checks, and API calls for expected behavior, and confirm that NetworkPolicy blocks direct backend access from unapproved sources.
+4. **If checks fail or rollback is needed, take only this service offline.** Disable its app route; do not just remove the middleware or restore unauthenticated ingress. Keep its NetworkPolicy in place. Verify that no live route (including a catch-all) still serves the app before cleaning up service-specific auth resources. Before switching Flux sources, render the exact destination revision and confirm it keeps the app offline. If you cannot verify that, do not switch.
+
 ## CNPG recovery
 
 Follow [Cluster Recovery: CNPG Database Recovery](cluster-recovery.md#phase-4--cnpg-database-recovery). CNPG `bootstrap.recovery` creates a new Cluster; it is not an in-place restore. Do not reconcile the normal `initdb` overlay or remove Authentik from Flux inventory without an approved recovery plan: Flux can prune removed resources. Preserve the original database, PVCs, backups, and Key Vault values.
