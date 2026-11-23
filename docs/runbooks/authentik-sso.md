@@ -1,84 +1,60 @@
 # Homelab SSO: Authentik, Mini QR, and Karakeep
 
-This runbook covers Authentik, the Mini QR ForwardAuth pilot, and a deferred Karakeep OpenID Connect (OIDC) pilot. Foundation PR #1235 is merged, and Flux manages Authentik. Its database, workloads, and backup were verified. The operator has verified Authentik administrator sign-in and recovery. The Mini QR pilot does not change the Authentik chart Ingress. The Ingress is intended for LAN access at `https://authentik.homelab.leehosanganson.dev`, through the private Traefik load balancer (`192.168.1.250`), using the existing `letsencrypt-cloudflare` DNS-01 issuer. The issuer may create temporary challenge records. Do not manually create permanent DNS records or Cloudflare Tunnel routes. The external Tunnel route has not been verified, so do not claim that public access is blocked. Karakeep OIDC and other application authentication remain unchanged.
+Use this runbook to bootstrap a new Authentik installation, verify LAN access, manage app access, or onboard Mini QR with Traefik ForwardAuth. Leave Karakeep OIDC inactive unless it is reviewed and approved separately.
+
+## Preflight for an existing installation
+
+1. Confirm the Kubernetes context and the scope of the approved operation.
+2. From the LAN, open `https://authentik.homelab.leehosanganson.dev` and verify Authentik administrator sign-in and the administrator recovery path at the time of the operation. If the Ingress is unavailable, use the loopback-only port-forward in [Fresh install only](#fresh-install-only), but open the regular sign-in page at `http://127.0.0.1:9000/`, not the initial setup flow.
+3. Stop before changing access or onboarding an app if administrator sign-in or recovery cannot be verified. Keep recovery credentials outside Git and keep the bootstrap administrator separate from social-login accounts.
 
 ## Required Azure Key Vault values
 
-The Kubernetes manifests refer to these values in Azure Key Vault. These values were required for the historical manual first apply described below. They are not instructions to repeat that apply or create new secret data for the current Ingress follow-up. Create or update values only through the approved secure Key Vault workflow; never commit them or send them in chat.
+Confirm these entries before a fresh install. For routine operations, do not recreate them. Create or update values only through the approved secure Key Vault workflow; never print, log, commit, or share them in chat.
 
 | Azure Key Vault entry | Kubernetes secret/key | Purpose |
 |---|---|---|
-| `authentik-secret-key` | `authentik-env` / `AUTHENTIK_SECRET_KEY` | Long-lived Authentik signing/encryption key. Generate securely and preserve across upgrades/restores; do not rotate casually. |
-| `authentik-db-username` | `authentik-db-env` / `username` | CNPG initial database owner; value must be `authentik`. |
+| `authentik-secret-key` | `authentik-env` / `AUTHENTIK_SECRET_KEY` | Long-lived Authentik signing/encryption key. Preserve it across upgrades and restores. |
+| `authentik-db-username` | `authentik-db-env` / `username` | CloudNativePG (CNPG) initial database owner; value must be `authentik`. |
 | `authentik-db-password` | `authentik-db-env` / `password` | CNPG/Authentik database password. |
 | `homelab-backup-storageaccount-name` | `authentik-backup-env` / `storage-account-name` | Existing shared backup storage account reference. |
-| `authentik-blob-sas` | `authentik-backup-env` / `blob-sas` | Container-scoped SAS token for the `authentik` container. It is HTTPS-only, has `racwdl` permissions, and expires 180 days after issue. |
+| `authentik-blob-sas` | `authentik-backup-env` / `blob-sas` | HTTPS-only SAS token for the `authentik` container, with `racwdl` permissions and a 180-day lifetime. |
 
-Renew `authentik-blob-sas` before it expires; start the renewal well ahead of the expiry date (for example, 30 days). Create a replacement SAS for only the `authentik` container, with HTTPS-only access and the required `racwdl` permissions, then update the Key Vault secret through the approved secure workflow. Never paste, print, log, or commit the token. Allow the ExternalSecret to refresh and confirm it is Ready before relying on the replacement. Do not wait for expiry: an expired token stops database backups.
+Start SAS renewal well before expiry (for example, 30 days ahead). Create a replacement with the same container scope, HTTPS-only access, and `racwdl` permissions. Update Key Vault securely, wait for the ExternalSecret to refresh and report Ready, then [verify a new backup](#verify-an-authentik-backup). An expired SAS stops database backups.
 
-The chart's bundled PostgreSQL is disabled; Authentik uses a separate CloudNativePG (CNPG) database.
+## Fresh install only
 
-## Historical one-time fresh-install procedure — pre-merge
+**Never repeat this procedure against an initialized installation or use it to recover data.** The Authentik chart's bundled PostgreSQL is disabled. The normal overlay creates a separate CNPG Cluster with `initdb`.
 
-**Do not repeat this procedure for the current deployment.** It records the one-time fresh-install steps used before foundation PR #1235 was merged. The database, workloads, and backup have already been verified, and Flux now manages Authentik. The procedure is retained for historical reference and for a genuinely separate fresh installation only.
-
-At the time of this procedure, Authentik Ingress was off. Use the loopback-only port-forward below for initial setup; do not use the LAN Ingress URL in this historical sequence.
-
-This sequence is only for a confirmed fresh installation with no Authentik database data to recover. Before apply, inspect for an existing Authentik Cluster or persistent volume claim and check the approved read-only backup inventory. If any prior Authentik database, PVC, or backup exists, or the data state is uncertain, stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery). Do not apply the fresh-install overlay in that case.
-
-1. Check the intended Kubernetes context and confirm the CNPG operator and External Secrets Operator (ESO) are healthy and can access the required resources. Confirm that all five Key Vault values in the table above exist and are valid. Do not print secret values. If any value is missing, or its status cannot be confirmed, stop before applying; resolve it through the approved Key Vault workflow.
+1. Confirm the target Kubernetes context. Check for any existing Authentik Cluster, persistent volume claim (PVC), or prior database data. Check the [read-only backup inventory](cluster-recovery.md#41--pre-flight-verify-barman-backups-exist), even if no Cluster is visible.
    ```bash
    kubectl get clusters.postgresql.cnpg.io,pvc -A
    ```
-2. From the PR branch, and only after confirming this is a fresh installation, apply the Authentik chart source and overlay before merging the PR:
+   If an Authentik Cluster, PVC, prior backup, or other database data exists, or you cannot verify the data state, stop and follow [CNPG recovery](#cnpg-recovery-and-infrastructure-rollback). Do not apply or reconcile the normal overlay.
+2. Verify that CNPG and the External Secrets Operator are healthy and can access their required resources. Confirm all five Key Vault entries exist and are valid without printing their values. Stop if any prerequisite is missing or cannot be verified.
+3. Install through the approved Flux workflow with `infra-production`; there is no separate Authentik Kustomization. If a manual bootstrap is explicitly approved and Flux does not yet manage these resources, apply the chart source in `flux-system` before the overlay:
    ```bash
    kubectl apply -f kubernetes/infra/helm/authentik.yaml
    kubectl apply -k kubernetes/infra/authentik/overlays/default
    ```
-   The first command creates the HelmRepository in `flux-system`, which the HelmRelease needs to fetch the chart. The second creates the namespace, ExternalSecrets, HelmRelease, CNPG Cluster using `initdb`, ObjectStore, and scheduled backup. Do not run this command when restoring an existing installation.
-3. Wait for the ExternalSecrets to become Ready, the `authentik-db` Cluster to report healthy, and the Authentik server and worker pods to be Ready:
+4. Confirm the ExternalSecrets are Ready, `authentik-db` is initialized and healthy, and the Authentik server and worker pods are Ready. Stop and diagnose any failure; do not rerun bootstrap to fix it.
    ```bash
    kubectl get externalsecrets.external-secrets.io,clusters.postgresql.cnpg.io,pods -n authentik
-   kubectl get pods -n authentik -w
    ```
-   Confirm that the `authentik-db` cluster is initialized and healthy before proceeding. If the database or either application workload is not healthy, stop and diagnose it; do not merge yet.
-4. Start a loopback-only port-forward on a trusted workstation:
+5. From a trusted workstation, start a loopback-only port-forward:
    ```bash
    kubectl port-forward --address 127.0.0.1 -n authentik svc/authentik-server 9000:80
    ```
-   Open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash) to complete initial setup. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check. Creating the bootstrap administrator is operator-controlled; report setup or sign-in as complete only after the operator performs and verifies it.
-5. Verify the database backup before merging. The `authentik-backup-schedule` ScheduledBackup is set for 03:00 UTC daily, but it has not produced an automatic backup yet. An on-demand CNPG Backup named `authentik-manual-initial-backup` completed successfully. Check the Backup resource phase:
-   ```bash
-   kubectl get backups.postgresql.cnpg.io -n authentik authentik-manual-initial-backup \
-     -o jsonpath='{.status.phase}{"\n"}'
-   ```
-   Confirm the phase is `completed`. The Azure blob listing also confirmed `authentik-db-backup/base/20261122T215230/backup.info` and `authentik-db-backup/base/20261122T215230/data.tar.gz`.
+   Open `http://127.0.0.1:9000/if/flow/initial-setup/` with the trailing slash. Have the operator create the bootstrap administrator and verify sign-in and recovery. Keep the port-forward on `127.0.0.1`; stop it with Ctrl-C when done.
+6. Verify a CNPG Backup is `completed` and its base-backup files exist before relying on the installation. See [Verify an Authentik backup](#verify-an-authentik-backup). If setup or backup verification fails, stop before onboarding apps. Do not delete or reinitialize the database.
 
-   To verify blob names and count read-only, retrieve the SAS directly into a temporary environment variable. Do not enable shell tracing, print the variable, or paste it into a command or log. The subshell and exit trap limit the variable's lifetime; it is also explicitly unset after use:
-   ```bash
-   (
-     set +x
-     trap 'unset AZURE_STORAGE_SAS_TOKEN' EXIT
-     AZURE_STORAGE_SAS_TOKEN="$(az keyvault secret show \
-       --vault-name lhs-kubernetes-keyvault \
-       --name authentik-blob-sas --query value -o tsv)" || exit 1
-     export AZURE_STORAGE_SAS_TOKEN
-     az storage blob list --auth-mode key --account-name lhshomelabbackup \
-       --container-name authentik --prefix authentik-db-backup/base/ \
-       --query '[].name' -o tsv || exit 1
-     az storage blob list --auth-mode key --account-name lhshomelabbackup \
-       --container-name authentik --prefix authentik-db-backup/base/ \
-       --query 'length(@)' -o tsv || exit 1
-     unset AZURE_STORAGE_SAS_TOKEN
-   )
-   ```
-   Confirm the listing includes a `backup.info` and `data.tar.gz` in a base-backup directory and that the count is non-zero. A scheduled-backup object alone is not proof that a base backup exists.
+### Verify an Authentik backup
 
-   If an immediate backup is needed before the next scheduled run, first inspect existing Backup resources and do not create a duplicate:
+1. List Backup resources and check the phase of the backup you intend to verify:
    ```bash
    kubectl get backups.postgresql.cnpg.io -n authentik
    ```
-   Only if `authentik-manual-initial-backup` does not already exist and an immediate backup is still needed, create the CNPG Backup resource matching the successful initial backup:
+   `authentik-backup-schedule` runs daily at 03:00 UTC. If you need a backup before the next run, and `authentik-manual-initial-backup` does not already exist, use the following for an approved on-demand backup during fresh installation. If the name exists, inspect that Backup instead of reapplying it.
    ```bash
    kubectl apply -f - <<'EOF'
    apiVersion: postgresql.cnpg.io/v1
@@ -94,99 +70,78 @@ This sequence is only for a confirmed fresh installation with no Authentik datab
        name: barman-cloud.cloudnative-pg.io
    EOF
    ```
-   Then wait for its phase to become `completed` and repeat the read-only blob check. If the Backup name already exists, do not apply it again; verify that resource and its backup instead.
-6. Before foundation PR #1235 was merged, its changes went through review and Flux then managed the already-applied resources through the existing `infra-production` Kustomization. There is no separate Authentik Kustomization or Git adoption step. This historical merge step is complete for the current deployment.
+2. After the phase is `completed`, use the approved read-only Azure identity to list base-backup files:
+   ```bash
+   az storage blob list --auth-mode login --account-name lhshomelabbackup \
+     --container-name authentik --prefix authentik-db-backup/base/ \
+     --query '[].name' -o tsv
+   ```
+   Confirm the backup directory contains both `backup.info` and `data.tar.gz`. A ScheduledBackup object alone does not prove a backup exists. If you cannot confirm the phase or files, stop and resolve the backup or inventory access problem.
 
-## Authentik Ingress follow-up (historical)
+## Authentik LAN Ingress and TLS
 
-Ingress PR #1238 is merged. The [historical checklist](#historical-authentik-ingress-follow-up-checks) records the rollout results, not Mini QR acceptance. Do not repeat initial administrator setup on the existing installation. Use the read-only commands below to inspect the current state if needed.
+Use the Authentik chart Ingress for LAN access at `https://authentik.homelab.leehosanganson.dev` through the private Traefik load balancer (`192.168.1.250`). The desired Ingress uses class `traefik`, TLS secret `authentik-tls`, and the existing `letsencrypt-cloudflare` DNS-01 ClusterIssuer. The issuer may create temporary challenge records. Do not manually create permanent DNS records or create or modify Cloudflare Tunnel routes.
 
-1. Inspect the `infra-production` Flux Kustomization and Authentik HelmRelease:
+1. Confirm the target context and use a LAN client for the DNS and HTTPS checks. Inspect the GitOps and Ingress resources without changing them:
    ```bash
    kubectl get kustomizations.kustomize.toolkit.fluxcd.io infra-production -n flux-system
    kubectl get helmreleases.helm.toolkit.fluxcd.io -n authentik
-   ```
-2. Inspect the Authentik Ingress. Confirm its host is `authentik.homelab.leehosanganson.dev`, its class is Traefik, and its TLS configuration uses `authentik-tls` and the existing DNS-01 issuer:
-   ```bash
    kubectl get ingress -n authentik
    kubectl describe ingress -n authentik
+   kubectl get certificates.cert-manager.io authentik-tls -n authentik
    ```
-3. Inspect the `authentik-tls` certificate:
+2. Confirm `infra-production`, the Authentik HelmRelease, and the certificate report Ready. Check that the Ingress matches the host, class, TLS secret, and issuer above.
+3. From the LAN, confirm the hostname resolves to the private load balancer and the regular sign-in page loads over HTTPS with a trusted certificate for that hostname. Do not bypass certificate validation or rerun initial setup. These checks verify the LAN path only.
+4. If any check fails, stop and diagnose the LAN path. Use the loopback-only fallback for administrator access rather than changing DNS or Tunnel routing.
+
+## Manage users, groups, and application bindings
+
+1. Complete the [existing-installation preflight](#preflight-for-an-existing-installation). Configure only approved Google or GitHub login sources, and leave enrollment disabled or invitation-only.
+2. Verify the owner's identity in the Authentik admin UI before adding it to `homelab-allowlist`. The login source identifies the user; the application binding decides who gets access.
+3. **An Authentik Application with no bindings allows access by default.** Before exposing the app, bind it to `homelab-allowlist` or a narrower approved group. Check that no other binding grants access outside the approved group.
+4. Test with both an approved identity and a signed-in nonmember. If the nonmember can access the app or the result is unclear, keep it unavailable until the binding is fixed. Do not remove the only binding from a live app as a rollback.
+
+## Onboard Mini QR with ForwardAuth
+
+### Prerequisites
+
+1. Complete the [existing-installation preflight](#preflight-for-an-existing-installation) and verify [LAN Ingress and TLS](#authentik-lan-ingress-and-tls). Have an allowlisted identity and a nonmember available for testing.
+2. In the Authentik admin UI, create or verify a Proxy Provider in **Forward auth (single application)** mode. Set the external host to `https://qr.homelab.leehosanganson.dev`.
+3. Link the provider to the Mini QR Application and assign it to the Authentik embedded outpost. Bind the Application to `homelab-allowlist` and confirm no other bindings grant access outside that group. Git does not manage the provider, Application, outpost assignment, or group binding. Do not proceed to deployment until the operator verifies all four.
+
+### Reconcile and verify
+
+1. After an authorized deployment, check both Flux Kustomizations:
    ```bash
-   kubectl get certificates.cert-manager.io -n authentik
+   flux get kustomizations -n flux-system
    ```
+   `apps-production` reconciles the Mini QR Ingress, ForwardAuth middleware, and NetworkPolicy. `infra-production` reconciles the `mini-qr-outpost` callback route. They reconcile independently; either can finish first. Keep Mini QR unavailable to normal users during reconciliation and testing. Wait for both to report Ready at the intended revision before acceptance testing.
+2. Check that only the Mini QR Ingress uses its ForwardAuth middleware. On the existing Mini QR hostname, the HTTPS `/outpost.goauthentik.io/` path must route directly to Authentik without passing through ForwardAuth. The exact callback is `https://qr.homelab.leehosanganson.dev/outpost.goauthentik.io/callback`. Verify it reaches Authentik, uses the existing Mini QR Ingress certificate (`mini-qr-tls`), and completes in the browser without a redirect loop.
+3. In separate clean browser sessions, confirm a signed-out user is redirected to sign-in, an allowlisted user can load Mini QR, and a signed-in nonmember is denied without receiving Mini QR content.
+4. Confirm the Mini QR Service remains a ClusterIP. The NetworkPolicy is intended to allow only Traefik pods in `kube-system` to reach TCP port 8080. Verify Traefik still reaches the backend and an authorized test from a non-Traefik pod cannot connect to either the ClusterIP or a Mini QR Pod IP on that port. Confirm plain HTTP and any alternate route do not serve unauthenticated Mini QR content.
 
-During the rollout, a LAN client reached `https://authentik.homelab.leehosanganson.dev/if/flow/initial-setup/` over HTTPS. The operator later verified administrator sign-in and recovery.
+**Stop or roll back:** Flux readiness does not prove enforcement. The callback, access, and bypass checks remain required before accepting the service. If any check fails, keep the gate fail-closed (deny access without a successful login). If you cannot confirm denial, take Mini QR offline through the approved GitOps workflow and verify it no longer serves content. Do not remove the middleware from a live Ingress or restore unauthenticated access.
 
-## Later Authentik configuration
+## Karakeep native OIDC (deferred)
 
-For approved Authentik changes, use the LAN URL above or the loopback-only port-forward as a fallback. Keep recovery credentials outside Git, keep the bootstrap administrator separate from social-login accounts, and leave open enrollment disabled or invitation-only.
+Leave OIDC inactive and keep existing password and signup settings. Karakeep v0.35.0 requires both `OAUTH_WELLKNOWN_URL` and `OAUTH_CLIENT_ID` to enable its OAuth provider. Do not add the client ID or credential references until a separate Karakeep review approves activation. Do not change Authentik Ingress or Tunnel routes as part of activation.
 
-Configure only approved Google or GitHub sources. A provider authenticates an identity; a group binding authorizes access. Add the owner's verified identity to `homelab-allowlist` only after confirming it in the admin UI. Authentik grants access to an Application when no binding is configured, so bind each Application to `homelab-allowlist` or a narrower service-specific group before allowing access. Test both an approved and a non-allowlisted identity. These steps are separate from the initial install and do not authorize permanent DNS changes, Cloudflare Tunnel route changes, or application OIDC activation.
+Use these steps to plan the separate review and carry out activation only after approval:
 
+1. Complete the [existing-installation preflight](#preflight-for-an-existing-installation). Confirm `https://karakeep.leehosanganson.dev` is the intended public URL and verify the existing routing without changing it.
+2. Create the Authentik OIDC Application and provider with the exact strict redirect URI `https://karakeep.leehosanganson.dev/api/auth/callback/custom`. Bind the Application to `homelab-allowlist` or a narrower approved group. Verify the binding with allowed and denied identities before enabling OIDC in Karakeep.
+3. Verify that `https://authentik.homelab.leehosanganson.dev/application/o/karakeep/.well-known/openid-configuration` returns valid OpenID metadata. Confirm the Karakeep server can reach discovery and the advertised JWKS and token endpoints, and a user's browser can reach the authorization endpoint and return to the callback. If Cloudflare Access or another layer blocks a required request, stop. Any supported access path needs its own review.
+4. Once the provider exists, store its client ID and secret in Azure Key Vault. Verify the entries exist before adding `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` via the `karakeep-secrets-external` ExternalSecret; missing entries can disrupt `karakeep-secrets`. Verify the ExternalSecret reports Ready. Never store credentials in `values.yaml` or a ConfigMap.
+5. Set `NEXTAUTH_URL=https://karakeep.leehosanganson.dev` and `OAUTH_WELLKNOWN_URL` to the verified discovery URL. Optionally set `OAUTH_PROVIDER_NAME=Authentik`. Keep `OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING=false` and leave `DISABLE_PASSWORD_AUTH` and `DISABLE_SIGNUPS` unchanged. `DISABLE_SIGNUPS` also disables OAuth signup.
+6. Verify email verification and linking for an existing account, owner/admin mapping, and recovery before switching login methods. On an empty instance, the first account becomes administrator. Test login, logout, denied users, duplicate or existing accounts, password and signup behavior, callbacks, sessions, and API/mobile/browser clients. Do not assume removing an Authentik group membership revokes an active Karakeep session.
 
-## Mini QR ForwardAuth pilot
+**Stop or roll back:** Keep local login until a tested transition prevents unauthorized local-password access without locking out the owner. If activation fails, revert only the Karakeep OIDC settings and restore the last known working app-local authentication settings. Keep any outer access gate in place. Preserve the Authentik provider and user data until app sessions and account mappings have been reviewed.
 
-**Required before merge:** An Authentik operator must create or verify a Proxy Provider in **Forward auth (single application)** mode with external host `https://qr.homelab.leehosanganson.dev`, link it to the Mini QR Application, and assign it to the Authentik embedded outpost. Confirm the Application is bound to `homelab-allowlist` and has no other bindings that grant access outside that group. Do not merge until the operator confirms this setup. Git does not manage the provider, application, outpost assignment, or group binding.
+## CNPG recovery and infrastructure rollback
 
-Only the Mini QR Ingress uses the ForwardAuth middleware. The HTTPS route for `/outpost.goauthentik.io/` sends requests directly to Authentik so the callback does not pass through ForwardAuth again. The existing Mini QR Ingress still supplies the certificate. The Mini QR Service remains a ClusterIP; the NetworkPolicy is intended to admit only `kube-system` Traefik pods to TCP port 8080.
+Do not remove Authentik from `infra-production` without a reviewed plan: Flux prunes resources removed from its inventory. Preserve the database, PVCs, backups, Key Vault values, and long-lived `AUTHENTIK_SECRET_KEY` during rollback.
 
-**After merge:** `apps-production` reconciles the Mini QR Ingress and middleware independently of `infra-production`, which reconciles the callback route. Wait until both report Ready for the merged revision, then confirm the HTTPS callback route reaches Authentik before using protected Mini QR. If login fails, keep the gate fail-closed (deny access without a successful login) or take Mini QR offline. Do not restore unauthenticated public access.
-
-**Pending after an authorized deployment:**
-
-- Confirm the outpost path reaches Authentik over HTTPS with the existing Mini QR certificate and that the browser callback completes without a redirect loop.
-- In separate clean browser sessions, verify that a signed-out request is sent to sign-in, an allowlisted identity can load Mini QR, and a signed-in nonmember is denied without receiving Mini QR content.
-- Confirm Traefik can still reach the backend and a non-Traefik pod cannot reach it directly via either the ClusterIP or Pod IP. Verify that plain HTTP and any alternate route do not serve the app without authentication. Do not claim enforcement until these checks pass.
-
-## Karakeep native OIDC pilot (deferred activation)
-
-The Mini QR pilot does not activate Karakeep OIDC or change its authentication settings. The external Tunnel route remains unverified. Karakeep v0.35.0 enables its OAuth provider only when both `OAUTH_WELLKNOWN_URL` and `OAUTH_CLIENT_ID` are configured; its current configuration leaves the provider inactive and does not change password/signup policy. The client credentials cannot be created until Authentik is available and its Karakeep provider has been configured. A later app-specific change must add the Azure Key Vault references after those values exist. Before any separately reviewed OIDC activation, verify that the exact provider discovery URL returns valid OpenID metadata, the Karakeep server can reach the discovery document and advertised JWKS/token endpoints, and a user's browser can reach the advertised authorization endpoint and return to Karakeep's callback. Do not activate OIDC if Cloudflare Access or another protection layer blocks required server-to-server requests; a narrowly scoped supported access path requires its own design and review. Do not change the Authentik Ingress or Tunnel route as part of this Karakeep change.
-
-When ready to activate:
-
-1. Confirm the correct public URL is `https://karakeep.leehosanganson.dev`, that public DNS/Tunnel routing is intended, and that the callback URL can reach Authentik.
-2. Create the Authentik OIDC application/provider for Karakeep with the exact strict redirect URI:
-   `https://karakeep.leehosanganson.dev/api/auth/callback/custom`
-3. Bind the Authentik Karakeep Application to `homelab-allowlist` (or a narrower approved group) and test allowed and denied identities before enabling OIDC in Karakeep.
-4. Configure Karakeep v0.35.0 using its OIDC variables:
-   - `NEXTAUTH_URL=https://karakeep.leehosanganson.dev`
-   - `OAUTH_WELLKNOWN_URL` to the provider's Authentik OpenID configuration/discovery URL.
-   - `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` from the Authentik provider.
-   - `OAUTH_PROVIDER_NAME=Authentik` (optional display name).
-   - Keep `OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING=false`.
-   - Keep `DISABLE_PASSWORD_AUTH` and `DISABLE_SIGNUPS` unchanged until existing users, owner/admin mapping, and recovery behavior are verified.
-5. After Authentik is running and the Karakeep provider exists, store the client ID and secret using the repository's Azure Key Vault + ExternalSecret pattern (for example, `karakeep-authentik-client-id` and `karakeep-authentik-client-secret`). Add those required ExternalSecret references in a follow-up change only after the Key Vault entries have been created; adding missing refs to the existing `karakeep-secrets` ExternalSecret could make that Secret unavailable. Do not put credentials in `values.yaml` or a ConfigMap.
-6. Verify a pre-existing Karakeep account's email verification and linking behavior before switching login methods. The first account created in an empty Karakeep instance receives the app's admin role, so verify which account would be first. Do not enable dangerous automatic email account linking just to bypass an account-migration issue.
-7. Test login/logout, denied users, duplicate/existing accounts, account recovery, password-login and signup policy, API/mobile/browser clients, callbacks and sessions. Karakeep sessions are separate from Authentik sessions; removing an Authentik group membership does not by itself prove an existing Karakeep session has been revoked.
-
-Karakeep's `DISABLE_SIGNUPS` setting disables signups generally, including OAuth signup. Do not toggle it based only on the desire to restrict enrollment. Similarly, preserve existing local login until a tested transition can prevent unauthorized local-password bypass without locking out the owner.
-
-## Verification checklist
-
-### Historical pre-merge fresh-install checks — foundation PR #1235 (already completed)
-
-These checks document the one-time install and are not acceptance checks for the Mini QR pilot. Do not repeat the apply or setup sequence for the current deployment.
-
-- [x] The `authentik-db` Cluster was initialized and healthy; Authentik server and worker were Ready.
-- [x] The CNPG Backup completed, and the Azure blob listing showed base-backup contents (`backup.info` and `data.tar.gz`) for `authentik-db-backup`.
-- Administrator setup was not completed during the foundation rollout; the operator later verified sign-in and recovery.
-
-### Historical Authentik Ingress follow-up checks
-
-- [x] Authentik Ingress PR #1238 merged.
-- [x] `infra-production` reported Ready, and the Authentik HelmRelease reported Ready with `UpgradeSucceeded`.
-- [x] The `authentik-tls` certificate reported Ready.
-- [x] A LAN client reached the initial-setup flow over HTTPS.
-- [x] The operator reported verifying Authentik administrator sign-in and recovery.
-
-The Ingress is configured for `authentik.homelab.leehosanganson.dev` with class `traefik`, `authentik-tls`, and the existing DNS-01 issuer. Do not manually create permanent DNS records or Cloudflare Tunnel routes. The external Tunnel route remains unverified, and application OIDC activation is outside the scope of this rollout.
-
-## Rollback
-
-Do not revert the Authentik foundation PR or remove Authentik from `infra-production` blindly: the Flux Kustomization prunes resources that disappear from its inventory. Any rollback must have a reviewed plan that preserves the CNPG data, backup objects, and Azure Key Vault values unless a separate data-removal decision is made. Do not delete the identity database as part of an application rollback. CNPG restore uses `bootstrap.recovery` to create a **new Cluster**; it does not restore an initialized Cluster in place. Never change the initialized Authentik Cluster's `bootstrap.initdb` to `bootstrap.recovery` as a restore. The inventory in [Cluster Recovery — Phase 4](cluster-recovery.md#phase-4--cnpg-database-recovery) identifies Authentik's existing manifest at `kubernetes/infra/authentik/base/db/cluster.yaml`, but that file is not a ready-to-apply recovery manifest. Verify the Authentik backup in `lhshomelabbackup/authentik` under the `authentik-db-backup` server prefix as a read-only pre-check. Phase 4 is not yet a complete executable Authentik restore/cutover procedure: this repository has no validated replacement-cluster name/service/cutover runbook. Stop before creating, deleting, or replacing any Cluster or data until an explicit recovery plan covers a separate recovery Cluster, unique WAL archive `serverName`, data verification, application service/host cutover, and preservation or planned retirement of the original data. Preserve the long-lived `AUTHENTIK_SECRET_KEY`; changing it can invalidate sessions/tokens and disrupt identity integrations.
-
-For Karakeep, revert only the application-specific OIDC configuration and restore the last known working app-local auth settings. Do not remove the Authentik provider or user data until all app sessions and account mappings have been reviewed. If the app is protected by an outer proxy gate in a later phase, roll back the gate only to a still-protected state; do not inadvertently publish a private service.
+CNPG `bootstrap.recovery` creates a **new Cluster**; changing `initdb` to `recovery` on an initialized Cluster does not restore it. Follow the read-only checks in [Cluster Recovery: CNPG Database Recovery](cluster-recovery.md#phase-4--cnpg-database-recovery), then stop until a replacement-cluster and cutover plan is approved. Do not create, delete, or replace a Cluster, PVC, or data without that plan.
 
 ## References
 
