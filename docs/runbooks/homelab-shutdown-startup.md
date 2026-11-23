@@ -18,29 +18,39 @@ For a full outage, you do not need to scale or suspend GitOps-managed services. 
 
 Follow the approved database procedure before taking K3s down, including pausing writes if required. A graceful VM shutdown alone does not guarantee a clean database shutdown. **STOP** if the database procedure or safe state is unclear. Do not bypass database safeguards or delete persistent volume claims (PVCs).
 
-For CloudNativePG (CNPG), confirm the Kubernetes context, check the live operator image and readiness, and identify the clusters approved for hibernation:
+For CloudNativePG (CNPG), complete the checks below before pausing writes. Confirm the intended Kubernetes context and review the full live cluster list by namespace and name:
 
 ```sh
 kubectl config current-context
-kubectl get deployments -A -l app.kubernetes.io/name=cloudnative-pg -o wide
 kubectl get clusters.postgresql.cnpg.io -A
 ```
 
-**STOP** if you cannot confirm the intended context, a healthy operator, its version, or the target clusters. Use the steps below only for [CNPG 1.27](https://cloudnative-pg.io/docs/1.27/declarative_hibernation/); for another version, use its approved procedure.
+**STOP** if you cannot verify the context or inventory, the inventory is empty, any expected cluster is missing, or any listed cluster is not approved for both hibernation and reactivation. Record the verified and approved namespace/name list and its count for this outage before pausing writes. Use that record for both shutdown and startup checks. The [CNPG helper](../../scripts/cnpg-hibernate.sh) operates across all namespaces, and `off` wakes every hibernated cluster, including any hibernated before the outage.
 
-Run `kubectl cnpg version`. **STOP** if the plugin is unavailable or you cannot confirm it is compatible with the live operator (same version or newer).
-
-Leave already hibernated clusters alone. Pause writes to each remaining target and record its namespace and name for startup. Replace the placeholders and run these commands for each target:
+Before pausing writes, run `./scripts/cnpg-hibernate.sh --help` from the repo root and verify the prerequisites separately: Bash 5+, GNU `timeout`, `jq`, `kubectl`, and the `kubectl cnpg` plugin. Run these read-only checks in the verified context:
 
 ```sh
-NS='<namespace>'
-CLUSTER='<cluster-name>'
-kubectl cnpg -n "$NS" hibernate on "$CLUSTER"
-kubectl cnpg -n "$NS" status "$CLUSTER"
-kubectl -n "$NS" get pods,pvc -l "cnpg.io/cluster=$CLUSTER"
+kubectl cnpg version
+kubectl cnpg hibernate on --help
+kubectl cnpg hibernate off --help
+kubectl -n cnpg-system get deployment cnpg-controller-manager -o yaml
 ```
 
-Repeat the checks until `kubectl cnpg status` reports `Hibernated`, no instance pods remain, and the expected PVCs are still present. **STOP** if any target does not reach this state.
+Confirm both help commands succeed and advertise their respective usage: `kubectl cnpg hibernate on CLUSTER` and `kubectl cnpg hibernate off CLUSTER`. The plugin must report a stable `1.27.N` release (not a prerelease). The operator's `manager` container image must use the `/cloudnative-pg:1.27.N` image/tag form (an optional `@sha256:` digest is allowed). The plugin patch number must be at least the operator patch number.
+
+In the Deployment YAML, confirm `.status.observedGeneration == .metadata.generation` and `.spec.replicas > 0`. The helper requires `.status.updatedReplicas`, `.status.replicas`, and `.status.availableReplicas` each to equal `.spec.replicas`; also verify `.status.readyReplicas` equals `.spec.replicas`. Confirm the `manager` container has no `envFrom` sources and `WATCH_NAMESPACE` is absent or empty, with no `valueFrom`.
+
+If `CNPG_HIBERNATE_TIMEOUT_SECONDS` is nonempty, it must be a positive integer of 1 to 6 digits with no leading zero. An unset or empty value uses the 300-second default. **STOP** before pausing writes if any prerequisite is unmet or unverified.
+
+Pause application writes to the CNPG databases before hibernating them. The pause must remain effective through guest restart and Flux reconciliation. **STOP** if you cannot ensure it will stay in effect until all recovery gates pass. From a terminal at the repo root, run:
+
+```sh
+./scripts/cnpg-hibernate.sh on
+```
+
+The helper checks the context, operator, and plugin, then lists all targets by namespace and name. Type `yes` only if the displayed context is the verified context and the confirmation list matches the recorded namespace/name targets exactly. Wait for it to verify that every target is hibernated, its instance pods are gone, and the same PVCs remain bound. Before taking K3s down, require a zero exit and a `Hibernate on` summary with the recorded target count verified and `0 failed`. `No CNPG Clusters found.` is not success, even with a zero exit. If that message appears or the summary is missing or mismatched, recheck the target list and count against the outage record.
+
+**STOP** if `on` fails any of these checks, does not finish, or leaves any target's state unclear. The helper may issue `off` to cancel an unverified new `on` attempt, so that cluster may be awake while successful targets remain hibernated. An in-flight `on` may still take effect. Manually reconcile the affected clusters before retrying or taking K3s down.
 
 Follow the approved K3s/etcd shutdown order when taking down the K3s guests.
 
@@ -103,14 +113,19 @@ Confirm K3s workload storage is available, then start K3s servers as needed in t
 
 Once K3s is back, Flux reconciles the desired state from Git. Let it run normally instead of bringing individual services back by hand.
 
-Once the CNPG operator and database storage are ready, rehydrate only the clusters hibernated for this outage. Recheck the context, live operator version, plugin compatibility, and recorded targets as in shutdown. For CNPG 1.27, set `NS` and `CLUSTER` to the verified values for each target, then run:
+Once the CNPG operator and database storage are ready, recheck the Kubernetes context and compare the full live namespace/name list and count against the approved list and count recorded at shutdown. **STOP** and keep writes paused if you cannot verify the context or inventory, the inventory is empty, any expected cluster is missing, or any listed cluster is not on the recorded list or must stay hibernated. `off` wakes all hibernated clusters, not just those hibernated during shutdown.
+
+Repeat the read-only plugin and operator checks from shutdown. Verify both hibernate help outputs, the stable `1.27.N` plugin release, and the operator's `manager` image/tag as in shutdown. Confirm the plugin patch is at least the operator patch. Verify operator readiness: the observed generation matches, the desired replica count is positive, and the total, updated, available, and ready replica counts all match it. Verify the operator watches all namespaces: the `manager` container has no `envFrom`, and `WATCH_NAMESPACE` is absent or empty with no `valueFrom`.
+
+Verify that the application write pause is still effective before running `off`. **STOP** without running `off` if the pause or any repeated check fails or cannot be verified.
+
+From a terminal at the repo root, run:
 
 ```sh
-kubectl cnpg -n "$NS" hibernate off "$CLUSTER"
-kubectl cnpg -n "$NS" status "$CLUSTER"
+./scripts/cnpg-hibernate.sh off
 ```
 
-Repeat the status check until each rehydrated cluster reports `Cluster in healthy state` and all expected instances are ready. **STOP** if any target does not recover.
+Type `yes` only if the displayed context is the verified context and the helper's confirmation list matches the recorded namespace/name targets exactly. Wait for the helper to verify that every cluster is healthy and all expected instances are ready. Before resuming writes, require a zero exit and a `Hibernate off` summary with the recorded target count verified and `0 failed`. `No CNPG Clusters found.` is not success, even with a zero exit. If that message appears or the summary is missing or mismatched, recheck the target list and count against the outage record. **STOP** and keep writes paused if any check fails or recovery is not verified.
 
 ```sh
 kubectl get nodes
@@ -120,8 +135,10 @@ flux get kustomizations -A
 flux get helmreleases -A
 ```
 
-Confirm the expected nodes, pods, and Flux resources are healthy. Use the procedure for the installed CNPG version to confirm the expected PostgreSQL clusters are healthy. Check that DNS and critical applications work from their usual access paths and that data is available. Resume any paused application writes only after the databases and affected applications are healthy.
+Confirm the expected nodes, pods, PostgreSQL clusters, and Flux resources are healthy. Check that DNS and critical applications work from their usual access paths and that data is available.
 
 Before declaring startup successful, verify that the intended PVE auto-start and HA settings are restored, including any settings temporarily changed for the outage.
 
 If a data restore is needed, use the [cluster recovery runbook](cluster-recovery.md).
+
+Resume application writes only after all recovery checks pass.
