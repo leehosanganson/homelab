@@ -79,7 +79,9 @@ Encrypted secrets are stored in the external repository and referenced by each h
 
 ### Private flake input access
 
-The NixOS flake includes the private `sops-secrets` Git repository as an input. The root account on each host must have outbound SSH read access to that repository before its automatic upgrade can evaluate the configuration. Arrange this access outside this repository; this change does not configure or store credentials. Public read access to the `homelab` repository is also required.
+The NixOS flake includes the private `sops-secrets` Git repository as an input. Automatic upgrades use `/etc/ssh/bootstrap-vm` as the SSH identity for Git fetches by the `nixos-upgrade` service. This private key must be present and usable by root, and its associated GitHub account must have read access to the private `sops-secrets` repository. Provision and manage the private key outside this repository; do not store credentials here. Public read access to the `homelab` repository is also required.
+
+The service accepts GitHub's ED25519 host key only. NixOS pins the key in `/etc/ssh/ssh_known_hosts` with fingerprint `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`; host-key checking is strict, and per-user known-host files are not used. If GitHub rotates this key, upgrades fail closed until the pin is updated after verifying the new key.
 
 ### Automatic upgrades
 
