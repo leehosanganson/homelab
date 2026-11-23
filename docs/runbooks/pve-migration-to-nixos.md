@@ -111,8 +111,8 @@ grep -E "pwhash" /etc/pihole/pihole.toml
 Then on the VM the `pihole-ftl` unit reads `/run/secrets/pihole-web-pwhash` via
 `EnvironmentFile`, so no manual per-boot step is needed.
 
-Also regenerate any downstream API keys (e.g. Homepage `HOMEPAGE_VAR_PIHOLE_*`)
-to match the configured password.
+Regenerate any downstream API keys that still depend on the configured
+password.
 
 ---
 

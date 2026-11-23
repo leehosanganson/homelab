@@ -207,10 +207,24 @@
         icon: grafana.png
         href: https://grafana.homelab.leehosanganson.dev/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=prometheus&var-cluster=&var-resolution=30s&var-job=kubernetes-service-endpoints&refresh=auto
         description: Private / Cluster Dashboard
+        widget:
+          type: customapi
+          url: https://grafana.homelab.leehosanganson.dev/api/health
+          mappings:
+            - field: database
+              label: Database
+            - field: version
+              label: Version
     - Grafana Logs:
         icon: grafana.png
         href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
         description: Private / Logs
+    - Prometheus:
+        icon: prometheus.png
+        description: Private / Metrics scrape targets
+        widget:
+          type: prometheus
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
     - Uptime Kuma:
         icon: uptime-kuma.png
         href: https://uptime-kuma.homelab.leehosanganson.dev
@@ -253,20 +267,10 @@
         icon: pi-hole.png
         href: https://pihole-1.infra.leehosanganson.dev
         description: Private / Pi-hole DNS (primary)
-        widget:
-          type: pihole
-          url: https://pihole-1.infra.leehosanganson.dev
-          version: 6
-          key: "{{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}"
     - Pi-hole 2:
         icon: pi-hole.png
         href: https://pihole-2.infra.leehosanganson.dev
         description: Private / Pi-hole DNS (secondary)
-        widget:
-          type: pihole
-          url: https://pihole-2.infra.leehosanganson.dev
-          version: 6
-          key: "{{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}"
     - Technitium 1:
         icon: mdi-dns
         href: https://technitium-1.infra.leehosanganson.dev
