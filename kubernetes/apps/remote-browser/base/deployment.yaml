@@ -28,7 +28,7 @@ spec:
           effect: NoSchedule
       initContainers:
         - name: bootstrap-kasm-home
-          image: kasmweb/chrome:1.18.0@sha256:ae3d50d888a35e745c699941d4f51bee0710bf655a53a0889d1da447382effc1
+          image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
           command:
             - /bin/bash
             - -euo
@@ -110,7 +110,7 @@ spec:
               mountPath: /mnt/kasm-home
       containers:
         - name: remote-browser
-          image: kasmweb/chrome:1.18.0@sha256:ae3d50d888a35e745c699941d4f51bee0710bf655a53a0889d1da447382effc1
+          image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
           envFrom:
             - configMapRef:
                 name: remote-browser-config
