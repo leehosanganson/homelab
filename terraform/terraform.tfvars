@@ -62,9 +62,25 @@ nodes = {
     disk_size = 20
     datastore = "local-lvm"
   }
+  "technitium-1" = {
+    node      = "pve01"
+    vm_id     = 211
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+  }
   "pihole-2" = {
     node      = "pve04"
     vm_id     = 103
+    cores     = 2
+    memory    = 2048
+    disk_size = 20
+    datastore = "local-lvm"
+  }
+  "technitium-2" = {
+    node      = "pve04"
+    vm_id     = 212
     cores     = 2
     memory    = 2048
     disk_size = 20

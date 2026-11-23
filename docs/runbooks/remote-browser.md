@@ -5,15 +5,18 @@ The remote browser runs one persistent Kasm Chrome session at
 KasmVNC streams the desktop to a web browser. Chrome starts at the Granblue
 Fantasy URL.
 
-The original `chrome-runner-pvc` claim is a read-only migration source. Kasm
-uses a separate `kasm-home-pvc` for its complete persistent home. On the first
-start, a non-root init container copies the Kasm image's default home into the
-new claim, then replaces `.config/google-chrome` with the old Chrome profile.
-The init container runs as UID 1200/GID 1201. The Kasm container mounts the
-complete new home at `/home/kasm-user`; the old claim is never mounted at
-`~/.config` in the Kasm runtime. Kasm startup generates a self-signed
-certificate at `${HOME}/.vnc/self.pem`. KasmVNC uses that same path for both its
-certificate and key.
+The one-time migration to Kasm is complete. The current Kasm home, including
+its Chrome profile and later changes, is stored on `kasm-home-pvc`, which the
+Kasm container mounts at `/home/kasm-user`. The bootstrap init container has
+been removed. The Deployment does not seed or reseed this home automatically
+from the image defaults or `chrome-runner-pvc`. The original
+`chrome-runner-pvc` remains the older profile source and is not mounted by the
+current Kasm runtime. A pre-migration backup or snapshot, if available and
+verified, may restore only the older source profile; it cannot recover changes
+made to the Kasm home after migration.
+Kasm startup generates a self-signed certificate at
+`${HOME}/.vnc/self.pem`. KasmVNC uses that same path for both its certificate
+and key.
 
 The Deployment keeps its existing Kubernetes object name, `chrome-runner`, and
 immutable selector. GitOps updates it in place, and its `Recreate` strategy
@@ -24,47 +27,16 @@ chrome-runner` selector label for that transition; the service selects
 selector, toleration, and `/dev/dri` mount without a GPU resource request. CPU
 and memory requests and limits remain unchanged.
 
-## First start and migration safety
+## Current home and recovery
 
-Take and verify a restorable backup of `chrome-runner-pvc` before migration.
-Do not run Selenium Chrome and Kasm Chrome against the same profile at the same
-time: Chrome profiles are not safe for concurrent writers.
+The populated `kasm-home-pvc` is the sole Kasm runtime home; Kasm mounts it at
+`/home/kasm-user`. No init container or automatic seed/reseed exists. Preserve
+this claim. Before replacing it, back up the active Kasm home and verify the
+recovery plan. This runbook does not claim that a current Kasm-home backup
+exists.
 
-Before cutover, inspect the root of `chrome-runner-pvc` through a read-only
-inspection mount that does not request an `fsGroup`; for example, run
-`stat -c '%u:%g %a' <source-pvc-root>` on that mount. Require UID:GID `0:1201`
-and mode `2775`, the source-root values observed in this session. Stop if the
-observed values differ; do not start Kasm until the mismatch is understood.
-The pod sets `fsGroup: 1201` with `fsGroupChangePolicy: OnRootMismatch`. With
-the expected root metadata, the policy is intended to avoid a recursive
-group-ownership change. This is conditional on the root still matching: a
-mismatch may cause kubelet to attempt recursive changes before the container
-starts, and a read-only volume or mount alone does not prove kubelet skipped
-them. The bootstrap itself only reads the source and mounts it read-only.
-
-The bootstrap checks the new target before copying. An empty target is populated
-from the image home and legacy Chrome profile. It applies group access so the
-Kasm runtime (UID 1000/GID 1201) can use the copied files. Only after all copy
-and permission steps succeed does it atomically write
-`.kasm-home-bootstrap-complete`.
-
-Bootstrap failure is fail-closed, but it is not generically safe to retry:
-
-- If the completion marker is a regular, non-symlink file containing exactly
-  `Bootstrapped from the image home and legacy Chrome profile.`, the init
-  container exits without changing the target home. Kasm's later profile and
-  home changes are preserved.
-- If a marker path exists but is not a regular non-symlink file with that exact
-  content, startup fails without changing the target home. Inspect the marker
-  and target; do not delete or replace it to force another copy.
-- If the target home is non-empty and has no marker, startup fails without
-  changing it. Stop, inspect the target, and make a backup before deciding how
-  to recover. Reset the new `kasm-home-pvc` only after confirming that it
-  contains no needed Kasm data and Kasm has never started on it. Otherwise,
-  recover the target manually. Do not reset or modify the original
-  `chrome-runner-pvc`; preserve it as the migration source. Do not delete files
-  or the marker just to force another copy.
-- The old manual profile-permission Job has been removed and must not be used.
+A pre-migration backup or snapshot, if available and verified, may restore only
+the old Chrome profile; it cannot recover changes made in the Kasm home.
 
 Keep the KasmVNC password in the `remote-browser-kasm-password` key in the
 configured Azure Key Vault. The ExternalSecret creates the Kubernetes secret
@@ -100,12 +72,18 @@ state is lost, and downtime during restart is expected.
 
 ## Rollback and PVC lifecycle
 
-If startup or profile behavior is wrong, stop Kasm before starting Selenium.
-Reverting the Git change restores the old `chrome-runner` Deployment and route,
-which use the original `chrome-runner-pvc`. The separate Kasm home means writes
-made by Kasm do not update the original profile. Kasm changes made after
-migration are not included in that rollback. Never run both browser Deployments
-at once.
+Reverting only this bootstrap-removal change restores the previous Kasm
+Deployment, including its bootstrap initContainer; it does not return the service
+to Selenium. The current `kasm-home-pvc`, its
+`.kasm-home-bootstrap-complete` marker, and all Kasm home data remain untouched
+by this cleanup reversion. The restored initContainer sees the existing marker
+and leaves the home unchanged.
+
+To return to Selenium, stop Kasm first, then separately roll back the original
+Kasm migration to restore the Selenium Deployment and route using the original
+`chrome-runner-pvc`. Never run Kasm and Selenium Chrome at the same time. The
+original claim or its snapshot contains only the pre-migration Chrome state;
+it does not contain Kasm changes made after migration.
 
 `kasm-home-pvc` has the Flux annotation
 `kustomize.toolkit.fluxcd.io/prune: disabled`. If rollback removes this PVC from
@@ -116,10 +94,11 @@ This PVC uses the repository's default StorageClass, `synology-default`, which
 has `reclaimPolicy: Delete`. Manually deleting the PVC can therefore also
 delete its backing volume and data. Keep the
 claim until its contents are no longer needed and a verified backup or other
-recovery plan exists. For intentional cleanup, first stop Kasm, inspect and
-back up any needed data, then explicitly remove the PVC only after confirming
-that deleting its backing volume is acceptable. The prune annotation does not
-prevent intentional manual deletion.
+recovery plan exists. Do not manually delete this production PVC as a way to
+reset, reseed, or roll back Kasm. Any future PVC lifecycle change requires a
+separately reviewed recovery plan. The prune annotation does not prevent
+intentional manual deletion.
 
-Restore the pre-migration backup if the original profile is damaged or you
-need it in a known state.
+A pre-migration backup or snapshot, if available and verified, may restore only
+the original profile if it is damaged or you need it in a known state. It cannot
+recover Kasm home data or changes made after migration.

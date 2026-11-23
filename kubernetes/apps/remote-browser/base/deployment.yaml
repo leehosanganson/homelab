@@ -26,88 +26,6 @@ spec:
           operator: Equal
           value: "true"
           effect: NoSchedule
-      initContainers:
-        - name: bootstrap-kasm-home
-          image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
-          command:
-            - /bin/bash
-            - -euo
-            - pipefail
-            - -c
-            - |
-              target=/mnt/kasm-home
-              legacy_profile=/mnt/legacy-profile/google-chrome
-              marker="$target/.kasm-home-bootstrap-complete"
-              marker_tmp="$target/.kasm-home-bootstrap-complete.tmp.$$"
-
-              if [[ "$(id -u)" != 1200 || "$(id -g)" != 1201 ]]; then
-                echo "Expected bootstrap identity UID 1200/GID 1201" >&2
-                exit 1
-              fi
-              if [[ ! -d "$target" || -L "$target" ]]; then
-                echo "Kasm home target is missing or is a symlink: $target" >&2
-                exit 1
-              fi
-              if [[ -e "$marker" || -L "$marker" ]]; then
-                if [[ -f "$marker" && ! -L "$marker" ]] &&
-                  cmp -s "$marker" <(printf '%s\n' "Bootstrapped from the image home and legacy Chrome profile."); then
-                  echo "Valid Kasm home bootstrap marker exists; leaving the home unchanged."
-                  exit 0
-                fi
-                echo "Kasm home bootstrap marker exists but is invalid; refusing to modify the home." >&2
-                exit 1
-              fi
-              if target_entries=$(find "$target" -mindepth 1 -maxdepth 1 -print -quit); then
-                :
-              else
-                find_status=$?
-                echo "Failed to scan Kasm home target (find exited $find_status); refusing to modify it." >&2
-                exit "$find_status"
-              fi
-              if [[ -n "$target_entries" ]]; then
-                echo "Kasm home is non-empty without a bootstrap marker; refusing to modify it." >&2
-                exit 1
-              fi
-              if [[ ! -d /home/kasm-default-profile || -L /home/kasm-default-profile || ! -d "$legacy_profile" || -L "$legacy_profile" ]]; then
-                echo "Kasm default profile or legacy Chrome profile is missing or invalid; refusing to bootstrap." >&2
-                exit 1
-              fi
-
-              umask 0002
-              cp -R --no-preserve=ownership /home/kasm-default-profile/. "$target/"
-              if [[ -L "$target/.config" ]]; then
-                rm -- "$target/.config"
-              fi
-              mkdir -p -- "$target/.config"
-              rm -rf -- "$target/.config/google-chrome"
-              mkdir -- "$target/.config/google-chrome"
-              cp -R --no-preserve=ownership "$legacy_profile/." "$target/.config/google-chrome/"
-              find "$target" -mindepth 1 \( -type d -o -type f \) -exec chmod g+rwX -- {} +
-
-              printf '%s\n' "Bootstrapped from the image home and legacy Chrome profile." > "$marker_tmp"
-              mv -- "$marker_tmp" "$marker"
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1200
-            runAsGroup: 1201
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 1
-              memory: 1Gi
-          volumeMounts:
-            - name: runner-profile
-              mountPath: /mnt/legacy-profile
-              readOnly: true
-            - name: kasm-home
-              mountPath: /mnt/kasm-home
       containers:
         - name: remote-browser
           image: kasmweb/chrome:1.19.0@sha256:f415301cf454daa6693962246b674a806158cd184ee70742b219133fa8117773
@@ -149,10 +67,6 @@ spec:
             - name: dri
               mountPath: /dev/dri
       volumes:
-        - name: runner-profile
-          persistentVolumeClaim:
-            claimName: chrome-runner-pvc
-            readOnly: true
         - name: kasm-home
           persistentVolumeClaim:
             claimName: kasm-home-pvc
