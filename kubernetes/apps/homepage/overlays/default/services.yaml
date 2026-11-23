@@ -150,10 +150,10 @@
         description: UK citizenship practice quiz
 
 - Gaming:
-    - Granblue Fantasy Remote Instance:
+    - Granblue Fantasy Remote Browser:
         icon: chrome.png
-        href: https://chrome-runner.homelab.leehosanganson.dev
-        description: Game streaming
+        href: https://remote-browser.homelab.leehosanganson.dev
+        description: Kasm remote desktop
 
 - Links:
     - YouTube:

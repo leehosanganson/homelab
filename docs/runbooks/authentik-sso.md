@@ -1,10 +1,10 @@
 # Homelab SSO: Authentik and Karakeep Pilot
 
-This runbook covers a staged Authentik installation and a later Karakeep OpenID Connect (OIDC) pilot. The first stage installs Authentik and verifies its database, application health, and backup before the PR is merged. The PR then makes the normal `infra-production` Flux reconciliation manage the same resources. This stage does **not** enable DNS, Ingress, or OIDC for Karakeep or another application.
+This runbook covers Authentik and a later Karakeep OpenID Connect (OIDC) pilot. Foundation PR #1235 is merged, and Flux manages Authentik. Its database, workloads, and backup were verified; initial administrator setup has not been completed. This branch is a separate follow-up that enables the Authentik chart Ingress and must pass review, merge, and Flux reconciliation before the Ingress procedure below applies. The Ingress is intended for LAN access at `https://authentik.homelab.leehosanganson.dev`, through the private Traefik load balancer (`192.168.1.250`), using the existing `letsencrypt-cloudflare` DNS-01 issuer. The issuer may create temporary challenge records. Do not manually create permanent DNS records or Cloudflare Tunnel routes. The external Tunnel route has not been verified, so do not claim that public access is blocked. Karakeep OIDC and other application authentication remain unchanged.
 
 ## Required Azure Key Vault values
 
-The Kubernetes manifests refer to these values in Azure Key Vault. They must exist before the manual first apply, but are not a prerequisite to merging the PR if no apply is being performed. Create values only through the approved secure Key Vault workflow; never commit them or send them in chat.
+The Kubernetes manifests refer to these values in Azure Key Vault. These values were required for the historical manual first apply described below. They are not instructions to repeat that apply or create new secret data for the current Ingress follow-up. Create or update values only through the approved secure Key Vault workflow; never commit them or send them in chat.
 
 | Azure Key Vault entry | Kubernetes secret/key | Purpose |
 |---|---|---|
@@ -18,7 +18,11 @@ Renew `authentik-blob-sas` before it expires; start the renewal well ahead of th
 
 The chart's bundled PostgreSQL is disabled; Authentik uses a separate CloudNativePG (CNPG) database.
 
-## Fresh first installation — before PR merge
+## Historical one-time fresh-install procedure — pre-merge
+
+**Do not repeat this procedure for the current deployment.** It records the one-time fresh-install steps used before foundation PR #1235 was merged. The database, workloads, and backup have already been verified, and Flux now manages Authentik. The procedure is retained for historical reference and for a genuinely separate fresh installation only.
+
+At the time of this procedure, Authentik Ingress was off. Use the loopback-only port-forward below for initial setup; do not use the LAN Ingress URL in this historical sequence.
 
 This sequence is only for a confirmed fresh installation with no Authentik database data to recover. Before apply, inspect for an existing Authentik Cluster or persistent volume claim and check the approved read-only backup inventory. If any prior Authentik database, PVC, or backup exists, or the data state is uncertain, stop and follow the [Cluster Recovery Phase 4 stop boundary](cluster-recovery.md#phase-4--cnpg-database-recovery). Do not apply the fresh-install overlay in that case.
 
@@ -38,11 +42,11 @@ This sequence is only for a confirmed fresh installation with no Authentik datab
    kubectl get pods -n authentik -w
    ```
    Confirm that the `authentik-db` cluster is initialized and healthy before proceeding. If the database or either application workload is not healthy, stop and diagnose it; do not merge yet.
-4. Start a loopback-only port-forward to the Authentik server Service:
+4. Start a loopback-only port-forward on a trusted workstation:
    ```bash
    kubectl port-forward --address 127.0.0.1 -n authentik svc/authentik-server 9000:80
    ```
-   On the same trusted workstation, open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash). Completing initial bootstrap administrator setup is an operator-controlled action. Only after the operator completes setup and tests sign-in may it be reported as verified. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check.
+   Open `http://127.0.0.1:9000/if/flow/initial-setup/` (retain the trailing slash) to complete initial setup. Keep the port-forward bound to `127.0.0.1`; do not expose it through a public route. Stop it with Ctrl-C after the check. Creating the bootstrap administrator is operator-controlled; report setup or sign-in as complete only after the operator performs and verifies it.
 5. Verify the database backup before merging. The `authentik-backup-schedule` ScheduledBackup is set for 03:00 UTC daily, but it has not produced an automatic backup yet. An on-demand CNPG Backup named `authentik-manual-initial-backup` completed successfully. Check the Backup resource phase:
    ```bash
    kubectl get backups.postgresql.cnpg.io -n authentik authentik-manual-initial-backup \
@@ -91,20 +95,38 @@ This sequence is only for a confirmed fresh installation with no Authentik datab
    EOF
    ```
    Then wait for its phase to become `completed` and repeat the read-only blob check. If the Backup name already exists, do not apply it again; verify that resource and its backup instead.
-6. Only after the database, server, worker, operator-controlled initial administrator setup (if completed), and full backup are verified, merge the PR through its normal review process. Do not claim administrator sign-in was verified unless the operator has completed that check. The PR adds the Authentik overlay to `infra-production`; after merge, Flux reconciles and manages the already-applied resources through that existing Kustomization. There is no separate Authentik Kustomization or Git adoption step.
+6. Before foundation PR #1235 was merged, its changes went through review and Flux then managed the already-applied resources through the existing `infra-production` Kustomization. There is no separate Authentik Kustomization or Git adoption step. This historical merge step is complete for the current deployment.
 
-Do not create DNS records, enable or expose the Authentik Ingress, or activate OIDC for any application during this stage. Keep Ingress disabled.
+## Ingress follow-up — after this branch is merged
+
+Do not perform these checks until the Ingress follow-up has passed review, merged, and Flux has reconciled it. No administrator account has been created; this procedure does not create one.
+
+1. Wait for the `infra-production` Flux Kustomization and Authentik HelmRelease to report Ready, and confirm the HelmRelease has reconciled the new values:
+   ```bash
+   kubectl get kustomizations.kustomize.toolkit.fluxcd.io infra-production -n flux-system
+   kubectl get helmreleases.helm.toolkit.fluxcd.io -n authentik
+   ```
+2. Inspect the Authentik Ingress. Confirm its host is `authentik.homelab.leehosanganson.dev`, its class is Traefik, and its TLS configuration uses `authentik-tls` and the existing DNS-01 issuer:
+   ```bash
+   kubectl get ingress -n authentik
+   kubectl describe ingress -n authentik
+   ```
+3. Wait for the `authentik-tls` certificate to report Ready:
+   ```bash
+   kubectl get certificates.cert-manager.io -n authentik
+   ```
+4. From a LAN client, open `https://authentik.homelab.leehosanganson.dev/if/flow/initial-setup/` (retain the trailing slash). Confirm HTTPS works and the initial-setup page/flow is reachable, then stop before creating an administrator account. Do not manually create permanent DNS records or Cloudflare Tunnel routes. The DNS-01 issuer may create temporary challenge records. The external Tunnel route has not been verified; do not claim that public access is blocked.
 
 ## Later Authentik configuration
 
-After the first-install checks and a separate decision to configure identity providers, use a loopback-only port-forward as above. Verify bootstrap administrator sign-in and recovery, and store recovery credentials safely outside Git. Then create the `homelab-allowlist` group. Keep the bootstrap administrator separate from social-login accounts and leave open enrollment disabled or invitation-only.
+After an operator completes initial administrator setup, and after a separate decision to configure identity providers, use the LAN URL above or the loopback-only port-forward as a fallback. Verify bootstrap administrator sign-in and recovery, and store recovery credentials safely outside Git. Then create the `homelab-allowlist` group. Keep the bootstrap administrator separate from social-login accounts and leave open enrollment disabled or invitation-only.
 
-Configure only approved Google or GitHub sources. A provider authenticates an identity; a group binding authorizes access. Add the owner's verified identity to `homelab-allowlist` only after confirming it in the admin UI. Authentik grants access to an Application when no binding is configured, so bind each Application to `homelab-allowlist` or a narrower service-specific group before allowing access. Test both an approved and a non-allowlisted identity. These steps are separate from the initial install and do not authorize DNS, Ingress, or application OIDC activation.
+Configure only approved Google or GitHub sources. A provider authenticates an identity; a group binding authorizes access. Add the owner's verified identity to `homelab-allowlist` only after confirming it in the admin UI. Authentik grants access to an Application when no binding is configured, so bind each Application to `homelab-allowlist` or a narrower service-specific group before allowing access. Test both an approved and a non-allowlisted identity. These steps are separate from the initial install and do not authorize permanent DNS changes, Cloudflare Tunnel route changes, or application OIDC activation.
 
 
 ## Karakeep native OIDC pilot (deferred activation)
 
-This change does not activate Karakeep OIDC or create DNS/Ingress for Authentik. Karakeep v0.35.0 enables its OAuth provider only when both `OAUTH_WELLKNOWN_URL` and `OAUTH_CLIENT_ID` are configured; its current configuration leaves the provider inactive and does not change password/signup policy. The client credentials cannot be created until Authentik is available and its Karakeep provider has been configured. A later app-specific change must add the Azure Key Vault references after those values exist. Before any separately reviewed OIDC activation, verify that the exact provider discovery URL returns valid OpenID metadata, the Karakeep server can reach the discovery document and advertised JWKS/token endpoints, and a user's browser can reach the advertised authorization endpoint and return to Karakeep's callback. Do not activate OIDC if Cloudflare Access or another protection layer blocks required server-to-server requests; a narrowly scoped supported access path requires its own design and review. Keep the Authentik Ingress disabled until that separate change is approved.
+This change does not activate Karakeep OIDC or change its authentication settings. The Ingress follow-up in this change is intended for LAN access as described above; use it only after merge and Flux reconciliation. The external Tunnel route remains unverified. Karakeep v0.35.0 enables its OAuth provider only when both `OAUTH_WELLKNOWN_URL` and `OAUTH_CLIENT_ID` are configured; its current configuration leaves the provider inactive and does not change password/signup policy. The client credentials cannot be created until Authentik is available and its Karakeep provider has been configured. A later app-specific change must add the Azure Key Vault references after those values exist. Before any separately reviewed OIDC activation, verify that the exact provider discovery URL returns valid OpenID metadata, the Karakeep server can reach the discovery document and advertised JWKS/token endpoints, and a user's browser can reach the advertised authorization endpoint and return to Karakeep's callback. Do not activate OIDC if Cloudflare Access or another protection layer blocks required server-to-server requests; a narrowly scoped supported access path requires its own design and review. Do not change the Authentik Ingress or Tunnel route as part of this Karakeep change.
 
 When ready to activate:
 
@@ -127,23 +149,22 @@ Karakeep's `DISABLE_SIGNUPS` setting disables signups generally, including OAuth
 
 ## Verification checklist
 
-### Before PR merge
+### Historical pre-merge fresh-install checks — foundation PR #1235 (already completed)
 
-- [ ] Required Authentik Key Vault values exist before the manual apply; no secret values appear in Git.
-- [ ] `kustomize build kubernetes/infra/authentik/overlays/default` and `kustomize build kubernetes/infra/overlays/production` succeed.
-- [ ] The chart uses external PostgreSQL, does not enable bundled PostgreSQL, and leaves Ingress disabled.
-- [ ] Rendered server and worker run non-root, disable privilege escalation, and drop all Linux capabilities.
-- [ ] The fresh `authentik-db` Cluster is initialized and healthy; Authentik server and worker are Ready.
-- [ ] The loopback-only port-forward reaches the local initial-setup page. Bootstrap administrator sign-in is verified only after the operator completes the initial setup and signs in.
-- [ ] The CNPG Backup resource reports phase `completed`, and the Azure blob listing shows base-backup contents (`backup.info` and `data.tar.gz`) for `authentik-db-backup`.
-- [ ] No DNS or Ingress was created or enabled, and no application OIDC integration was activated.
+These checks document the one-time install and are not acceptance checks for the current Ingress follow-up. Do not repeat the apply or setup sequence for the current deployment.
 
-### After PR merge
+- [x] The `authentik-db` Cluster was initialized and healthy; Authentik server and worker were Ready.
+- [x] The CNPG Backup completed, and the Azure blob listing showed base-backup contents (`backup.info` and `data.tar.gz`) for `authentik-db-backup`.
+- [ ] Initial administrator setup and sign-in are not complete; do not mark them verified.
 
-- [ ] `infra-production` is Ready and manages the Authentik resources already created from the same overlay; there is no separate Authentik Kustomization or adoption step.
-- [ ] Ingress remains disabled. No DNS or application OIDC configuration was activated.
-- [ ] A TLS certificate is not expected while Ingress remains disabled.
-- [ ] Later provider setup and application integrations follow a separate review and verify the intended allowlist policy.
+### Current Ingress follow-up checks — after this branch is merged
+
+- [ ] `infra-production` and the Authentik HelmRelease report Ready after Flux reconciliation.
+- [ ] The Ingress has host `authentik.homelab.leehosanganson.dev`, class Traefik, and TLS configured with `authentik-tls` and the existing DNS-01 issuer.
+- [ ] The `authentik-tls` certificate reports Ready.
+- [ ] A LAN client can use HTTPS to reach the initial-setup page/flow; no administrator account is created during this check.
+- [ ] No permanent DNS records or Cloudflare Tunnel routes were manually created. Temporary DNS-01 challenge records may be created by the issuer. The external Tunnel route remains unverified, so public access is not characterized as blocked.
+- [ ] No application OIDC integration was activated.
 
 ## Rollback
 

@@ -1,0 +1,14 @@
+desktop:
+  allow_resize: true
+
+runtime_configuration:
+  allow_client_to_override_kasm_server_settings: false
+
+user_session:
+  idle_timeout: never
+
+server:
+  auto_shutdown:
+    no_user_session_timeout: never
+    active_user_session_timeout: never
+    inactive_user_session_timeout: never
