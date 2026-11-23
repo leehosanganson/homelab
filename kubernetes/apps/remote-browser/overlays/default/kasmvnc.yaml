@@ -7,6 +7,11 @@ runtime_configuration:
 user_session:
   idle_timeout: never
 
+network:
+  ssl:
+    pem_certificate: ${HOME}/.vnc/self.pem
+    pem_key: ${HOME}/.vnc/self.pem
+
 server:
   auto_shutdown:
     no_user_session_timeout: never

@@ -34,6 +34,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - name: Run remote-browser home bootstrap tests
+        run: python3 -m unittest discover -s kubernetes/apps/remote-browser/tests -p 'test_*.py'
+
       - name: Install kustomize and kubeconform
         run: |
           mkdir -p "$HOME/.local/bin"
