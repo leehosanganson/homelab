@@ -12,7 +12,7 @@ configMapGenerator:
       - config.yaml
   - name: litellm-env
     envs:
-      - metrics.env
+      - config.env
 
 generatorOptions:
   disableNameSuffixHash: true
