@@ -31,7 +31,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/haproxy-1
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -42,7 +41,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/haproxy-2
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -53,7 +51,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/haproxy-3
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -64,7 +61,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/pihole-1
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -75,7 +71,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/pihole-2
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -86,7 +81,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-ctrl-01
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -97,7 +91,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-ctrl-02
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -108,7 +101,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-ctrl-04
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -119,7 +111,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-work-01
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -130,7 +121,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-work-02
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -141,7 +131,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-work-03
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -151,7 +140,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/k3s-work-04
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -164,7 +152,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/matter-server
-        ./modules/auto-upgrade.nix
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ];
@@ -175,7 +162,6 @@
       specialArgs = { inherit inputs; inherit sops-secrets; };
       modules = [
         ./hosts/hermes-agent
-        ./modules/auto-upgrade.nix
         hermes-agent.nixosModules.default
         disko.nixosModules.disko
         sops-nix.nixosModules.sops

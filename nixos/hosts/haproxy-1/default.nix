@@ -2,6 +2,7 @@
   imports = [
     ../../modules/users.nix
     ../../modules/haproxy.nix
+    ../../modules/auto-upgrade.nix
     ../../modules/disko.nix
     ../../modules/sops-bootstrap.nix
   ];
