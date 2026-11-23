@@ -28,5 +28,6 @@
   homelab.technitium = {
     clusterPeerIPs = [ "192.168.1.211" ];
     clusterDomain = "technitium-cluster.infra.leehosanganson.dev";
+    reconciliation.enable = true;
   };
 }

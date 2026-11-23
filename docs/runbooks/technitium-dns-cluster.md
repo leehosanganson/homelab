@@ -122,17 +122,20 @@ desired A record is disabled, or duplicate exact desired records make the
 current state ambiguous. Enable the zone or record, or remove duplicate records
 in Technitium, then let the timer retry.
 
-## API credential setup
+## Enabled configuration and deployment gate
 
-The reconciliation option is disabled by default and is not enabled on either
-host until its external credential is configured. The credential value is not
-stored in this repository or Nix. It is read at runtime from the external SOPS
-secrets file configured for each host. Before enabling reconciliation for a
-host, add the SOPS key `technitium-api-token` to the external `secrets.yaml`
-used by the NixOS flake, then set
-`homelab.technitium.reconciliation.enable = true;` in that host's NixOS
-configuration. The value must be a Technitium API token, not an administrator
-password. Do not put its value in a tracked file, Nix option, command argument,
+`homelab.technitium.reconciliation.enable` is set to `true` in both host
+configurations. Building those configurations does not activate them. Until a
+gated NixOS deployment activates a host, its reconciler service and timer do
+not run. Activation enables a timer that can write the declared block-list,
+zone-membership, and DNS-record state, so treat deployment as a write operation.
+Do not activate either host until the deployment gate below is satisfied.
+
+The SOPS key `technitium-api-token` is present in the secrets source pinned by
+`nixos/flake.lock`. The credential value is not stored in this repository or
+Nix. It is read at runtime from that external SOPS file. Keep it as a
+Technitium API token for a dedicated account, not an administrator password.
+Do not put its value in a tracked file, Nix option, command argument,
 environment variable, or URL.
 
 Create the token through Technitium for a dedicated account with only the
@@ -144,13 +147,24 @@ is sent only in the HTTP `Authorization: Bearer` header. Systemd's
 credential directory; the program does not print it or include it in request
 URLs.
 
-The reconciler is safe to retry. It stays inactive until the SOPS key and
-`reconciliation.enable` option are both configured. If cluster, settings, zone, or record checks fail during read-only preflight,
-the run makes no changes. An invalid token or API outage at that stage also
-fails before writes. A later connection or permission failure can occur after
-an earlier API write; the timer retries, and each operation converges without
-duplicating exact existing records. Successful runs only add or adjust the
-desired settings, catalog membership, and missing records.
+The reconciler is safe to retry. If cluster, settings, zone, or record checks
+fail during read-only preflight, the run makes no changes. An invalid token or
+API outage at that stage also fails before writes. A later connection or
+permission failure can occur after an earlier API write; the timer retries,
+and each operation converges without duplicating exact existing records.
+Successful runs only add or adjust the desired settings, catalog membership,
+and missing records.
+
+### Deployment gate
+
+Before activating either enabled host configuration, repeat a read-only
+preflight against the exact cluster domain and verify the intended primary,
+connected secondary, required API permissions, and current desired-zone state.
+Confirm that the token works on both nodes and that no conflicting or disabled
+zones or desired records block safe reconciliation. Then evaluate and build
+both host configurations. Only a separately authorized NixOS activation starts
+the timer and allows reconciliation writes; do not run activation as part of
+these build-only checks.
 
 ## Verification
 
