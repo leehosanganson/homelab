@@ -1,9 +1,13 @@
+- greeting:
+    text: Homelab Service Directory
+    text_size: 2xl
+
 - search:
     provider: google
     target: _blank
 
 - datetime:
-    text_size: xl
+    text_size: sm
     format:
       dateStyle: short
       timeStyle: short
