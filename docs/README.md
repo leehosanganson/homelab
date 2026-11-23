@@ -16,6 +16,7 @@ Then any staged `.dot` file is automatically re-rendered to SVG on commit. Requi
 
 ## Runbooks
 
+- [runbooks/authentik-service-onboarding.md](runbooks/authentik-service-onboarding.md) — Onboarding services with native OIDC or Traefik Forward auth
 - [runbooks/homelab-shutdown-startup.md](runbooks/homelab-shutdown-startup.md) — Whole-homelab planned shutdown and startup sequence with live-state safety gates
 - [runbooks/cluster-recovery.md](runbooks/cluster-recovery.md) — Full-cluster recovery flow (Flux bootstrap, Velero restore, CNPG recovery)
 - [runbooks/cluster-migration-k3s-to-talos.md](runbooks/cluster-migration-k3s-to-talos.md) — End-to-end migration flow from K3s to Talos (preflight, restore, cutover, rollback)
