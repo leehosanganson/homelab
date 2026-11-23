@@ -3,6 +3,7 @@
     ../../modules/users.nix
     ../../modules/hardening.nix
     ../../modules/technitium.nix
+    ../../modules/auto-upgrade.nix
     ../../modules/disko.nix
     ../../modules/sops-bootstrap.nix
   ];
