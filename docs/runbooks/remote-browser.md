@@ -78,13 +78,15 @@ privilege escalation blocked and all Linux capabilities dropped.
 Use the Kasm login page through the HTTPS ingress. Keep this hostname behind a
 private network boundary and retain Kasm authentication; private DNS by itself
 does not prove that the service is private or protected from public routing.
-The ingress terminates the repository's cert-manager TLS certificate and uses
-HTTPS to the KasmVNC service. The backend transport skips certificate
-verification because the upstream container uses its own self-signed
-certificate. This tradeoff is limited to the in-cluster backend hop; it does
-not validate the Kasm certificate. The ingress forwards `/` and all child
-paths without rewrites to port 6901, which carries the Kasm UI and WebSocket
-endpoint. Traefik supports WebSocket upgrades through this same HTTPS service
+The ingress terminates the repository's cert-manager TLS certificate and
+routes to the KasmVNC Service. The Service carries Traefik's backend HTTPS
+scheme and ServersTransport annotations; Traefik reads these backend settings
+from Service metadata, not from the Ingress. The backend transport skips
+certificate verification because the upstream container uses its own
+self-signed certificate. This tradeoff is limited to the in-cluster backend
+hop; it does not validate the Kasm certificate. The ingress forwards `/` and
+all child paths without rewrites to port 6901, which carries the Kasm UI and
+WebSocket endpoint. Traefik supports WebSocket upgrades through this same HTTPS service
 route.
 
 KasmVNC allows the desktop to change resolution with the browser window,
