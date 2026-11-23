@@ -9,6 +9,15 @@ import unittest
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
 DEPLOYMENT = REPOSITORY_ROOT / "kubernetes/apps/remote-browser/base/deployment.yaml"
+SERVICE = REPOSITORY_ROOT / "kubernetes/apps/remote-browser/base/service.yaml"
+INGRESS = REPOSITORY_ROOT / "kubernetes/apps/remote-browser/base/ingress.yaml"
+
+
+def metadata_annotations(manifest):
+    metadata = manifest.split("\nmetadata:\n", 1)[1].split("\nspec:\n", 1)[0]
+    if "\n  annotations:\n" not in metadata:
+        return ""
+    return metadata.split("\n  annotations:\n", 1)[1]
 
 
 def bootstrap_script():
@@ -235,6 +244,24 @@ class HomeBootstrapTest(unittest.TestCase):
                 self.assertIn("marker exists but is invalid", result.stderr)
                 self.assertEqual(tree_digest(self.target), before_rejection)
                 self.assert_sources_unchanged()
+
+    def test_backend_transport_annotations_are_on_service_not_ingress(self):
+        service_annotations = metadata_annotations(SERVICE.read_text())
+        ingress_annotations = metadata_annotations(INGRESS.read_text())
+
+        for annotation in (
+            "traefik.ingress.kubernetes.io/service.serversscheme: https",
+            "traefik.ingress.kubernetes.io/service.serverstransport: "
+            "remote-browser-kasmvnc@kubernetescrd",
+        ):
+            with self.subTest(annotation=annotation):
+                self.assertIn(annotation, service_annotations)
+                self.assertNotIn(annotation, ingress_annotations)
+
+        self.assertIn(
+            "cert-manager.io/cluster-issuer: letsencrypt-cloudflare",
+            ingress_annotations,
+        )
 
     def test_kasmvnc_tls_paths_match_mounted_home(self):
         config = (

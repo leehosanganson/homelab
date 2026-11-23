@@ -2,6 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: remote-browser
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: remote-browser-kasmvnc@kubernetescrd
 spec:
   selector:
     app.kubernetes.io/name: remote-browser
