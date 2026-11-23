@@ -22,7 +22,7 @@ spec:
             - name: n8n-pvc
               mountPath: /data
       containers:
-        - image: n8nio/n8n:2.46.0@sha256:0a0e0640806e9426ab9c1498186175332810551b28129b5cfcd36060a9623f32
+        - image: n8nio/n8n:3.3.0@sha256:e06707c78ef5adb302b47909f8fee5caf8d389a7e5f3f0e03165214f6178565e
           name: n8n
           ports:
             - containerPort: 5678

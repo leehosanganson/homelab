@@ -72,7 +72,7 @@ Containers must not run as root; a `securityContext` block is required on every 
 NixOS VMs are provisioned and configured using a fully declarative, two-layer IaC approach.
 
 - **Layer 1 — VM Lifecycle (OpenTofu)**: OpenTofu manages VM hardware boundaries only (CPU, memory, disk, network).
-- **Layer 2 — OS & Configuration (NixOS)**: NixOS configuration lives in `nixos/`. All host provisioning and updates must go through `nixos-anywhere` + `disko`; never configure the OS manually.
+- **Layer 2 — OS & Configuration (NixOS)**: NixOS configuration lives in `nixos/`. Use `nixos-anywhere` + `disko` only for initial installation or reinstallation. For updates to already-installed hosts, follow the [NixOS configuration runbook](docs/runbooks/iac-nixos-configurations.md#2-rebuilding) and use `nixos/scripts/rebuild.sh` (`nixos-rebuild --target-host`). Never configure the OS manually.
 - **Secrets**: SSH host keys for sops-nix must be pre-generated and placed under `nixos/scripts/keys/<hostname>/etc/ssh/` (gitignored) before provisioning.
 - **Installer ISO**: The installer ISO must be built from the flake (`nix build .#packages.x86_64-linux.installer` in `nixos/`) and uploaded to Proxmox before running OpenTofu. The ISO path is referenced as `nixos_iso` in `terraform.tfvars`.
 
