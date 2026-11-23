@@ -30,6 +30,8 @@ spec:
               readOnly: true
             - name: prometheus-multiproc
               mountPath: /tmp/prometheus-multiproc
+            - name: chatgpt-tokens
+              mountPath: /tokens/chatgpt
           envFrom:
             - configMapRef:
                 name: litellm-env
@@ -64,3 +66,6 @@ spec:
             name: litellm-config
         - name: prometheus-multiproc
           emptyDir: {}
+        - name: chatgpt-tokens
+          persistentVolumeClaim:
+            claimName: litellm-chatgpt-tokens-pvc
