@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mini-qr-outpost
+spec:
+  ingressClassName: traefik
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`qr.homelab.leehosanganson.dev`) && PathPrefix(`/outpost.goauthentik.io/`)
+      priority: 100
+      services:
+        - name: authentik-server
+          port: 80
+  tls: {}
