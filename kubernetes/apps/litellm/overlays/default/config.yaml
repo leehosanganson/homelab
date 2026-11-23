@@ -1,3 +1,10 @@
+model_list:
+  - model_name: chatgpt/gpt-6.1-sol
+    model_info:
+      mode: responses
+    litellm_params:
+      model: chatgpt/gpt-6.1-sol
+
 general_settings:
   disable_env_credential_login: true
 litellm_settings:
