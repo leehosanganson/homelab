@@ -26,17 +26,21 @@ kubectl get deployments -A -l app.kubernetes.io/name=cloudnative-pg -o wide
 kubectl get clusters.postgresql.cnpg.io -A
 ```
 
-**STOP** if you cannot confirm the intended context, a healthy operator, its version, or the target clusters. Use the steps below only for [CNPG 1.27](https://cloudnative-pg.io/docs/1.27/declarative_hibernation/); for another version, use its approved procedure. Leave already hibernated clusters alone. Pause writes to each remaining target and record its namespace and name for startup. Replace the placeholders and run these commands for each target:
+**STOP** if you cannot confirm the intended context, a healthy operator, its version, or the target clusters. Use the steps below only for [CNPG 1.27](https://cloudnative-pg.io/docs/1.27/declarative_hibernation/); for another version, use its approved procedure.
+
+Run `kubectl cnpg version`. **STOP** if the plugin is unavailable or you cannot confirm it is compatible with the live operator (same version or newer).
+
+Leave already hibernated clusters alone. Pause writes to each remaining target and record its namespace and name for startup. Replace the placeholders and run these commands for each target:
 
 ```sh
 NS='<namespace>'
 CLUSTER='<cluster-name>'
-kubectl -n "$NS" annotate clusters.postgresql.cnpg.io "$CLUSTER" --overwrite cnpg.io/hibernation=on
-kubectl -n "$NS" get clusters.postgresql.cnpg.io "$CLUSTER" -o jsonpath='{.status.conditions[?(@.type=="cnpg.io/hibernation")]}{"\n"}'
+kubectl cnpg -n "$NS" hibernate on "$CLUSTER"
+kubectl cnpg -n "$NS" status "$CLUSTER"
 kubectl -n "$NS" get pods,pvc -l "cnpg.io/cluster=$CLUSTER"
 ```
 
-Repeat the checks until the condition shows `status: True` and `reason: Hibernated`, no instance pods remain, and the expected PVCs are still present. **STOP** if any target does not reach this state.
+Repeat the checks until `kubectl cnpg status` reports `Hibernated`, no instance pods remain, and the expected PVCs are still present. **STOP** if any target does not reach this state.
 
 Follow the approved K3s/etcd shutdown order when taking down the K3s guests.
 
@@ -99,11 +103,14 @@ Confirm K3s workload storage is available, then start K3s servers as needed in t
 
 Once K3s is back, Flux reconciles the desired state from Git. Let it run normally instead of bringing individual services back by hand.
 
-Once the CNPG operator and database storage are ready, rehydrate only the clusters hibernated for this outage. Recheck the context, operator version, and recorded targets as in shutdown. For CNPG 1.27, set `NS` and `CLUSTER` to the verified values for each target, then run:
+Once the CNPG operator and database storage are ready, rehydrate only the clusters hibernated for this outage. Recheck the context, live operator version, plugin compatibility, and recorded targets as in shutdown. For CNPG 1.27, set `NS` and `CLUSTER` to the verified values for each target, then run:
 
 ```sh
-kubectl -n "$NS" annotate clusters.postgresql.cnpg.io "$CLUSTER" --overwrite cnpg.io/hibernation=off
+kubectl cnpg -n "$NS" hibernate off "$CLUSTER"
+kubectl cnpg -n "$NS" status "$CLUSTER"
 ```
+
+Repeat the status check until each rehydrated cluster reports `Cluster in healthy state` and all expected instances are ready. **STOP** if any target does not recover.
 
 ```sh
 kubectl get nodes
