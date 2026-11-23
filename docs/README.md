@@ -19,6 +19,8 @@ Then any staged `.dot` file is automatically re-rendered to SVG on commit. Requi
 - [runbooks/cluster-recovery.md](runbooks/cluster-recovery.md) — Full-cluster recovery flow (Flux bootstrap, Velero restore, CNPG recovery)
 - [runbooks/cluster-migration-k3s-to-talos.md](runbooks/cluster-migration-k3s-to-talos.md) — End-to-end migration flow from K3s to Talos (preflight, restore, cutover, rollback)
 - [runbooks/workflows-testing-validation.md](runbooks/workflows-testing-validation.md) — Testing & Validation procedures for PR branches in-cluster via FluxCD
+- [runbooks/authentik-sso.md](runbooks/authentik-sso.md) — Authentik sign-in, first administrator setup, backup verification, and access management
+- [runbooks/mini-qr-forward-auth-rollback.md](runbooks/mini-qr-forward-auth-rollback.md) — Take the Mini QR ForwardAuth pilot offline without restoring unauthenticated access
 - [runbooks/remote-browser.md](runbooks/remote-browser.md) — Remote browser profile cutover, access, and rollback
 - [runbooks/iac-terraform-opentofu-provisioning.md](runbooks/iac-terraform-opentofu-provisioning.md) — Terraform/OpenTofu provisioning of NixOS VMs on Proxmox
 - [runbooks/iac-nixos-configurations.md](runbooks/iac-nixos-configurations.md) — NixOS configurations, provisioning and rebuilding VMs
