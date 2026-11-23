@@ -93,16 +93,16 @@ Names, VM IDs, and PVE placements below come from [`terraform/terraform.tfvars`]
 
 Use the following blank table as the **live** inventory; complete it rather than assuming the repository list is complete:
 
-| System / guest                         | Live host / role | Depends on / serves | Shutdown method and source | Startup method and source | Confirmed |
-| -------------------------------------- | ---------------- | ------------------- | -------------------------- | ------------------------- | --------- |
-| Network, router, switches, access path |                  |                     |                            |                           |           |
-| DNS resolvers                          |                  |                     |                            |                           |           |
-| NAS / storage                          |                  |                     |                            |                           |           |
-| PVE nodes / cluster services           |                  |                     |                            |                           |           |
-| HAProxy guests / VIP                   |                  |                     |                            |                           |           |
-| K3s servers and agents                 |                  |                     |                            |                           |           |
-| CNPG databases and applications        |                  |                     |                            |                           |           |
-| Other guests / physical systems / UPS  |                  |                     |                            |                           |           |
+| System / guest | Live host / role | Depends on / serves | Shutdown method and source | Startup method and source | Confirmed |
+| --- | --- | --- | --- | --- | --- |
+| Network, router, switches, access path |  |  |  |  |  |
+| DNS resolvers |  |  |  |  |  |
+| NAS / storage |  |  |  |  |  |
+| PVE nodes / cluster services |  |  |  |  |  |
+| HAProxy guests / VIP |  |  |  |  |  |
+| K3s servers and agents |  |  |  |  |  |
+| CNPG databases and applications |  |  |  |  |  |
+| Other guests / physical systems / UPS |  |  |  |  |  |
 
 **Preflight go/no-go:** proceed only with a complete live inventory, verified dependency procedures, operator-approved backups, and all health/quorum/storage/HA gates passed. **STOP** on any unknown, unhealthy, or unexpected state.
 
