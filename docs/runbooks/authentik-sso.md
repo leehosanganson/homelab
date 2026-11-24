@@ -4,6 +4,8 @@ Use the configured HTTPS Ingress for all Authentik single sign-on (SSO) access i
 
 ## Existing installation: sign in and troubleshoot HTTPS
 
+Flux manages the existing installation. The foundation and Ingress rollouts verified the database, workloads, backup, TLS certificate, and HTTPS setup page at the time. The operator reported completing initial administrator setup, but administrator sign-in and recovery have not been independently verified. Recheck current state before changing access.
+
 1. Confirm the Kubernetes context with `kubectl config current-context`. From a trusted local network (LAN) client, confirm the hostname resolves to the expected LAN Traefik load balancer. Open `https://<authentik-host>/` and verify that the regular sign-in page loads with a trusted certificate for that hostname. Do not bypass certificate validation.
 2. If the page does not load, inspect the matching layer before changing anything:
    - **Missing Ingress or wrong routing:** Check that `infra-production` and the `authentik` HelmRelease are Ready. Check the Ingress host, class, TLS secret, issuer annotation, and backend. If the backend returns an error, check the server pods and whether the Ingress backend Service has ready endpoints.
