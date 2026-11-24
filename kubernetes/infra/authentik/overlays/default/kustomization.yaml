@@ -2,7 +2,6 @@ namespace: authentik
 
 resources:
   - ../../base
-  - ingressroute.yaml
   - secrets.yaml
 
 configMapGenerator:

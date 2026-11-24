@@ -68,6 +68,7 @@ jobs:
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/mini-qr/overlays/authentik/callback -o /tmp/bundle/mini-qr-callback.yaml
 
       - name: Validate rendered manifests with kubeconform
         run: |
@@ -89,3 +90,7 @@ jobs:
               -skip "$KUBECONFORM_SKIP" \
               "$f" || exit 1
           done
+
+          kubeconform -strict -summary \
+            -schema-location "$KUBECONFORM_SCHEMA_LOCATION" \
+            /tmp/bundle/mini-qr-callback.yaml

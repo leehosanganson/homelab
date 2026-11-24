@@ -25,6 +25,7 @@ resources:
   - ../../syncthing/overlays/default
   - ../../portfolio/overlays/default
   - ../../mini-qr/overlays/default
+  - ../../mini-qr/overlays/authentik
   - ../../remote-browser/overlays/default
 
 labels:
