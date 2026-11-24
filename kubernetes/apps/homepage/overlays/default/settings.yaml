@@ -1,94 +1,68 @@
-title: Homelab
+title: Homelab Service Directory
+description: Launch private homelab services, public apps, and infrastructure consoles.
 theme: dark
-color: slate
+color: stone
 headerStyle: clean
-cardBlur: md
 target: _blank
 hideVersion: true
 useEqualHeights: true
 layout:
-  Main Dashboard:
-    tab: Main
-  DevOps & Infra:
-    tab: Infra
-  Monitoring & Health:
-    tab: Monitoring
-
-  Automation:
-    tab: Main
+  Daily:
+    tab: Apps
     style: row
-    columns: 1
+    columns: 4
   Reading & Research:
-    tab: Main
+    tab: Apps
     style: row
-    columns: 5
-  Personal & Projects:
-    tab: Main
+    columns: 3
+  Utilities & Learning:
+    tab: Apps
     style: row
-    columns: 4
-  Utilities:
-    tab: Main
-    style: row
-    columns: 1
-  Learning:
-    tab: Main
-    style: row
-    columns: 1
-  Gaming:
-    tab: Main
-    style: row
-    columns: 1
-  Links:
-    tab: Main
-    style: row
-    columns: 1
-  Home:
-    tab: Main
+    columns: 3
+
+  Watch & Play:
+    tab: Media
     style: row
     columns: 4
-  Dev:
-    tab: Main
-    style: row
-    columns: 4
-  Entertainment:
-    tab: Main
-    style: row
-    columns: 2
   Music:
-    tab: Main
+    tab: Media
     style: row
     columns: 4
-  Downloads:
-    tab: Main
+  Library Automation:
+    tab: Media
     style: row
-    columns: 5
-  AI:
-    tab: Main
-    style: row
-    columns: 2
+    columns: 3
 
-  Cloud:
-    tab: Infra
+  AI Workbench:
+    tab: Studio
     style: row
     columns: 3
-  Networking:
-    tab: Infra
+  Build & Automate:
+    tab: Studio
     style: row
     columns: 3
-  Virtual Machines:
-    tab: Infra
+  Personal & Projects:
+    tab: Studio
     style: row
-    columns: 3
-  Infrastructure:
-    tab: Infra
-    style: row
-    columns: 2
-  Storage:
-    tab: Infra
-    style: row
-    columns: 2
+    columns: 4
 
-  Monitoring:
-    tab: Monitoring
+  Health & Logs:
+    tab: Infrastructure
     style: row
     columns: 3
+  Identity & Storage:
+    tab: Infrastructure
+    style: row
+    columns: 3
+  DNS:
+    tab: Infrastructure
+    style: row
+    columns: 4
+  Virtualization & Network:
+    tab: Infrastructure
+    style: row
+    columns: 4
+  Cloud Consoles:
+    tab: Infrastructure
+    style: row
+    columns: 4
