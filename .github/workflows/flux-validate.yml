@@ -57,7 +57,12 @@ jobs:
           find kubernetes fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
             dir=$(dirname "$f")
             echo "Linting $dir ..."
-            kustomize build --load-restrictor LoadRestrictionsRootOnly "$dir" > /dev/null || exit 1
+            restrictor=LoadRestrictionsRootOnly
+            # Match Flux for the apps aggregate, which loads a sibling manifest directly.
+            if [ "$dir" = kubernetes/apps/overlays/production ]; then
+              restrictor=LoadRestrictionsNone
+            fi
+            kustomize build --load-restrictor "$restrictor" "$dir" > /dev/null || exit 1
           done
 
       - name: Render production overlays
@@ -65,10 +70,10 @@ jobs:
           set -e
           export PATH="$HOME/.local/bin:$PATH"
           mkdir -p /tmp/bundle
-          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsNone kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
-          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/mini-qr/overlays/authentik/callback -o /tmp/bundle/mini-qr-callback.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/mini-qr/overlays/default/authentik/callback -o /tmp/bundle/mini-qr-callback.yaml
 
       - name: Validate rendered manifests with kubeconform
         run: |
