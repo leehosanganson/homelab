@@ -1,72 +1,71 @@
-- Home:
+# Audit the grouped cards as YAML against the rendered apps, infra, and monitoring
+# production overlays, including HelmRelease values from their referenced default overlays.
+# Use terraform/terraform.tfvars for host roles, not URLs. Confirm browser endpoints
+# against HAProxy, DNS, and host config as applicable; LAN DNS does not prove isolation.
+- Daily:
     - Home Assistant:
         icon: home-assistant.png
         href: https://home-assistant.homelab.leehosanganson.dev
-        description: Home automation
+        description: Private / Home automation
     - Actual Budget:
         icon: actual-budget.png
         href: https://actual-budget.homelab.leehosanganson.dev
-        description: Personal finance manager
+        description: Private / Personal finance manager
+        siteMonitor: http://actual-budget.actual-budget.svc.cluster.local/health
     - Paperless-ngx:
         icon: paperless.png
         href: https://paperless.homelab.leehosanganson.dev
-        description: Document management
+        description: Private / Document management
     - Immich:
         icon: immich.png
         href: https://immich.homelab.leehosanganson.dev
-        description: Photos management
-
-- Automation:
-    - N8N:
-        icon: n8n.png
-        href: https://n8n.homelab.leehosanganson.dev
-        description: Workflow automation
+        description: Private / Photo library
+        siteMonitor: http://immich-server.immich.svc.cluster.local:2283/api/server/ping
 
 - Reading & Research:
     - Commafeed:
         icon: commafeed.png
         href: https://commafeed.leehosanganson.dev
-        description: RSS feed reader
+        description: Public route / RSS feed reader
     - Karakeep:
         icon: karakeep.png
         href: https://karakeep.leehosanganson.dev
-        description: Bookmark manager
+        description: Public route / Bookmark manager
+        siteMonitor: http://web.karakeep.svc.cluster.local:3000/api/health
     - Grimmory:
         icon: mdi-book-open-page-variant
         href: https://grimmory.leehosanganson.dev
-        description: Digital library
-    - Zotero WebDAV:
-        icon: zotero.png
-        href: https://zotero.leehosanganson.dev
-        description: Zotero file storage
+        description: Public route / Digital library
+        siteMonitor: http://grimmory.grimmory.svc.cluster.local:6060/api/v1/healthcheck
     - SearXNG:
         icon: searxng.png
         href: https://searxng.homelab.leehosanganson.dev
-        description: Privacy-respecting search engine
+        description: Private / Privacy-respecting search engine
+        siteMonitor: http://searxng.searxng.svc.cluster.local:8080/healthz
+    - Zotero WebDAV:
+        icon: zotero.png
+        href: https://zotero.leehosanganson.dev
+        description: Public route / Zotero file storage
 
-- Dev:
-    - Coder:
-        icon: coder.png
-        href: https://coder.homelab.leehosanganson.dev
-        description: Cloud development environments
-    - Harbor:
-        icon: harbor.png
-        href: https://harbor.leehosanganson.dev/harbor/projects
-        description: Container registry
+- Utilities & Learning:
+    - Mini-QR:
+        icon: mdi-qr-code
+        href: https://qr.homelab.leehosanganson.dev
+        description: Private / QR code generator
     - IT Tools:
         icon: it-tools.png
         href: https://it-tools.leehosanganson.dev
-        description: Developer tools
-    - Termix:
-        icon: terminal.png
-        href: https://termix.homelab.leehosanganson.dev
-        description: Web terminal
+        description: Public route / Developer tools
+    - Life-in-the-UK Quiz:
+        icon: mdi-school
+        href: https://life-in-the-uk-quiz.leehosanganson.dev
+        description: Public route / UK citizenship practice quiz
 
-- Entertainment:
+- Watch & Play:
     - Jellyfin:
         icon: jellyfin.png
         href: https://jellyfin.homelab.leehosanganson.dev
-        description: Media server
+        description: Private / Media server
         widget:
           type: jellyfin
           url: https://jellyfin.homelab.leehosanganson.dev
@@ -77,21 +76,30 @@
     - Jellyseerr:
         icon: jellyseerr.png
         href: https://jellyseerr.homelab.leehosanganson.dev
-        description: Media request management
+        description: Private / Media request management
         widget:
           type: seerr
           url: https://jellyseerr.homelab.leehosanganson.dev
           key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
+    - Granblue Fantasy Remote Browser:
+        icon: chrome.png
+        href: https://remote-browser.homelab.leehosanganson.dev
+        description: LAN route / Kasm remote desktop
+    - YouTube:
+        icon: mdi-youtube
+        href: https://www.youtube.com/
+        description: External / YouTube
 
 - Music:
     - Navidrome:
         icon: navidrome.png
         href: https://navidrome.leehosanganson.dev
-        description: Music streaming
+        description: Public route / Music streaming
+        siteMonitor: http://navidrome.navidrome.svc.cluster.local:4533/ping
     - Lidarr:
         icon: lidarr.png
         href: https://lidarr.homelab.leehosanganson.dev
-        description: Music management
+        description: Private / Music management
         widget:
           type: lidarr
           url: https://lidarr.homelab.leehosanganson.dev
@@ -99,159 +107,18 @@
     - LRCGet:
         icon: lrcget.png
         href: https://lrcget.homelab.leehosanganson.dev
-        description: Lyrics downloader
+        description: Private / Lyrics downloader
     - Slskd:
         icon: slskd.png
         href: https://slskd.homelab.leehosanganson.dev
-        description: Soulseek client
+        description: Private / Soulseek client
+        siteMonitor: http://download-clients.media.svc.cluster.local:5030/health
 
-- Cloud:
-    - Azure Portal:
-        icon: mdi-microsoft-azure
-        href: https://portal.azure.com/#home
-        description: Azure portal home
-    - Azure Blob Storage:
-        icon: mdi-microsoft-azure
-        href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
-        description: Homelab backup blob storage
-    - Azure Key Vault:
-        icon: mdi-microsoft-azure
-        href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
-        description: Kubernetes secrets vault
-
-- Personal & Projects:
-    - GitHub:
-        icon: mdi-github
-        href: https://github.com/leehosanganson
-        description: Personal GitHub profile
-    - Side Project:
-        icon: mdi-source-repository-multiple
-        href: https://github.com/users/leehosanganson/projects/15/views/1
-        description: Side project board
-    - Homelab Project:
-        icon: mdi-home-city
-        href: https://github.com/users/leehosanganson/projects/14
-        description: Homelab project board
-    - Portfolio:
-        icon: mdi-briefcase
-        href: https://leehosanganson.dev
-        description: Personal portfolio site
-
-- Utilities:
-    - Mini-QR:
-        icon: mdi-qr-code
-        href: https://qr.homelab.leehosanganson.dev
-        description: QR code generator
-
-- Learning:
-    - Life-in-the-UK Quiz:
-        icon: mdi-school
-        href: https://life-in-the-uk-quiz.leehosanganson.dev
-        description: UK citizenship practice quiz
-
-- Gaming:
-    - Granblue Fantasy Remote Browser:
-        icon: chrome.png
-        href: https://remote-browser.homelab.leehosanganson.dev
-        description: Kasm remote desktop
-
-- Links:
-    - YouTube:
-        icon: mdi-youtube
-        href: https://www.youtube.com/
-        description: YouTube
-
-- Monitoring:
-    - Grafana Dashboards:
-        icon: grafana.png
-        href: https://grafana.homelab.leehosanganson.dev/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=prometheus&var-cluster=&var-resolution=30s&var-job=kubernetes-service-endpoints&refresh=auto
-        description: Cluster Dashboard
-    - Grafana Logs:
-        icon: grafana.png
-        href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
-        description: Logs
-    - Uptime Kuma:
-        icon: uptime-kuma.png
-        href: https://uptime-kuma.homelab.leehosanganson.dev
-        description: Uptime monitoring for homelab services
-        widget:
-          type: uptimekuma
-          url: https://uptime-kuma.homelab.leehosanganson.dev
-          slug: public
-    - Garage UI:
-        icon: garage.png
-        href: https://garage-ui.homelab.leehosanganson.dev
-        description: Manage Loki's S3 object storage
-
-- Networking:
-    - Cloudflare:
-        icon: cloudflare.png
-        href: https://dash.cloudflare.com
-        description: Cloudflare DNS/CDN
-    - UniFi:
-        icon: ubiquiti.png
-        href: http://unifi.ui.com
-        description: UniFi Network controller
-        widget:
-          type: unifi
-          url: https://192.168.1.1
-          key: "{{HOMEPAGE_VAR_UNIFI_API_KEY}}"
-    - Pi-hole 1:
-        icon: pi-hole.png
-        href: https://pihole-1.infra.leehosanganson.dev
-        description: Pi-hole DNS (primary)
-        widget:
-          type: pihole
-          url: https://pihole-1.infra.leehosanganson.dev
-          version: 6
-          key: "{{HOMEPAGE_VAR_PIHOLE_1_API_KEY}}"
-    - Pi-hole 2:
-        icon: pi-hole.png
-        href: https://pihole-2.infra.leehosanganson.dev
-        description: Pi-hole DNS (secondary)
-        widget:
-          type: pihole
-          url: https://pihole-2.infra.leehosanganson.dev
-          version: 6
-          key: "{{HOMEPAGE_VAR_PIHOLE_2_API_KEY}}"
-
-- Virtual Machines:
-    - Proxmox 1:
-        icon: proxmox.png
-        href: https://pve01.home.lab:8006
-        description: Proxmox VE node 1
-        widget:
-          type: proxmox
-          url: https://pve01.home.lab:8006
-          username: api@pam!homepage
-          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-          node: pve01
-    - Proxmox 2:
-        icon: proxmox.png
-        href: https://pve02.home.lab:8006
-        description: Proxmox VE node 2
-        widget:
-          type: proxmox
-          url: https://pve02.home.lab:8006
-          username: api@pam!homepage
-          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-          node: pve02
-    - Proxmox 3:
-        icon: proxmox.png
-        href: https://pve03.home.lab:8006
-        description: Proxmox VE node 3
-        widget:
-          type: proxmox
-          url: https://pve03.home.lab:8006
-          username: api@pam!homepage
-          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
-          node: pve03
-
-- Downloads:
+- Library Automation:
     - Sonarr:
         icon: sonarr.png
         href: https://sonarr.homelab.leehosanganson.dev
-        description: TV series management
+        description: Private / TV series management
         widget:
           type: sonarr
           url: https://sonarr.homelab.leehosanganson.dev
@@ -260,7 +127,7 @@
     - Radarr:
         icon: radarr.png
         href: https://radarr.homelab.leehosanganson.dev
-        description: Movie management
+        description: Private / Movie management
         widget:
           type: radarr
           url: https://radarr.homelab.leehosanganson.dev
@@ -269,7 +136,7 @@
     - Bazarr:
         icon: bazarr.png
         href: https://bazarr.homelab.leehosanganson.dev
-        description: Subtitle management
+        description: Private / Subtitle management
         widget:
           type: bazarr
           url: https://bazarr.homelab.leehosanganson.dev
@@ -277,7 +144,7 @@
     - Prowlarr:
         icon: prowlarr.png
         href: https://prowlarr.homelab.leehosanganson.dev
-        description: Indexer management
+        description: Private / Indexer management
         widget:
           type: prowlarr
           url: https://prowlarr.homelab.leehosanganson.dev
@@ -285,28 +152,130 @@
     - qBittorrent:
         icon: qbittorrent.png
         href: https://qbittorrent.homelab.leehosanganson.dev
-        description: Torrent client
+        description: Private / Torrent client
         widget:
           type: qbittorrent
           url: https://qbittorrent.homelab.leehosanganson.dev
           username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
           password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
 
-- AI:
+- AI Workbench:
     - Open WebUI:
         icon: open-webui.png
         href: https://openwebui.homelab.leehosanganson.dev
-        description: AI chat interface
+        description: Private / AI chat interface
+    - llama.cpp:
+        icon: mdi-chip
+        href: https://llm.homelab.leehosanganson.dev
+        description: Private / Local model playground
+        siteMonitor: http://llm.llm.svc.cluster.local/health
     - LiteLLM:
         icon: litellm.png
-        href: https://litellm.homelab.leehosanganson.dev
-        description: LLM proxy and gateway
+        href: https://litellm.homelab.leehosanganson.dev/ui/
+        description: LAN route / Model gateway console
+        widget:
+          type: prometheusmetric
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          metrics:
+            - label: Scrape up (1=yes)
+              query: up{job="litellm"}
+            - label: Requests / sec
+              query: sum(rate(litellm_proxy_total_requests_metric_total{job="litellm"}[5m]))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 3
+    - LiteLLM (Public Route):
+        icon: litellm.png
+        href: https://litellm.leehosanganson.dev/ui/
+        description: Public route / Model gateway console
 
-- Storage:
+- Build & Automate:
+    - Coder:
+        icon: coder.png
+        href: https://coder.homelab.leehosanganson.dev
+        description: Private / Cloud development environments
+        siteMonitor: http://coder.coder.svc.cluster.local/healthz
+    - N8N:
+        icon: n8n.png
+        href: https://n8n.homelab.leehosanganson.dev
+        description: Private / Workflow automation
+        siteMonitor: http://n8n.n8n.svc.cluster.local:5678/healthz/readiness
+    - Termix:
+        icon: terminal.png
+        href: https://termix.homelab.leehosanganson.dev
+        description: Private / Web terminal
+        siteMonitor: http://termix.termix.svc.cluster.local:8080/health
+
+- Personal & Projects:
+    - Portfolio:
+        icon: mdi-briefcase
+        href: https://www.leehosanganson.dev
+        description: Public route / Personal portfolio site
+    - GitHub:
+        icon: mdi-github
+        href: https://github.com/leehosanganson
+        description: External / Personal GitHub profile
+    - Side Project:
+        icon: mdi-source-repository-multiple
+        href: https://github.com/users/leehosanganson/projects/15/views/1
+        description: External / Side project board
+    - Homelab Project:
+        icon: mdi-home-city
+        href: https://github.com/users/leehosanganson/projects/14
+        description: External / Homelab project board
+
+- Health & Logs:
+    - Grafana Dashboards:
+        icon: grafana.png
+        href: https://grafana.homelab.leehosanganson.dev/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=prometheus&var-cluster=&var-resolution=30s&var-job=kubernetes-service-endpoints&refresh=auto
+        description: Private / Cluster Dashboard
+        widget:
+          type: customapi
+          url: https://grafana.homelab.leehosanganson.dev/api/health
+          mappings:
+            - field: database
+              label: Database
+            - field: version
+              label: Version
+    - Grafana Logs:
+        icon: grafana.png
+        href: https://grafana.homelab.leehosanganson.dev/a/grafana-lokiexplore-app/explore?patterns=[]&var-primary_label=service_name|%3D~|.%2B&from=now-15m&to=now&timezone=browser&var-ds=loki&var-filters=&var-fields=&var-levels=&var-metadata=&var-all-fields=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-filters_replica=&refresh=auto
+        description: Private / Logs
+    - Prometheus:
+        icon: prometheus.png
+        description: Private / Metrics scrape targets
+        widget:
+          type: prometheus
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://uptime-kuma.homelab.leehosanganson.dev
+        description: Private / Uptime monitoring for homelab services
+        widget:
+          type: uptimekuma
+          url: https://uptime-kuma.homelab.leehosanganson.dev
+          slug: public
+
+- Identity & Storage:
+    - Authentik:
+        icon: authentik.png
+        href: https://authentik.homelab.leehosanganson.dev
+        description: LAN route / Identity and access console
+        siteMonitor: http://authentik-server.authentik.svc.cluster.local/-/health/ready/
+    - Harbor:
+        icon: harbor.png
+        href: https://harbor.leehosanganson.dev/harbor/projects
+        description: Public route / Container registry
+    - Garage UI:
+        icon: garage.png
+        href: https://garage-ui.homelab.leehosanganson.dev
+        description: Private / Manage Loki's S3 object storage
+        siteMonitor: http://garage-ui.monitoring.svc.cluster.local/health
     - Synology NAS:
         icon: synology-dsm.png
         href: https://nas-1.infra.leehosanganson.dev/#/signin
-        description: Synology NAS
+        description: Private / Synology NAS
         widget:
           type: diskstation
           url: https://nas-1.infra.leehosanganson.dev
@@ -316,4 +285,97 @@
     - Syncthing:
         icon: syncthing.png
         href: https://syncthing.homelab.leehosanganson.dev
-        description: Syncthing
+        description: Private / Syncthing
+        siteMonitor: http://syncthing.syncthing.svc.cluster.local:8384/rest/noauth/health
+
+- DNS:
+    - Pi-hole 1:
+        icon: pi-hole.png
+        href: https://pihole-1.infra.leehosanganson.dev
+        description: Private / Pi-hole DNS (primary)
+    - Pi-hole 2:
+        icon: pi-hole.png
+        href: https://pihole-2.infra.leehosanganson.dev
+        description: Private / Pi-hole DNS (secondary)
+    - Technitium 1:
+        icon: mdi-dns
+        href: https://technitium-1.infra.leehosanganson.dev
+        description: Private / DNS management, node 1
+        widget:
+          type: technitium
+          url: https://technitium-1.infra.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_TECHNITIUM_API_TOKEN}}"
+    - Technitium 2:
+        icon: mdi-dns
+        href: https://technitium-2.infra.leehosanganson.dev
+        description: Private / DNS management, node 2
+        widget:
+          type: technitium
+          url: https://technitium-2.infra.leehosanganson.dev
+          key: "{{HOMEPAGE_VAR_TECHNITIUM_API_TOKEN}}"
+
+- Virtualization & Network:
+    - Proxmox 1:
+        icon: proxmox.png
+        href: https://pve01.home.lab:8006
+        description: Private / Proxmox VE node 1
+        widget:
+          type: proxmox
+          url: https://pve01.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve01
+    - Proxmox 2:
+        icon: proxmox.png
+        href: https://pve02.home.lab:8006
+        description: Private / Proxmox VE node 2
+        widget:
+          type: proxmox
+          url: https://pve02.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve02
+    - Proxmox 3:
+        icon: proxmox.png
+        href: https://pve03.home.lab:8006
+        description: Private / Proxmox VE node 3
+        widget:
+          type: proxmox
+          url: https://pve03.home.lab:8006
+          username: api@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_API_TOKEN_SECRET}}"
+          node: pve03
+    - Proxmox 4:
+        icon: proxmox.png
+        href: https://pve04.home.lab:8006
+        description: LAN route / Proxmox VE node 4
+    - Matter Server:
+        icon: mdi-home-automation
+        href: http://192.168.1.162:5580
+        description: LAN route / Matter.js dashboard
+    - UniFi:
+        icon: ubiquiti.png
+        href: http://unifi.ui.com
+        description: Exposure unverified / UniFi Network controller
+        widget:
+          type: unifi
+          url: https://192.168.1.1
+          key: "{{HOMEPAGE_VAR_UNIFI_API_KEY}}"
+
+- Cloud Consoles:
+    - Cloudflare:
+        icon: cloudflare.png
+        href: https://dash.cloudflare.com
+        description: External / Cloudflare DNS/CDN
+    - Azure Portal:
+        icon: mdi-microsoft-azure
+        href: https://portal.azure.com/#home
+        description: External / Azure portal home
+    - Azure Blob Storage:
+        icon: mdi-microsoft-azure
+        href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.Storage/storageAccounts/lhshomelabbackup/containersList
+        description: External / Homelab backup blob storage
+    - Azure Key Vault:
+        icon: mdi-microsoft-azure
+        href: https://portal.azure.com/#@leehosangansongmail.onmicrosoft.com/resource/subscriptions/585dcfc1-23d7-4e71-82eb-71027af01852/resourceGroups/homelab-kubernetes/providers/Microsoft.KeyVault/vaults/lhs-kubernetes-keyvault/secrets
+        description: External / Kubernetes secrets vault
