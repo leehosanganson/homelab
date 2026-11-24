@@ -20,10 +20,11 @@ Use when planning or implementing a reviewed Authentik integration for one Homel
 
 ## Steps
 
-1. Verify Authentik health, administrator sign-in and recovery readiness using the runbook's safe preflight.
+1. For an authorized onboarding, verify Authentik health, administrator sign-in, and recovery readiness using the runbook's safe preflight. For Forward auth, also verify the Traefik CRD provider and both required CRDs. For worktree-only changes, leave live checks pending.
 2. Select native OIDC when the service supports it; otherwise assess Traefik Forward auth and its callback route requirements.
 3. Confirm the service owner, exact callback URI (if OIDC), allowed group, secret reference, affected clients, bypass paths, pilot checks, and service-scoped rollback.
-4. Make only the approved, declarative change for that service. Verify the relevant overlay and behavior before proposing wider use.
+4. Keep the approved GitOps files under the service directory. For Forward auth, put the Middleware and Ingress attachment in the app namespace overlay, keep the callback route in `authentik`, and register its child Flux Kustomization from the namespace-neutral service overlay root. Do not add a central registration. For native OIDC, use the vendor callback and service-local ExternalSecret reference; preserve local login.
+5. Verify the app and callback renders separately using the runbook's checks. Run live preflight or pilot checks only when separately authorized.
 
 ## Asks You?
 

@@ -1,0 +1,14 @@
+namespace: utility
+resources:
+  - ../../../base
+  - middleware.yaml
+  - network-policy.yaml
+
+patches:
+  - patch: |-
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: mini-qr
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: utility-mini-qr-forward-auth@kubernetescrd
