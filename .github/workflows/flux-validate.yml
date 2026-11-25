@@ -57,12 +57,7 @@ jobs:
           find kubernetes fluxcd/clusters -name 'kustomization.yaml' | while read -r f; do
             dir=$(dirname "$f")
             echo "Linting $dir ..."
-            restrictor=LoadRestrictionsRootOnly
-            # Use the same load restrictor as Flux for the production apps aggregate.
-            if [ "$dir" = kubernetes/apps/overlays/production ]; then
-              restrictor=LoadRestrictionsNone
-            fi
-            kustomize build --load-restrictor "$restrictor" "$dir" > /dev/null || exit 1
+            kustomize build --load-restrictor LoadRestrictionsRootOnly "$dir" > /dev/null || exit 1
           done
 
       - name: Render production overlays
@@ -70,7 +65,7 @@ jobs:
           set -e
           export PATH="$HOME/.local/bin:$PATH"
           mkdir -p /tmp/bundle
-          kustomize build --load-restrictor LoadRestrictionsNone kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
 

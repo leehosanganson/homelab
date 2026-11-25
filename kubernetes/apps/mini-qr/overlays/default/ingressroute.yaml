@@ -10,6 +10,7 @@ spec:
   routes:
     - kind: Rule
       match: Host(`qr.homelab.leehosanganson.dev`)
+      priority: 90
       middlewares:
         - name: mini-qr-forward-auth
       services:
