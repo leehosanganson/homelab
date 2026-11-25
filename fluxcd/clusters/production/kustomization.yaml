@@ -1,5 +1,4 @@
 resources:
   - apps.yaml
   - infra.yaml
-  - cnpg-operator.yaml
   - monitoring.yaml

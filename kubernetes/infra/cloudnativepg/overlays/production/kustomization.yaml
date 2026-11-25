@@ -1,2 +1,14 @@
 resources:
   - ../../base
+
+transformers:
+  - |
+    apiVersion: builtin
+    kind: AnnotationsTransformer
+    metadata:
+      name: protect-cnpg-from-prune
+    annotations:
+      kustomize.toolkit.fluxcd.io/prune: disabled
+    fieldSpecs:
+      - path: metadata/annotations
+        create: true
