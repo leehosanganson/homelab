@@ -128,6 +128,9 @@ in
           acl is_technitium_2 hdr(host) -i technitium-2.infra.leehosanganson.dev
           use_backend technitium_2 if is_technitium_2
 
+          acl is_ipkvm hdr(host) -i ipkvm.infra.leehosanganson.dev
+          use_backend ipkvm if is_ipkvm
+
       frontend k3s_api
           bind *:6443
           mode tcp
@@ -165,6 +168,13 @@ in
       backend technitium_2
           mode http
           server technitium-2 192.168.1.212:5380 check
+
+      backend ipkvm
+          mode http
+          timeout tunnel 1h
+          http-request set-header X-Forwarded-Proto https
+          # The Comet ships with an expired self-signed certificate.
+          server comet 192.168.1.241:443 ssl verify none check
 
       backend k3s
           mode tcp
