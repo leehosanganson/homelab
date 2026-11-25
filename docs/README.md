@@ -17,7 +17,7 @@ Then any staged `.dot` file is automatically re-rendered to SVG on commit. Requi
 ## Runbooks
 
 - [runbooks/authentik-service-onboarding.md](runbooks/authentik-service-onboarding.md) — Onboarding services with native OIDC or Traefik Forward auth
-- [runbooks/cnpg-operator-upgrade-1-28.md](runbooks/cnpg-operator-upgrade-1-28.md) — Gated manual CloudNativePG operator upgrade from 1.27.0 to 1.28.4
+- [runbooks/cnpg-operator-adoption.md](runbooks/cnpg-operator-adoption.md) — Activation checklist for adopting the CloudNativePG operator into Flux
 - [runbooks/homelab-shutdown-startup.md](runbooks/homelab-shutdown-startup.md) — Whole-homelab planned shutdown and startup sequence with live-state safety gates
 - [runbooks/cluster-recovery.md](runbooks/cluster-recovery.md) — Full-cluster recovery flow (Flux bootstrap, Velero restore, CNPG recovery)
 - [runbooks/cluster-migration-k3s-to-talos.md](runbooks/cluster-migration-k3s-to-talos.md) — End-to-end migration flow from K3s to Talos (preflight, restore, cutover, rollback)

@@ -6,12 +6,14 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/flux-validate.yml"
       - "kubernetes/**"
       - "fluxcd/clusters/**"
   push:
     branches:
       - main
     paths:
+      - ".github/workflows/flux-validate.yml"
       - "kubernetes/**"
       - "fluxcd/clusters/**"
 
@@ -60,11 +62,29 @@ jobs:
             kustomize build --load-restrictor LoadRestrictionsRootOnly "$dir" > /dev/null || exit 1
           done
 
-      - name: Render production overlays
+      - name: Render production manifests
         run: |
           set -e
           export PATH="$HOME/.local/bin:$PATH"
           mkdir -p /tmp/bundle
+          kustomize build --load-restrictor LoadRestrictionsRootOnly fluxcd/clusters/production -o /tmp/bundle/flux-prod.yaml
+          cnpg_path=$(yq eval-all -er '
+            [select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization" and
+              .metadata.namespace == "flux-system" and .metadata.name == "cnpg-operator-production")] |
+            select(length == 1) | .[0].spec |
+            select((.prune | tag) == "!!bool" and .prune == false and
+              .deletionPolicy == "Orphan" and (.force | tag) == "!!bool" and .force == false) |
+            .path | select(tag == "!!str" and test("^([.]/)?kubernetes/infra/cloudnativepg/[a-zA-Z0-9_./-]+$"))
+          ' /tmp/bundle/flux-prod.yaml) || {
+            echo "Expected one cnpg-operator-production Flux Kustomization with a relative CNPG path, prune=false, deletionPolicy=Orphan, and force=false" >&2
+            exit 1
+          }
+          if ! cnpg_dir=$(realpath -e -- "$cnpg_path") ||
+            [[ "$cnpg_dir" != "$(pwd -P)/kubernetes/infra/cloudnativepg/"* || ! -d "$cnpg_dir" ]]; then
+            echo "CNPG spec.path must resolve to a directory under kubernetes/infra/cloudnativepg: $cnpg_path" >&2
+            exit 1
+          fi
+          kustomize build --load-restrictor LoadRestrictionsRootOnly "$cnpg_dir" -o /tmp/bundle/cnpg-operator-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
@@ -80,7 +100,7 @@ jobs:
           # ObjectStore, ClusterIssuer, ClusterSecretStore, GitRepository,
           # HelmRepository, VolumeSnapshotClass, Middleware, Schedule, Backup, etc.)
           # are validated against schemas from datreeio/CRDs-catalog.
-          for f in /tmp/bundle/apps-prod.yaml /tmp/bundle/infra-prod.yaml /tmp/bundle/mon-prod.yaml; do
+          for f in /tmp/bundle/*-prod.yaml; do
             echo "Validating $f ..."
             kubeconform -strict -summary \
               -schema-location default \

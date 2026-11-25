@@ -1,0 +1,15 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cnpg-operator-production
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./kubernetes/infra/cloudnativepg/overlays/production
+  suspend: true
+  prune: false
+  deletionPolicy: Orphan
+  force: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
