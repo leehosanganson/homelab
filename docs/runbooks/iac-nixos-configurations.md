@@ -40,6 +40,31 @@ nixos/
 
 ## Usage
 
+### Look up declared IP addresses
+
+From the repository root, run this read-only command with Python 3.9+ and Nix (`nix-instantiate`) on your `PATH`. No Python packages are needed.
+
+```bash
+python3 scripts/ip-inventory.py                # List covered addresses
+python3 scripts/ip-inventory.py 192.168.1.151  # Look up one IPv4 or IPv6 address
+```
+
+Each IP appears once, with one entry per covered declaration. The source line, when
+available, points to the host's `address` attribute or to the proxy module's config
+option, not to an individual line in the rendered config. `vip` names identify
+keepalived instances. `backend` entries show HAProxy backend/server names and ports,
+not machine ownership. A lookup exits with status `1` if no covered declaration
+matches, or `2` on invalid input or an evaluation error (including missing Nix).
+
+The command uses restricted local Nix evaluation to read `networking.hostName` and
+IPv4/IPv6 interface addresses from `nixos/hosts/*/default.nix`. It uses `haproxy-1`'s
+networking to render `services.keepalived.extraConfig` and `services.haproxy.config`
+from the shared `nixos/modules/haproxy.nix` once. It lists `virtual_ipaddress` entries
+and named backend `server` endpoints with an IP and numeric port (brackets required
+for IPv6). It does not merge NixOS module imports, evaluate the flake, build anything,
+fetch inputs or secrets, resolve DNS, or check Terraform state, DHCP leases, or
+running hosts. A miss does not mean the address is unused.
+
 ### 1. Provisioning
 
 Provisioning is driven by the Terraform/OpenTofu module, which calls `nixos/scripts/provision.sh` to apply the flake onto each VM via `nixos-anywhere`.
