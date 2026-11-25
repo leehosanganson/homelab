@@ -1,8 +1,0 @@
-resources:
-  - ingressroute.yaml
-
-labels:
-  - includeSelectors: false
-    pairs:
-      backups: enabled
-      environment: production

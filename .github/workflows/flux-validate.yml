@@ -73,66 +73,6 @@ jobs:
           kustomize build --load-restrictor LoadRestrictionsNone kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
-          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/mini-qr/overlays/default/authentik/callback -o /tmp/bundle/mini-qr-callback.yaml
-
-      - name: Check service-owned Mini QR ForwardAuth composition
-        run: |
-          set -e
-          export PATH="$HOME/.local/bin:$PATH"
-          kustomize build kubernetes/apps/mini-qr/overlays/default -o /tmp/bundle/mini-qr.yaml
-          ruby -ryaml - /tmp/bundle/{mini-qr,apps-prod,mini-qr-callback}.yaml <<'RUBY'
-          def named(resources, kind, name)
-            resources.select { |r| r['kind'] == kind && r.dig('metadata', 'name') == name }
-          end
-
-          def require_one(resources, kind, name, namespace, path)
-            matches = named(resources, kind, name)
-            unless matches.map { |r| r.dig('metadata', 'namespace') } == [namespace]
-              abort "#{path}: expected exactly one #{kind} #{namespace}/#{name}"
-            end
-            matches.first
-          end
-
-          callback_path = './kubernetes/apps/mini-qr/overlays/default/authentik/callback'
-          ARGV.each do |path|
-            resources = YAML.load_stream(File.read(path)).compact
-            if path.end_with?('/mini-qr-callback.yaml')
-              abort "#{path}: expected only the callback route" unless resources.size == 1
-              route = require_one(resources, 'IngressRoute', 'mini-qr-outpost', 'authentik', path)
-              expected_match = 'Host(`qr.homelab.leehosanganson.dev`) && PathPrefix(`/outpost.goauthentik.io/`)'
-              route_rule = route.dig('spec', 'routes')
-              unless route_rule&.size == 1 && route_rule.first['match'] == expected_match &&
-                     route_rule.first.dig('services') == [{ 'name' => 'authentik-server', 'port' => 80 }] &&
-                     !route_rule.first.key?('middlewares')
-                abort "#{path}: callback must route the app host/path to authentik-server:80"
-              end
-              next
-            end
-
-            child = require_one(resources, 'Kustomization', 'mini-qr-authentik-callback', 'flux-system', path)
-            spec = child.fetch('spec')
-            unless child['apiVersion'] == 'kustomize.toolkit.fluxcd.io/v1' &&
-                   spec['path'] == callback_path && spec['prune'] == true && !spec.key?('targetNamespace') &&
-                   spec['sourceRef'] == { 'kind' => 'GitRepository', 'name' => 'flux-system' } &&
-                   spec['dependsOn'] == [{ 'name' => 'infra-production' }]
-              abort "#{path}: incorrect callback child reconciliation settings"
-            end
-            unless named(resources, 'IngressRoute', 'mini-qr-outpost').empty?
-              abort "#{path}: callback route must render only from the child path"
-            end
-            %w[Deployment Service Ingress].each do |kind|
-              require_one(resources, kind, 'mini-qr', 'utility', path)
-            end
-            require_one(resources, 'Middleware', 'mini-qr-forward-auth', 'utility', path)
-            require_one(resources, 'NetworkPolicy', 'mini-qr-ingress', 'utility', path)
-            ingress = named(resources, 'Ingress', 'mini-qr').first
-            unless ingress.dig('metadata', 'annotations', 'traefik.ingress.kubernetes.io/router.middlewares') ==
-                   'utility-mini-qr-forward-auth@kubernetescrd'
-              abort "#{path}: Mini QR Ingress must attach its local ForwardAuth middleware"
-            end
-            puts "#{path}: Mini QR ForwardAuth composition passed"
-          end
-          RUBY
 
       - name: Validate rendered manifests with kubeconform
         run: |
@@ -154,7 +94,3 @@ jobs:
               -skip "$KUBECONFORM_SKIP" \
               "$f" || exit 1
           done
-
-          kubeconform -strict -summary \
-            -schema-location "$KUBECONFORM_SCHEMA_LOCATION" \
-            /tmp/bundle/mini-qr-callback.yaml

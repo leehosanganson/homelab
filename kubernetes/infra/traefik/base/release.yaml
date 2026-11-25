@@ -12,6 +12,10 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
   valuesFrom:
     - kind: ConfigMap
       name: traefik-values

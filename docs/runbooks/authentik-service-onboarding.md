@@ -53,7 +53,7 @@ Authentik Proxy Provider's Forward auth (domain level) can reduce the number of 
 
 Use this only when a service does not provide suitable native SSO and its HTTP requests pass through Traefik. Create an Authentik **Proxy Provider** using **Forward auth (single application)**, attach it to the service's Authentik Application, and use the embedded outpost. The embedded outpost is served by the Authentik server; the address below uses the in-cluster Service port `80` (which forwards to the server's port `9000`).
 
-Create a Middleware in the **same Kubernetes namespace** as the protected service's Ingress and reference it with the repository's Traefik annotation convention, for example `traefik.ingress.kubernetes.io/router.middlewares: <namespace>-<middleware-name>@kubernetescrd`. Use a namespace-qualified reference where the local convention requires it. At the last live check on 2026-11-23, Traefik `v3.7.19` had the CRD provider enabled, `allowCrossNamespace: false`, and external-name Services disabled; the Middleware CRD was installed. These values are not explicitly pinned in Git, so verify the current deployment before relying on them:
+Forward auth requires Traefik's Kubernetes CRD provider and both the `Middleware` and `IngressRoute` CRDs, even if the app keeps a standard Kubernetes Ingress: the outpost callback uses an IngressRoute. At the last live check on 2026-11-23, Traefik `v3.7.19` had the CRD provider enabled, `allowCrossNamespace: false`, and external-name Services disabled; the Middleware CRD was installed. Git declares `providers.kubernetesCRD.enabled: true` and `allowCrossNamespace: false`, and the pinned Traefik HelmRelease sets `install.crds: Create` and `upgrade.crds: CreateReplace`; still verify that the required CRDs are installed and the provider is configured as expected on the target cluster before relying on them:
 
 ```bash
 helm get values traefik -n kube-system --all \
@@ -77,9 +77,20 @@ spec:
     maxResponseBodySize: 4194304
 ```
 
-Replace `service-namespace` and the Middleware name. Attach the middleware only to the selected service Ingress. Do not apply this YAML directly to the cluster. Confirm its API version and schema against the installed Traefik CRD before a future PR.
+Replace `service-namespace` and the Middleware name. Keep the Middleware in the app namespace and attach it only to the protected app route:
 
-**Single-application callback requirement:** Forward auth also needs requests to `/outpost.goauthentik.io/` on the protected application's host to reach the embedded outpost **without** the ForwardAuth middleware. The callback path must be routed to `authentik-server` on port `80`; otherwise the login flow can fail or loop. The callback route may share the protected host and must take precedence for that path. With `allowCrossNamespace: false`, the route cannot reference the Authentik Service from the app namespace. Keep the callback files under the protected service in a callback-only Kustomize path, but set `metadata.namespace: authentik` on the IngressRoute so it targets its local `authentik-server` Service. Confirm Traefik provider behavior, route priority, TLS, namespace references, and matching in a pilot before relying on the route.
+- For an existing Kubernetes Ingress, use `traefik.ingress.kubernetes.io/router.middlewares: <namespace>-<middleware-name>@kubernetescrd`.
+- For a Traefik IngressRoute, reference the local Middleware by name under `spec.routes[].middlewares` on the app route. Do not leave an old Ingress serving the app alongside its replacement.
+
+Do not apply this YAML directly to the cluster. Confirm its API version and schema against the installed Traefik CRD before a future PR.
+
+**Single-application callback requirement:** Route `/outpost.goauthentik.io/` on the protected app host to `authentik-server` on port `80` without middleware. Give this route priority over the protected app route for that path, or sign-in can fail or loop. Set `metadata.namespace: authentik` on the callback IngressRoute so it can reach the local outpost Service without allowing cross-namespace references.
+
+**IngressRoute TLS:** For an app IngressRoute, declare an explicit cert-manager `Certificate` for the app host and set the route's `spec.tls.secretName` to the Certificate's `spec.secretName`. The route, Certificate, and resulting Secret must be in the same namespace. Ingress-shim does not generate Certificates from IngressRoute resources. Do not reference the app's Secret from the callback namespace; verify TLS on the shared hostname for both routes in the pilot.
+
+**Certificate cutover:** When replacing an Ingress that uses Ingress-shim with an IngressRoute and an explicit Certificate, verify after authorized Flux reconciliation that the Certificate is `Ready=True`, its `metadata.ownerReferences` no longer point to the old Ingress, and the intended TLS Secret still exists in the service namespace. Flux may recreate the Certificate object on a later retry, so recheck after any retry. A surviving TLS Secret alone does not prove that cert-manager will continue renewing the certificate.
+
+**Plain HTTP:** An IngressRoute that uses only the `websecure` entry point does not serve plain HTTP. Plain HTTP is not redirected to HTTPS unless a separate Traefik redirect is configured.
 
 Forward auth gates only HTTP requests that traverse Traefik. It does not make the application speak OIDC, validate Authentik identity, or trust identity headers. Do not add or trust identity headers unless the application explicitly supports that model and a separate review establishes the trusted proxy boundary and prevents client-supplied spoofing. Direct access to the application Service, another Ingress, a load balancer, or another network path can bypass the gate. Verify those paths are closed or intentionally controlled.
 
@@ -88,6 +99,7 @@ Before a wider rollout, run a reviewed **single-service pilot** and verify all o
 - The Authentik Application is bound to the intended group; an allowed user passes and a denied user is blocked.
 - Unauthenticated login redirects and return to the app work without loops. The callback path reaches the outpost and is not itself protected by the ForwardAuth middleware.
 - Traefik selects the intended host/path routes, callback route priority is correct, and TLS works for both app and callback requests.
+- Test a plain `http://` request to the service hostname. For a `websecure`-only IngressRoute, confirm that it does not serve the app and redirects to the intended `https://` URL only if a separate Traefik redirect is configured.
 - The normal app page, API calls, WebSockets if used, health checks, and browser/mobile/automation clients behave as intended. Do not accidentally block health checks or clients that cannot follow an interactive login.
 - The backend cannot be reached around the Traefik gate, or any direct path has a documented independent control.
 - The reviewed rollback keeps this service offline without changing Authentik's own Ingress or other services.
@@ -96,23 +108,23 @@ A successful browser redirect alone is not sufficient evidence. Do not extend Fo
 
 ## GitOps change and verification
 
-For a service already in the production apps bundle, keep all integration files under that service's directory. The [production apps bundle](../../kubernetes/apps/overlays/production/kustomization.yaml) continues to include only the service's existing default overlay. Do not add a central entry for the callback or its Flux registration.
+Keep all integration files under the service directory. The [production apps bundle](../../kubernetes/apps/overlays/production/kustomization.yaml) continues to include the service's existing default overlay under [`apps-production`](../../fluxcd/clusters/production/apps.yaml). Do not add a separate production entry or a child Flux Kustomization.
 
-1. Under the service's default overlay, put the app resources, Middleware, and Ingress attachment in a nested Kustomize overlay that sets the service namespace. Keep any direct-access controls in this overlay too.
-2. Add a callback-only overlay under `authentik/callback/`. Set the IngressRoute namespace to `authentik` so it can refer to the outpost Service in the same namespace.
-3. Make the default overlay root namespace-neutral (no `namespace:` transformer). Include the nested app overlay and `authentik/flux-kustomization.yaml` there, not the callback directory. The child Flux Kustomization lives in `flux-system`, uses the `flux-system` GitRepository in that same namespace, depends on `infra-production`, and reconciles only the callback directory with pruning enabled and no target namespace override. This dependency does not replace the Traefik preflight.
+For Forward auth only:
 
-Use [Mini QR's default overlay](../../kubernetes/apps/mini-qr/overlays/default/kustomization.yaml) as the reference. The `flux-validate` workflow checks these render results:
+1. In a nested app overlay that sets the service namespace, keep the app resources, protected route, Middleware, and direct-access controls. Include the explicit Certificate here if using an app IngressRoute.
+2. Keep the callback IngressRoute in a service-owned `callback-ingressroute.yaml` file at the root of the service's default overlay. Set `metadata.namespace: authentik` explicitly in that file.
+3. Leave the service's default overlay root namespace-neutral (no `namespace:` transformer). List both the nested app overlay and `callback-ingressroute.yaml` directly under `resources` in the root `kustomization.yaml` so the callback and any explicit Certificate render in the production apps bundle.
 
-- The default overlay and production apps bundle each contain exactly one `mini-qr-authentik-callback` Flux Kustomization in `flux-system`, and no `mini-qr-outpost` IngressRoute.
-- Both renders contain exactly one Mini QR Deployment, Service, Ingress, Middleware, and NetworkPolicy, all in `utility`. The Ingress attaches the local Middleware.
-- Only the callback path renders the `mini-qr-outpost` IngressRoute. It renders exactly one object, in `authentik`. Schema-check this path separately from the production apps bundle.
+For native OIDC, use the vendor callback on the application and keep only the OIDC secret references and configuration in the service overlay. Do not add a Traefik ForwardAuth middleware or Authentik outpost callback.
+
+The `flux-validate` workflow builds and schema-checks the production bundle. Review the rendered namespaces, TLS Secret reference, and, for Forward auth, the middleware attachment before merge; schema validation does not verify live routing or access.
 
 Open a focused PR with one service's Authentik provider/application instructions and app-side configuration. Include the vendor guide/version, exact callback URI, intended group, secret **reference only**, ForwardAuth/callback routing design if used, pilot results, and rollback steps. Validate the affected Kustomize overlay and inspect the rendered resources before merge. Follow [the repository testing and validation workflow](workflows-testing-validation.md) only when its branch-testing procedure is approved; it temporarily makes all Flux Kustomizations track a PR branch, so it is not a narrow per-service test. After merge, use normal Flux reconciliation and verify the affected resources and service behavior. Do not make live cluster mutations as a substitute for a PR.
 
 ## Rollback and safety limits
 
-For a Forward auth pilot, take only the affected service offline through a reviewed Git change. Disable its app route and keep its NetworkPolicy or other direct-access controls. Verify no route still serves the app before removing the callback or auth resources. Removing the service-local child registration or its callback manifests can prune the callback route. Switching the shared Flux source can also prune the route and restore an unauthenticated base Ingress. Before any source switch, render the exact destination revision and confirm it keeps the service offline; if you cannot verify that, do not switch. Check live routes after authorized reconciliation before restoring service with a verified access-controlled configuration.
+For a Forward auth pilot, take only the affected service offline through a reviewed Git change. Disable its app route and keep its NetworkPolicy or other direct-access controls. Verify no route still serves the app before removing the callback or auth resources. Removing callback manifests from the service overlay can cause `apps-production` to prune the callback route. Switching the shared Flux source can also prune the route and restore an unauthenticated app route. Before any source switch, render the exact destination revision and confirm it keeps the service offline; if you cannot verify that, do not switch. Check live routes after authorized reconciliation before restoring service with a verified access-controlled configuration.
 
 For native OIDC, restore only the affected application's last known-good authentication settings and secret references. Do not delete the Authentik user, provider, Application, database, backups, or shared groups as an application rollback. Do not change or disable Authentik's own ingress gate, remove Authentik from its Flux inventory, or edit Authentik/database resources as part of a service rollback. Any identity database or Authentik recovery is outside this runbook and requires its own reviewed recovery plan.
 
