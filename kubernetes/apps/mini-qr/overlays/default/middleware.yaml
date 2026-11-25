@@ -2,6 +2,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: mini-qr-forward-auth
+  namespace: utility
 spec:
   forwardAuth:
     address: http://authentik-server.authentik.svc.cluster.local:80/outpost.goauthentik.io/auth/traefik

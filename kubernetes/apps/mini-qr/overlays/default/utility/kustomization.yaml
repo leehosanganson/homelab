@@ -1,7 +1,0 @@
-namespace: utility
-resources:
-  - ../../../base
-  - certificate.yaml
-  - ingressroute.yaml
-  - middleware.yaml
-  - network-policy.yaml

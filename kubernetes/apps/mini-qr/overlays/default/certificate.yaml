@@ -2,6 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: mini-qr-tls
+  namespace: utility
 spec:
   secretName: mini-qr-tls
   dnsNames:

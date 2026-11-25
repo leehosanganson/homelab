@@ -112,9 +112,9 @@ Keep all integration files under the service directory. The [production apps bun
 
 For Forward auth only:
 
-1. In a nested app overlay that sets the service namespace, keep the app resources, protected route, Middleware, and direct-access controls. Include the explicit Certificate here if using an app IngressRoute.
-2. Keep the callback IngressRoute in a service-owned `callback-ingressroute.yaml` file at the root of the service's default overlay. Set `metadata.namespace: authentik` explicitly in that file.
-3. Leave the service's default overlay root namespace-neutral (no `namespace:` transformer). List both the nested app overlay and `callback-ingressroute.yaml` directly under `resources` in the root `kustomization.yaml` so the callback and any explicit Certificate render in the production apps bundle.
+1. Keep the protected app route, Middleware, direct-access controls, and (for an app IngressRoute) explicit Certificate at the root of the service's default overlay. Set `metadata.namespace` to the app namespace in each file. Keep the base namespace-neutral and use targeted patches in the default overlay to set the namespace of resources from the base, such as the Deployment and Service.
+2. Keep `callback-ingressroute.yaml` in the same directory and set `metadata.namespace: authentik` explicitly in that file.
+3. In the default overlay's `kustomization.yaml`, list the base and each overlay file directly under `resources`. Do not set a top-level `namespace:`; it could move the callback into the app namespace.
 
 For native OIDC, use the vendor callback on the application and keep only the OIDC secret references and configuration in the service overlay. Do not add a Traefik ForwardAuth middleware or Authentik outpost callback.
 

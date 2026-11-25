@@ -1,3 +1,23 @@
 resources:
-  - utility
+  - ../../base
+  - certificate.yaml
+  - ingressroute.yaml
+  - middleware.yaml
+  - network-policy.yaml
   - callback-ingressroute.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: mini-qr
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: utility
+  - target:
+      kind: Service
+      name: mini-qr
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: utility
