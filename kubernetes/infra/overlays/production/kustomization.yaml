@@ -1,5 +1,6 @@
 resources:
   - ../../helm
+  - ../../cilium/overlays/production/release
   - ../../cloudflare/overlays/default
   - ../../cert-manager/overlays/default
   - ../../cloudnativepg/overlays/production
