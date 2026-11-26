@@ -51,7 +51,7 @@ nodes = {
     vm_id     = 303
     cores     = 2
     memory    = 4096
-    disk_size = 30
+    disk_size = 200
     datastore = "local-lvm"
   }
   "pihole-1" = {
