@@ -33,7 +33,7 @@ if args == ["config", "current-context"]:
 if args == ["cnpg", "version"]:
     if settings.get("no_plugin"):
         sys.exit(1)
-    version = settings.get("plugin_version", "1.27.0")
+    version = settings.get("plugin_version", "1.28.4")
     print(f"Build: {{Version:{version} Commit:none Date:unknown}}")
     sys.exit()
 if args[:2] == ["cnpg", "hibernate"] and args[-1] == "--help":
@@ -55,7 +55,9 @@ def cluster(ns, name):
     state = state_for(ns, name)
     complete = name not in settings.get("pending", [])
     conditions = []
-    if name in settings.get("deleting_pods", []):
+    if state == "on" and name in settings.get("waiting_for_healthy", []):
+        conditions.append({"type": "cnpg.io/hibernation", "status": "False", "reason": "WaitingForHealthy"})
+    elif name in settings.get("deleting_pods", []):
         conditions.append({"type": "cnpg.io/hibernation", "status": "False", "reason": "DeletingPods"})
     elif (state == "on" and complete) or name in settings.get("stale_condition", []):
         conditions.append({"type": "cnpg.io/hibernation", "status": "True", "reason": "Hibernated"})
@@ -74,7 +76,7 @@ def cluster(ns, name):
 if args == ["get", "deployment", "cnpg-controller-manager", "-n", "cnpg-system", "-o", "json"]:
     emit({"metadata": {"generation": 1}, "spec": {"replicas": 1, "template": {"spec": {"containers": [{
         "name": "manager", "image": "ghcr.io/cloudnative-pg/cloudnative-pg:"
-        + settings.get("operator_version", "1.27.0") + "@sha256:abcd",
+        + settings.get("operator_version", "1.28.4") + "@sha256:abcd",
         "env": settings.get("operator_env", []), "envFrom": settings.get("operator_env_from", []),
     }]}}}, "status": {"observedGeneration": 1, "replicas": 1, "updatedReplicas": 1,
                       "availableReplicas": 0 if settings.get("unready") else 1}})
@@ -265,11 +267,18 @@ class HibernationTests(unittest.TestCase):
         self.assertEqual(self.mutations(calls), [["on", "ok", "-n", "alpha"]])
         self.assertIn("1 verified, 2 failed", out)
 
-    def test_on_timeout_does_not_cancel_a_preexisting_request(self):
-        status, out, calls = self.run_helper("on", targets=[("alpha", "db", "on")], pending=["db"])
+    def test_on_timeout_does_not_cancel_a_preexisting_deferred_request(self):
+        status, out, calls = self.run_helper("on", targets=[("alpha", "db", "on")], waiting_for_healthy=["db"])
         self.assertNotEqual(status, 0, out)
         self.assertIn("alpha/db: timed out waiting for hibernate on", out)
         self.assertEqual(self.mutations(calls), [])
+
+    def test_on_timeout_cancels_new_deferred_request_and_checks_recovery(self):
+        status, out, calls = self.run_helper("on", targets=[("alpha", "db", "")], waiting_for_healthy=["db"])
+        self.assertNotEqual(status, 0)
+        self.assertEqual(self.mutations(calls), [["on", "db", "-n", "alpha"], ["off", "db", "-n", "alpha"]])
+        self.assertIn("alpha/db: timed out waiting for hibernate on", out)
+        self.assertIn("alpha/db: cancellation recovery verified", out)
 
     def test_plugin_on_error_checks_fresh_intent_before_canceling(self):
         for settings, actions, message in [
@@ -383,7 +392,7 @@ class HibernationTests(unittest.TestCase):
         self.assertEqual(status, 0, out)
 
     def test_preflight_rejects_older_plugin_before_discovery(self):
-        status, out, calls = self.run_helper("on", plugin_version="1.27.9", operator_version="1.27.10",
+        status, out, calls = self.run_helper("on", plugin_version="1.28.9", operator_version="1.28.10",
                                              targets=[("alpha", "db", "")])
         self.assertNotEqual(status, 0, out)
         self.assertIn("older than", out)
@@ -391,13 +400,16 @@ class HibernationTests(unittest.TestCase):
         self.assertEqual(self.mutations(calls), [])
 
     def test_preflight_accepts_newer_plugin(self):
-        status, out, _ = self.run_helper("on", plugin_version="v1.27.10", operator_version="1.27.9")
+        status, out, _ = self.run_helper("on", plugin_version="v1.28.10", operator_version="1.28.9")
         self.assertEqual(status, 0, out)
         self.assertIn("No CNPG Clusters found", out)
 
     def test_preflight_blocks_without_ready_operator_and_plugin(self):
-        for settings in [{"unready": True}, {"no_plugin": True}, {"operator_version": "1.28.0"},
-                         {"plugin_version": "1.28.0"}, {"plugin_version": "1.27.0-rc1"}]:
+        for settings in [
+            {"unready": True}, {"no_plugin": True},
+            *({field: version} for field in ("operator_version", "plugin_version")
+              for version in ("1.27.0", "1.29.0", "1.28.0-rc1")),
+        ]:
             with self.subTest(settings=settings):
                 status, out, calls = self.run_helper("on", targets=[("alpha", "db", "")], **settings)
                 self.assertNotEqual(status, 0)
