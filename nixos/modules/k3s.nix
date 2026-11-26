@@ -168,6 +168,10 @@ in
     # NixOS. Expose the wrapped iscsiadm there via symlinks into the Nix store.
     # mount.nfs is exposed the same way for kubelet's in-tree NFS mounts.
     systemd.tmpfiles.rules = [
+      # NFD bind-mounts /lib to inspect /lib/modules/<kernel>/modules.builtin.
+      # NixOS keeps the running kernel modules under /run/booted-system, so
+      # point /lib at that module tree for hostPath consumers such as NFD.
+      "L+ /lib - - - - /run/booted-system/kernel-modules/lib"
       "L+ /usr/sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
       "L+ /sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
       "L+ /sbin/mount.nfs - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
