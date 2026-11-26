@@ -12,6 +12,7 @@ resources:
   - ../../harbor/overlays/default
   - ../../metrics-server/overlays/default
   - ../../renovate/overlays/default
+  - ../../hermes-agent/overlays/default
 
 labels:
   - includeSelectors: false
