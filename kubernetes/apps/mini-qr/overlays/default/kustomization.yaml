@@ -1,6 +1,7 @@
 namespace: utility
 resources:
   - ../../base
+  - certificate.yaml
   - network-policy.yaml
 
 patches:
