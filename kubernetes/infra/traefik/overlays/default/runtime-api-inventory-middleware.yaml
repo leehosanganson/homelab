@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-runtime-api-loopback
+  namespace: kube-system
+  annotations:
+    homelab.leehosanganson.dev/temporary: remove-after-mini-qr-verification
+spec:
+  ipAllowList:
+    sourceRange:
+      - 127.0.0.1/32
+      - ::1/128
+    ipStrategy:
+      depth: 0
+    rejectStatusCode: 404
