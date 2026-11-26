@@ -1,19 +1,23 @@
-namespace: utility
 resources:
   - ../../base
   - certificate.yaml
+  - ingressroute.yaml
+  - middleware.yaml
   - network-policy.yaml
+  - callback-ingressroute.yaml
 
 patches:
   - target:
-      kind: Ingress
+      kind: Deployment
       name: mini-qr
     patch: |-
-      - op: replace
-        path: /spec/ingressClassName
-        value: mini-qr-disabled
-      - op: remove
-        path: /metadata/annotations/cert-manager.io~1cluster-issuer
       - op: add
-        path: /metadata/annotations/kustomize.toolkit.fluxcd.io~1prune
-        value: disabled
+        path: /metadata/namespace
+        value: utility
+  - target:
+      kind: Service
+      name: mini-qr
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: utility

@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mini-qr
+  namespace: utility
+spec:
+  ingressClassName: traefik
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`qr.homelab.leehosanganson.dev`)
+      priority: 90
+      middlewares:
+        - name: mini-qr-forward-auth
+      services:
+        - name: mini-qr
+          port: 8080
+  tls:
+    secretName: mini-qr-tls

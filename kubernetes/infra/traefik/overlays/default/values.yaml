@@ -47,6 +47,9 @@ certificatesResolvers:
           - "8.8.8.8:53"
 priorityClassName: system-cluster-critical
 providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: false
   kubernetesIngress:
     publishedService:
       enabled: true
