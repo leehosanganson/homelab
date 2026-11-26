@@ -20,7 +20,7 @@ Kubernetes context.
         each cluster is healthy and all its instance pods are ready.
 
 Requires Bash 5+, GNU timeout, kubectl, jq, and the kubectl cnpg plugin. The
-plugin and ready, cluster-wide operator must both be 1.27.x, and the plugin
+plugin and ready, cluster-wide operator must both be 1.28.x, and the plugin
 patch must be at least the operator patch. The current context must allow
 discovery, changes, and checks.
 
@@ -67,8 +67,8 @@ readonly resource=clusters.postgresql.cnpg.io
 plugin_version=$("${watchdog[@]}" 15s kubectl cnpg version) || fail 'Cannot run the kubectl cnpg plugin.'
 printf 'CNPG plugin: %s\n' "$plugin_version"
 patch_pattern='(0|[1-9][0-9]*)'
-plugin_pattern="(^|[[:space:]{])Version:v?1\.27\.${patch_pattern}(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?([[:space:]}]|$)"
-[[ $plugin_version =~ $plugin_pattern ]] || fail 'Expected a CloudNativePG 1.27.x plugin release.'
+plugin_pattern="(^|[[:space:]{])Version:v?1\.28\.${patch_pattern}(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?([[:space:]}]|$)"
+[[ $plugin_version =~ $plugin_pattern ]] || fail 'Expected a CloudNativePG 1.28.x plugin release.'
 plugin_patch=${BASH_REMATCH[2]}
 plugin_help=$("${watchdog[@]}" 15s kubectl cnpg hibernate "$action" --help) &&
   [[ $plugin_help == *"kubectl cnpg hibernate $action CLUSTER"* ]] ||
@@ -79,8 +79,8 @@ operator=$("${bounded_kube[@]}" get deployment cnpg-controller-manager -n cnpg-s
 operator_image=$(jq -er '.spec.template.spec.containers[] | select(.name == "manager") | .image' <<< "$operator") ||
   fail 'Cannot determine the CNPG operator image.'
 printf 'CNPG operator: %s\n' "$operator_image"
-operator_pattern="/cloudnative-pg:1\.27\.${patch_pattern}(@sha256:[[:xdigit:]]+)?$"
-[[ $operator_image =~ $operator_pattern ]] || fail 'This helper expects a CNPG 1.27.x operator release.'
+operator_pattern="/cloudnative-pg:1\.28\.${patch_pattern}(@sha256:[[:xdigit:]]+)?$"
+[[ $operator_image =~ $operator_pattern ]] || fail 'This helper expects a CNPG 1.28.x operator release.'
 operator_patch=${BASH_REMATCH[1]}
 
 patch_is_older() {
@@ -89,7 +89,7 @@ patch_is_older() {
   (( ${#1} < ${#2} )) || { (( ${#1} == ${#2} )) && [[ $1 < $2 ]]; }
 }
 if patch_is_older "$plugin_patch" "$operator_patch"; then
-  fail "CNPG plugin 1.27.$plugin_patch is older than the CNPG operator 1.27.$operator_patch."
+  fail "CNPG plugin 1.28.$plugin_patch is older than the CNPG operator 1.28.$operator_patch."
 fi
 jq -e '
   .spec.replicas as $desired |
@@ -97,7 +97,7 @@ jq -e '
   .status.updatedReplicas == $desired and .status.replicas == $desired and
   .status.availableReplicas == $desired
 ' <<< "$operator" >/dev/null || fail 'The CNPG operator Deployment is not ready.'
-# CNPG 1.27 selects the cache scope from the environment before loading its ConfigMap/Secret.
+# CNPG 1.28 selects the cache scope from the environment before loading its ConfigMap/Secret.
 jq -e '
   .spec.template.spec.containers[] | select(.name == "manager") |
   ((.envFrom // []) | length == 0) and

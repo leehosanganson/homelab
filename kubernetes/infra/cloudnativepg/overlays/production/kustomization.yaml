@@ -1,0 +1,20 @@
+resources:
+  - ../../base
+  - configmap.yaml
+
+images:
+  - name: ghcr.io/cloudnative-pg/cloudnative-pg
+    newTag: 1.28.4
+    digest: sha256:c83a866a7f2c8b2def04bf7a8e6a7f0e9a5c2736a1c710e24e29edf12e03fcd9
+
+transformers:
+  - |
+    apiVersion: builtin
+    kind: AnnotationsTransformer
+    metadata:
+      name: protect-cnpg-from-prune
+    annotations:
+      kustomize.toolkit.fluxcd.io/prune: disabled
+    fieldSpecs:
+      - path: metadata/annotations
+        create: true
