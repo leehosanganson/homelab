@@ -140,6 +140,23 @@ in
       "/usr"
     ];
 
+    # NFD bind-mounts /lib, but NixOS's modules/<kernel> entry is an absolute
+    # symlink into /nix/store. That target is not mounted in the NFD container.
+    # Copy only modules.builtin into a small runtime tree before K3s starts.
+    systemd.services.nfd-kernel-modules = {
+      description = "Expose the running kernel builtin-module list to NFD";
+      wantedBy = [ "k3s.service" ];
+      after = [ "systemd-tmpfiles-setup.service" ];
+      before = [ "k3s.service" ];
+      serviceConfig.Type = "oneshot";
+      script = ''
+        kernel="$(uname -r)"
+        source="/run/booted-system/kernel-modules/lib/modules/$kernel/modules.builtin"
+        target="/run/nfd-kernel-modules/modules/$kernel/modules.builtin"
+        ${pkgs.coreutils}/bin/install -D -m 0444 "$source" "$target"
+      '';
+    };
+
     # Synology CSI (iSCSI) attaches need a host-side iscsid + config. The
     # nixpkgs openiscsi module also pulls "iscsi_tcp" into boot.kernelModules
     # (required at boot since hardening locks runtime module loading).
@@ -169,9 +186,10 @@ in
     # mount.nfs is exposed the same way for kubelet's in-tree NFS mounts.
     systemd.tmpfiles.rules = [
       # NFD bind-mounts /lib to inspect /lib/modules/<kernel>/modules.builtin.
-      # NixOS keeps the running kernel modules under /run/booted-system, so
-      # point /lib at that module tree for hostPath consumers such as NFD.
-      "L+ /lib - - - - /run/booted-system/kernel-modules/lib"
+      # Point /lib at the small runtime copy prepared by nfd-kernel-modules;
+      # the full Nix store module tree contains an absolute symlink unavailable
+      # inside NFD's container.
+      "L+ /lib - - - - /run/nfd-kernel-modules"
       "L+ /usr/sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
       "L+ /sbin/iscsiadm - - - - ${iscsiadmWrapper}/bin/iscsiadm"
       "L+ /sbin/mount.nfs - - - - ${pkgs.nfs-utils}/bin/mount.nfs"
