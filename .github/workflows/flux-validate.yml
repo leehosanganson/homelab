@@ -70,6 +70,8 @@ jobs:
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/apps/overlays/production -o /tmp/bundle/apps-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/overlays/production -o /tmp/bundle/infra-prod.yaml
           kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/monitoring/overlays/production -o /tmp/bundle/mon-prod.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/cilium/overlays/production/release -o /tmp/bundle/cilium-release.yaml
+          kustomize build --load-restrictor LoadRestrictionsRootOnly kubernetes/infra/cilium/overlays/production/node-config -o /tmp/bundle/cilium-node-config.yaml
 
       - name: Validate rendered manifests with kubeconform
         run: |
@@ -82,7 +84,7 @@ jobs:
           # ObjectStore, ClusterIssuer, ClusterSecretStore, GitRepository,
           # HelmRepository, VolumeSnapshotClass, Middleware, Schedule, Backup, etc.)
           # are validated against schemas from datreeio/CRDs-catalog.
-          for f in /tmp/bundle/apps-prod.yaml /tmp/bundle/infra-prod.yaml /tmp/bundle/mon-prod.yaml; do
+          for f in /tmp/bundle/apps-prod.yaml /tmp/bundle/infra-prod.yaml /tmp/bundle/mon-prod.yaml /tmp/bundle/cilium-release.yaml /tmp/bundle/cilium-node-config.yaml; do
             echo "Validating $f ..."
             kubeconform -strict -summary \
               -schema-location default \

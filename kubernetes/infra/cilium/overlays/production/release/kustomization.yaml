@@ -1,0 +1,11 @@
+namespace: kube-system
+
+resources:
+  - release.yaml
+
+configMapGenerator:
+  - name: cilium-values
+    files:
+      - values.yaml
+    options:
+      disableNameSuffixHash: true

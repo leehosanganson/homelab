@@ -19,3 +19,4 @@ resources:
   - garage-ui.yaml
   - prometheus-community.yaml
   - authentik.yaml
+  - cilium.yaml

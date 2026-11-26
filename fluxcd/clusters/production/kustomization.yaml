@@ -1,4 +1,6 @@
 resources:
   - apps.yaml
   - infra.yaml
+  - cilium.yaml
+  - cilium-node-config.yaml
   - monitoring.yaml
