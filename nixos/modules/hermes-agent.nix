@@ -88,7 +88,7 @@ in
 
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
 
-    # GitHub MCP server — token is loaded from the sops-managed hermes-env.
+    # MCP credentials are loaded from the sops-managed hermes-env.
     mcpServers = {
       github = {
         command = "npx";
@@ -96,6 +96,10 @@ in
         env = {
           GITHUB_PERSONAL_ACCESS_TOKEN = "\${GITHUB_PERSONAL_ACCESS_TOKEN}";
         };
+      };
+      n8n = {
+        url = "https://n8n.homelab.leehosanganson.dev/mcp-server/http";
+        headers.Authorization = "Bearer \${N8N_MCP_TOKEN}";
       };
     };
 
