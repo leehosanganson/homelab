@@ -67,6 +67,12 @@ in
       "br_netfilter" # iptables/bridge filter for kube-proxy
       "nf_conntrack" # connection tracking
       "nf_nat" # NAT for kube-proxy
+      # K3s's embedded kube-router network policy controller uses ipsets.
+      # Load these before hardening locks runtime kernel module loading.
+      "ip_set" # ipset netlink protocol
+      "ip_set_hash_ip" # pod IP sets
+      "ip_set_hash_net" # IP block sets
+      "xt_set" # iptables ipset matches
       # netfilter/iptables extension modules the flannel CNI plugins need
       # (portmap/-m comment, MASQUERADE, addrtype, MARK).
       "xt_comment" # CNI portmap plugin -m comment

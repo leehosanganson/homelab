@@ -69,6 +69,12 @@ To pull the latest secrets revision before deploying, pass the optional flag:
 ./nixos/scripts/rebuild.sh --update-secrets <hostname> <target-ip>
 ```
 
+### K3s NetworkPolicy enforcement
+
+K3s embeds kube-router's NetworkPolicy controller. On NixOS K3s nodes in this repository, `security.lockKernelModules` prevents runtime loading, so the shared K3s module must load the required ipset kernel modules at boot. A Ready `NetworkPolicy` object does not prove enforcement: if the K3s log reports that the network-policy controller was skipped because `ipset save` failed, treat all policies on that node as unenforced until the node configuration is corrected and verified.
+
+After any change to these kernel prerequisites, use the staged NixOS host rollout process; do not restart K3s or reboot multiple cluster nodes together. Verify the K3s log reports the network-policy controller started on each node, and test both an allowed source and a denied source against the selected workload before relying on policy isolation. Nodes not managed by this NixOS flake need equivalent prerequisites and separate verification; this procedure does not configure them.
+
 ---
 
 ## Secrets & SOPS
