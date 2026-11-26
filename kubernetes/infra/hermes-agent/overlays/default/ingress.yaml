@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes-agent
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: hermes-agent.homelab.leehosanganson.dev
+      http:
+        paths:
+          - path: /webhooks/
+            pathType: Prefix
+            backend:
+              service:
+                name: hermes-agent
+                port:
+                  number: 8644
+  tls:
+    - hosts:
+        - hermes-agent.homelab.leehosanganson.dev
+      secretName: hermes-agent-tls

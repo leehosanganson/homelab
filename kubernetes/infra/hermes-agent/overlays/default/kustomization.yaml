@@ -1,0 +1,12 @@
+namespace: hermes-agent
+
+resources:
+  - namespace.yaml
+  - service.yaml
+  - endpointslice.yaml
+  - ingress.yaml
+
+labels:
+  - pairs:
+      backups: enabled
+      environment: production
