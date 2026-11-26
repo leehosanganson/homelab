@@ -1,3 +1,5 @@
+namespace: hermes-agent
+
 resources:
   - namespace.yaml
   - service.yaml
