@@ -1,0 +1,37 @@
+# Migration-only Cilium settings. These values leave Flannel as the active CNI
+# until an operator labels a node for the reviewed per-node migration procedure.
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4PodCIDRList:
+      - 10.44.0.0/16
+    clusterPoolIPv4MaskSize: 24
+
+routingMode: tunnel
+tunnelProtocol: geneve
+tunnelPort: 6081
+
+# Match the K3s containerd paths observed on the inspected NixOS nodes.
+cni:
+  binPath: /var/lib/rancher/k3s/data/cni
+  confPath: /var/lib/rancher/k3s/agent/etc/cni/net.d
+  hostConfDirMountPath: /host/var/lib/rancher/k3s/agent/etc/cni/net.d
+  install: true
+  customConf: true
+  exclusive: false
+  uninstall: false
+
+# The operator must not restart Flannel-managed pods during the prepare phase.
+operator:
+  # The operator creates Cilium CRDs, including CiliumNodeConfig.
+  skipCRDCreation: false
+  unmanagedPodWatcher:
+    restart: false
+
+# Cilium policy enforcement remains disabled during the migration phase.
+policyEnforcementMode: never
+bpf:
+  hostLegacyRouting: true
+
+# K3s retains kube-proxy; replacing it is not part of this migration.
+kubeProxyReplacement: false

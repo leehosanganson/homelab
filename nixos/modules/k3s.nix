@@ -197,7 +197,10 @@ in
         ++ (lib.optionals isServer [ 2379 2380 ]) # etcd client/peer (server)
         ++ [ 10250 ] # kubelet port required by the metrics server (all nodes must be reachable)
         ++ [ 9100 ]; # node-exporter: Prometheus host scrape (hostNetwork)
-      allowedUDPPorts = [ 8472 ]; # Flannel VXLAN overlay (the existing cluster's CNI backend; k3s default)
+      allowedUDPPorts = [
+        8472 # Flannel VXLAN overlay (the existing cluster's CNI backend; k3s default)
+        6081 # Cilium Geneve overlay (candidate migration backend)
+      ];
     };
   };
 }

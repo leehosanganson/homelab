@@ -1,0 +1,14 @@
+apiVersion: cilium.io/v2
+kind: CiliumNodeConfig
+metadata:
+  name: k3s-cilium-migration
+  namespace: kube-system
+spec:
+  nodeSelector:
+    matchLabels:
+      io.cilium.migration/k3s-cilium: "true"
+  defaults:
+    write-cni-conf-when-ready: /host/var/lib/rancher/k3s/agent/etc/cni/net.d/05-cilium.conflist
+    custom-cni-conf: "false"
+    cni-chaining-mode: "none"
+    cni-exclusive: "true"
