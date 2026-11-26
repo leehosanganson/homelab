@@ -27,3 +27,4 @@ Then any staged `.dot` file is automatically re-rendered to SVG on commit. Requi
 - [runbooks/iac-nixos-configurations.md](runbooks/iac-nixos-configurations.md) — NixOS configurations, provisioning and rebuilding VMs
 - [runbooks/pve-migration-to-nixos.md](runbooks/pve-migration-to-nixos.md) — Migrating native Ubuntu PVE VMs to the NixOS IaC framework (stateless teardown/rebuild, peer-redundancy uptime; Pi-hole as the worked example)
 - [runbooks/technitium-dns-cluster.md](runbooks/technitium-dns-cluster.md) — Technitium DNS cluster bootstrap, restricted access, client resolver behavior, and recovery
+- [runbooks/traefik-runtime-router-inventory.md](runbooks/traefik-runtime-router-inventory.md) — Temporary loopback-only Traefik router inventory for Mini QR verification; remove after use

@@ -1,6 +1,8 @@
 namespace: kube-system
 
 resources:
+  - runtime-api-inventory-ingressroute.yaml
+  - runtime-api-inventory-middleware.yaml
   - ../../base
   - secrets.yaml
 
