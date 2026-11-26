@@ -36,7 +36,7 @@ kubectl cnpg hibernate off --help
 kubectl -n cnpg-system get deployment cnpg-controller-manager -o yaml
 ```
 
-Confirm both help commands succeed and advertise their respective usage: `kubectl cnpg hibernate on CLUSTER` and `kubectl cnpg hibernate off CLUSTER`. The plugin must report a stable `1.27.N` release (not a prerelease). The operator's `manager` container image must use the `/cloudnative-pg:1.27.N` image/tag form (an optional `@sha256:` digest is allowed). The plugin patch number must be at least the operator patch number.
+Confirm both help commands succeed and advertise their respective usage: `kubectl cnpg hibernate on CLUSTER` and `kubectl cnpg hibernate off CLUSTER`. The plugin must report a stable `1.28.N` release (not a prerelease). The operator's `manager` container image must use the `/cloudnative-pg:1.28.N` image/tag form (an optional `@sha256:` digest is allowed). The plugin patch number must be at least the operator patch number.
 
 In the Deployment YAML, confirm `.status.observedGeneration == .metadata.generation` and `.spec.replicas > 0`. The helper requires `.status.updatedReplicas`, `.status.replicas`, and `.status.availableReplicas` each to equal `.spec.replicas`; also verify `.status.readyReplicas` equals `.spec.replicas`. Confirm the `manager` container has no `envFrom` sources and `WATCH_NAMESPACE` is absent or empty, with no `valueFrom`.
 
@@ -115,7 +115,7 @@ Once K3s is back, Flux reconciles the desired state from Git. Let it run normall
 
 Once the CNPG operator and database storage are ready, recheck the Kubernetes context and compare the full live namespace/name list and count against the approved list and count recorded at shutdown. **STOP** and keep writes paused if you cannot verify the context or inventory, the inventory is empty, any expected cluster is missing, or any listed cluster is not on the recorded list or must stay hibernated. `off` wakes all hibernated clusters, not just those hibernated during shutdown.
 
-Repeat the read-only plugin and operator checks from shutdown. Verify both hibernate help outputs, the stable `1.27.N` plugin release, and the operator's `manager` image/tag as in shutdown. Confirm the plugin patch is at least the operator patch. Verify operator readiness: the observed generation matches, the desired replica count is positive, and the total, updated, available, and ready replica counts all match it. Verify the operator watches all namespaces: the `manager` container has no `envFrom`, and `WATCH_NAMESPACE` is absent or empty with no `valueFrom`.
+Repeat the read-only plugin and operator checks from shutdown. Verify both hibernate help outputs, the stable `1.28.N` plugin release, and the operator's `manager` image/tag as in shutdown. Confirm the plugin patch is at least the operator patch. Verify operator readiness: the observed generation matches, the desired replica count is positive, and the total, updated, available, and ready replica counts all match it. Verify the operator watches all namespaces: the `manager` container has no `envFrom`, and `WATCH_NAMESPACE` is absent or empty with no `valueFrom`.
 
 Verify that the application write pause is still effective before running `off`. **STOP** without running `off` if the pause or any repeated check fails or cannot be verified.
 
