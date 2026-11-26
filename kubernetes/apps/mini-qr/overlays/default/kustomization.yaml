@@ -1,3 +1,18 @@
 namespace: utility
 resources:
   - ../../base
+  - network-policy.yaml
+
+patches:
+  - target:
+      kind: Ingress
+      name: mini-qr
+    patch: |-
+      - op: replace
+        path: /spec/ingressClassName
+        value: mini-qr-disabled
+      - op: remove
+        path: /metadata/annotations/cert-manager.io~1cluster-issuer
+      - op: add
+        path: /metadata/annotations/kustomize.toolkit.fluxcd.io~1prune
+        value: disabled
