@@ -48,6 +48,14 @@ node-feature-discovery:
         operator: Equal
         value: "true"
         effect: NoSchedule
+    config:
+      core:
+        # Some nodes expose incomplete DMI board identity. NFD logs
+        # every missing field as an error, so disable this source. This also
+        # removes NFD's system.os_release labels; Kubernetes OS labels remain.
+        featureSources:
+          - all
+          - -system
 
 toolkit:
   env:
