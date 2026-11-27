@@ -69,4 +69,9 @@
 
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.extraCommands = ''
+    for cidr in 10.42.0.0/16; do
+      iptables -w -A nixos-fw -i eth0 -s "$cidr" -p tcp --dport 8644 -j nixos-fw-accept
+    done
+  '';
 }
