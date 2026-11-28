@@ -5,6 +5,7 @@ metadata:
   labels:
     db: commafeed-db
 spec:
+  enablePDB: false # Temporary for kernel maintenance; restore after rollout.
   instances: 1
   resources:
     requests:
