@@ -67,6 +67,17 @@
     settings.Resolve.DNSSEC = "false";
   };
 
+  networking.interfaces.eth0.ipv4.routes = [
+    { address = "10.42.0.0"; prefixLength = 24; via = "192.168.1.158"; }
+    { address = "10.42.1.0"; prefixLength = 24; via = "192.168.1.159"; }
+    { address = "10.42.2.0"; prefixLength = 24; via = "192.168.1.131"; }
+    { address = "10.42.3.0"; prefixLength = 24; via = "192.168.1.154"; }
+    { address = "10.42.4.0"; prefixLength = 24; via = "192.168.1.152"; }
+    { address = "10.42.5.0"; prefixLength = 24; via = "192.168.1.151"; }
+    { address = "10.42.6.0"; prefixLength = 24; via = "192.168.1.157"; }
+    { address = "10.42.7.0"; prefixLength = 24; via = "192.168.1.156"; }
+  ];
+
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
   networking.firewall.extraCommands = ''
