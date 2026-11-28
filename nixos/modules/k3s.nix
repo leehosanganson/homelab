@@ -67,16 +67,18 @@ in
       "br_netfilter" # iptables/bridge filter for kube-proxy
       "nf_conntrack" # connection tracking
       "nf_nat" # NAT for kube-proxy
-      # K3s's embedded kube-router network policy controller uses ipsets and
-      # iptables extensions for limit, NFLOG, and physdev rules. Load these
-      # before hardening locks runtime kernel module loading.
+      # K3s's embedded kube-router network policy controller uses ipsets,
+      # iptables extensions, and native nftables expressions for limit, NFLOG,
+      # and physdev rules. Load these before hardening locks runtime module loading.
       "ip_set" # ipset netlink protocol
       "ip_set_hash_ip" # pod IP sets
       "ip_set_hash_net" # IP block sets
       "xt_set" # iptables ipset matches
-      "xt_limit" # kube-router network policy rate-limit matches
-      "xt_NFLOG" # kube-router network policy logging matches
+      "xt_limit" # kube-router rate-limit match for the iptables-legacy backend
+      "xt_NFLOG" # kube-router logging target for the iptables-legacy backend
       "xt_physdev" # kube-router bridge/physdev matches
+      "nft_limit" # iptables-nft translates -m limit to the native nft limit expression
+      "nft_log" # iptables-nft translates -j NFLOG to the native nft log expression
       # netfilter/iptables extension modules the flannel CNI plugins need
       # (portmap/-m comment, MASQUERADE, addrtype, MARK).
       "xt_comment" # CNI portmap plugin -m comment
