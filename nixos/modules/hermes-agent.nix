@@ -126,6 +126,15 @@ in
       n8n = {
         url = "https://n8n.homelab.leehosanganson.dev/mcp-server/http";
         headers.Authorization = "Bearer \${N8N_MCP_TOKEN}";
+        # Keep n8n access limited to workflow read/write and archive operations.
+        tools.include = [
+          "search_workflows"
+          "get_workflow_details"
+          "validate_workflow"
+          "create_workflow_from_code"
+          "update_workflow"
+          "archive_workflow"
+        ];
       };
     };
 
